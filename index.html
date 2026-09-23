@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- The backend's own port, for js/dev-config.js when the page is served from a different
+     local static server than the API (e.g. a separate dev server on :5500). Not used at all
+     in the recommended same-origin setup (backend serving the site on one port). -->
+<meta name="iccs-api-port" content="8080">
+<!-- Applies the stored/preferred theme before first paint (avoids a flash of the wrong theme).
+     External + synchronous + before the stylesheet: must run before CSS applies, and must be
+     an external file (not inline) to satisfy the backend's script-src 'self' CSP. -->
+<script src="js/theme-init.js?v=4"></script>
+<title>ICCS-CIRCLE 2027 | International Conference on Convergence Science</title>
+<meta name="description" content="ICCS-CIRCLE 2027, International Conference on Convergence Science, 21–22 January 2027, India.">
+
+<!-- Social preview metadata. TODO: replace YOUR_DOMAIN below with the real deployed domain before launch. -->
+<link rel="canonical" href="https://YOUR_DOMAIN/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="ICCS-CIRCLE 2027 | International Conference on Convergence Science">
+<meta property="og:description" content="21–22 January 2027, India. Integrating Functional Materials, Biological Interfaces, and Intelligent Modeling for Circular and Sustainable Development.">
+<meta property="og:url" content="https://YOUR_DOMAIN/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ICCS-CIRCLE 2027 | International Conference on Convergence Science">
+<meta name="twitter:description" content="21–22 January 2027, India. International Conference on Convergence Science.">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23000'/%3E%3Ctext x='32' y='42' font-family='Arial,sans-serif' font-size='24' font-weight='700' fill='%23c6922d' text-anchor='middle'%3EIC%3C/text%3E%3C/svg%3E">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Event",
+  "name": "ICCS-CIRCLE 2027 — International Conference on Convergence Science",
+  "startDate": "2027-01-21",
+  "endDate": "2027-01-22",
+  "eventStatus": "https://schema.org/EventScheduled",
+  "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+  "description": "Integrating Functional Materials, Biological Interfaces, and Intelligent Modeling for Circular and Sustainable Development.",
+  "location": {
+    "@type": "Place",
+    "name": "[Institute/University Name]",
+    "address": "[City, State, PIN], India"
+  }
+}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css?v=4">
+</head>
+<body>
+
+<a class="skip-link" href="#home">Skip to main content</a>
+
+<noscript>
+  <div class="noscript-banner">JavaScript is disabled — the schedule tabs, forms and dark mode need it, but the rest of this page is fully readable.</div>
+</noscript>
+
+<header id="siteHeader">
+  <div class="container nav">
+    <a class="logo" href="#home">ICCS-<span>CIRCLE</span> 2027</a>
+    <nav id="primaryNav">
+      <a href="#about">About</a>
+      <a href="#speakers">Speakers</a>
+      <a href="#schedule">Schedule</a>
+      <a href="#registration">Registration</a>
+      <a href="#abstracts">Call for Abstracts</a>
+      <a href="#venue">Venue</a>
+    </nav>
+    <div class="nav-controls">
+      <button class="theme-toggle" id="themeToggle" type="button">Dark</button>
+      <button class="menu" id="menuToggle" aria-label="Open menu" aria-expanded="false" aria-controls="primaryNav" type="button">☰</button>
+    </div>
+  </div>
+</header>
+
+<main id="home" tabindex="-1">
+
+<!-- ============ HERO ============ -->
+<!-- Photo: venue auditorium, supplied by the organizer (assets/images/venue-auditorium.jpg). -->
+<section class="hero">
+  <div class="hero-bg" style="background-image:url('assets/images/venue-auditorium.jpg')"></div>
+  <div class="container hero-inner">
+    <div class="hero-eyebrow">21–22 January 2027 · India</div>
+    <h1>International Conference on<br>Convergence Science</h1>
+    <h2>Integrating Functional Materials, Biological Interfaces, and Intelligent Modeling for Circular and Sustainable Development.</h2>
+    <div id="countdown" class="countdown" role="status" aria-label="Countdown to the conference"></div>
+    <div class="buttons">
+      <a class="btn btn-primary" href="#registration">Register Now</a>
+      <a class="btn btn-outline" href="#abstracts">Submit Abstract</a>
+    </div>
+  </div>
+  <div class="image-credit">Conference venue — auditorium</div>
+</section>
+
+<!-- ============ ABOUT ============ -->
+<section id="about">
+  <div class="container editorial-split">
+    <div class="col-heading reveal">
+      <span class="section-label">About</span>
+      <h2>About the<br>Conference</h2>
+    </div>
+    <div class="col-body reveal">
+      <p>ICCS-CIRCLE 2027 is an interdisciplinary scientific forum designed to connect disciplines, methods and ideas around major challenges in circular and sustainable development.</p>
+      <p><b>Our Vision.</b> To foster scientific convergence across physical, chemical, biological, mathematical and computational sciences and create new pathways toward sustainable development.</p>
+      <p><b>Our Mission.</b> To provide a platform for researchers, young scientists, students and industry experts to exchange knowledge, present discoveries and build meaningful collaborations.</p>
+      <p><b>Why Convergence?</b> Complex scientific and sustainability challenges increasingly require combined experimental, theoretical, mathematical and computational approaches rather than isolated disciplinary solutions.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HIGHLIGHTS / SCIENTIFIC THEMES ============ -->
+<section id="themes" class="alt">
+  <div class="container">
+    <div class="section-title reveal">
+      <span class="section-label">Conference Highlights</span>
+      <h2>Scientific Themes</h2>
+      <p>Five interconnected tracks define the scientific scope of the conference.</p>
+    </div>
+    <div class="highlight-list">
+      <div class="highlight-row reveal">
+        <span class="highlight-num">01</span>
+        <span class="highlight-title">Functional Materials, Nanoscience &amp; Fundamental Physics</span>
+        <span class="highlight-desc">Nanomaterials, advanced functional materials, high-energy and hadron physics, astrophysics and cosmology.</span>
+      </div>
+      <div class="highlight-row reveal">
+        <span class="highlight-num">02</span>
+        <span class="highlight-title">Sustainable Chemistry &amp; Molecular Design</span>
+        <span class="highlight-desc">Synthetic, supramolecular and materials chemistry, green chemistry, catalysis and molecular design.</span>
+      </div>
+      <div class="highlight-row reveal">
+        <span class="highlight-num">03</span>
+        <span class="highlight-title">Biological Interfaces, Biotechnology &amp; Bioeconomy</span>
+        <span class="highlight-desc">Microbial and environmental biotechnology, plant biotechnology, disease biology, biomaterials and circular bioeconomy.</span>
+      </div>
+      <div class="highlight-row reveal">
+        <span class="highlight-num">04</span>
+        <span class="highlight-title">Mathematical Sciences &amp; Intelligent Modeling</span>
+        <span class="highlight-desc">Fractional calculus, fractional-order systems, mathematical modeling, tribology, special functions and computational modeling.</span>
+      </div>
+      <div class="highlight-row reveal">
+        <span class="highlight-num">05</span>
+        <span class="highlight-title">Convergence Science &amp; Emerging Computational Frontiers</span>
+        <span class="highlight-desc">AI in science, data-driven discovery, quantum and advanced computing, interdisciplinary modeling and sustainable systems.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SPEAKERS ============ -->
+<!-- No speaker photographs exist yet; using the same initials-avatar treatment as before rather
+     than attaching stock photos of unrelated people to real names. -->
+<section id="speakers">
+  <div class="container">
+    <div class="section-title centered reveal">
+      <span class="section-label">Speakers</span>
+      <h2>Distinguished Speakers</h2>
+      <p>Confirmed speakers will be added following formal acceptance. Filter by session type below.</p>
+    </div>
+    <div class="filter-bar" role="group" aria-label="Filter speakers by session type">
+      <button class="filter-btn active" data-filter="all" type="button" aria-pressed="true">All</button>
+      <button class="filter-btn" data-filter="chief" type="button" aria-pressed="false">Chief Guest</button>
+      <button class="filter-btn" data-filter="keynote" type="button" aria-pressed="false">Keynote</button>
+      <button class="filter-btn" data-filter="plenary" type="button" aria-pressed="false">Plenary</button>
+    </div>
+    <div class="speaker-grid" id="speakerCards">
+      <div class="speaker-card reveal" data-track="chief">
+        <div class="speaker-photo"><div class="avatar">TP</div><div class="hover-reveal">Chief Guest Address</div></div>
+        <div class="speaker-meta"><span class="speaker-status">Chief Guest · Subject to confirmation</span><h3>Prof. Thalappil Pradeep</h3><p>DST Unit of Nanoscience (DST UNS) and Thematic Unit of Excellence, Department of Chemistry, Indian Institute of Technology Madras, Chennai, India.</p></div>
+      </div>
+      <div class="speaker-card reveal" data-track="keynote">
+        <div class="speaker-photo"><div class="avatar">KN</div><div class="hover-reveal">Convergence Science for Circular and Sustainable Development</div></div>
+        <div class="speaker-meta"><span class="speaker-status">Keynote Lecture 1</span><h3>Speaker to be confirmed</h3><p class="speaker-topic">Convergence Science for Circular and Sustainable Development</p></div>
+      </div>
+      <div class="speaker-card reveal" data-track="plenary">
+        <div class="speaker-photo"><div class="avatar">P1</div><div class="hover-reveal">AI-Driven Intelligent Modeling in Science</div></div>
+        <div class="speaker-meta"><span class="speaker-status">Plenary Speaker 1</span><h3>Speaker to be confirmed</h3><p class="speaker-topic">AI-Driven Intelligent Modeling in Science</p></div>
+      </div>
+      <div class="speaker-card reveal" data-track="plenary">
+        <div class="speaker-photo"><div class="avatar">P2</div><div class="hover-reveal">Sustainable Systems and Circular Bioeconomy</div></div>
+        <div class="speaker-meta"><span class="speaker-status">Plenary Speaker 2</span><h3>Speaker to be confirmed</h3><p class="speaker-topic">Sustainable Systems and Circular Bioeconomy</p></div>
+      </div>
+      <div class="speaker-card reveal" data-track="plenary">
+        <div class="speaker-photo"><div class="avatar">P3</div><div class="hover-reveal">Convergence Science and Emerging Frontiers</div></div>
+        <div class="speaker-meta"><span class="speaker-status">Plenary Speaker 3</span><h3>Speaker to be confirmed</h3><p class="speaker-topic">Convergence Science and Emerging Frontiers</p></div>
+      </div>
+      <div class="speaker-card reveal" data-track="plenary">
+        <div class="speaker-photo"><div class="avatar">P4</div><div class="hover-reveal">Industry Perspectives and Translational Science</div></div>
+        <div class="speaker-meta"><span class="speaker-status">Plenary Speaker 4 · Industry &amp; Innovation</span><h3>Speaker to be confirmed</h3><p class="speaker-topic">Industry Perspectives and Translational Science</p></div>
+      </div>
+    </div>
+    <p class="empty-state-inline" id="speakerEmptyState" hidden>No speakers in this category yet.</p>
+    <p style="text-align:center;margin-top:var(--s-6);color:var(--ink-500)">Invited speakers will represent Functional Materials &amp; Nanoscience, Biological Interfaces &amp; Biotechnology, Data Science &amp; Sustainability, Green Chemistry, Biointerfaces &amp; Biomaterials, and Quantum &amp; Advanced Computing.</p>
+  </div>
+</section>
+
+<!-- ============ SCHEDULE ============ -->
+<section id="schedule" class="alt">
+  <div class="container" id="programme">
+    <div class="section-title reveal">
+      <span class="section-label">Schedule</span>
+      <h2>Conference Programme</h2>
+      <p>21–22 January 2027 · Switch tabs to view each day's schedule.</p>
+    </div>
+    <div class="tabs" role="tablist" aria-label="Conference programme day">
+      <button class="tab-btn active" id="tab-day1" data-tab="day1" role="tab" aria-selected="true" aria-controls="day1" type="button">Day 1 — 21 January</button>
+      <button class="tab-btn" id="tab-day2" data-tab="day2" role="tab" aria-selected="false" aria-controls="day2" tabindex="-1" type="button">Day 2 — 22 January</button>
+    </div>
+
+    <div id="day1" class="tab-panel active" role="tabpanel" aria-labelledby="tab-day1" tabindex="0">
+      <div class="schedule-list">
+        <div class="schedule-row"><div class="schedule-time">09:00–10:00</div><div class="schedule-body"><span class="schedule-session">Registration</span><span class="schedule-detail">Registration and Welcome Tea — All Halls</span></div></div>
+        <div class="schedule-row"><div class="schedule-time">10:00–11:00</div><div class="schedule-body"><span class="schedule-session">Inaugural Session</span><span class="schedule-detail">Opening Ceremony and Chief Guest Address — All Halls</span></div></div>
+        <div class="schedule-row"><div class="schedule-time">11:00–11:45</div><div class="schedule-body"><span class="schedule-session">Keynote Lecture 1</span><span class="schedule-detail">Convergence Science for Circular and Sustainable Development — All Halls</span></div></div>
+        <div class="schedule-row"><div class="schedule-time">11:45–12:00</div><div class="schedule-body"><span class="schedule-session">Tea Break</span><span class="schedule-detail">All Halls</span></div></div>
+        <div class="schedule-row"><div class="schedule-time">12:00–13:00</div><div class="schedule-body"><span class="schedule-session">Plenary Speaker 1</span><span class="schedule-detail">AI-Driven Intelligent Modeling in Science — All Halls</span></div></div>
+        <div class="schedule-row"><div class="schedule-time">13:00–14:00</div><div class="schedule-body"><span class="schedule-session">Lunch</span><span class="schedule-detail">All Halls</span></div></div>
+        <div class="schedule-row"><div class="schedule-time">14:00–15:00</div><div class="schedule-body"><span class="schedule-session">Technical Session I</span><span class="schedule-detail">Hall A: Invited Speaker 1 — Functional Materials &amp; Nanoscience<span class="sep">·</span>Hall B: Invited Speaker 2 — Biological Interfaces &amp; Biotechnology<span class="sep">·</span>Hall C: Invited Speaker 3 — Data Science &amp; Sustainability</span></div></div>
+        <div class="schedule-row"><div class="schedule-time">15:00–16:00</div><div class="schedule-body"><span class="schedule-session">Technical Session II</span><span class="schedule-detail">Hall A: Invited Speaker 4 — Green Chemistry &amp; Sustainable Processes<span class="sep">·</span>Hall B: Invited Speaker 5 — Biointerfaces &amp; Biomaterials<span class="sep">·</span>Hall C: Invited Speaker 6 — Quantum &amp; Advanced Computing</span></div></div>
+        <div class="schedule-row"><div class="schedule-time">16:00–16:30</div><div class="schedule-body"><span class="schedule-session">Tea Break</span><span class="schedule-detail">All Halls</span></div></div>
+        <div class="schedule-row"><div class="schedule-time">16:30–18:30</div><div class="schedule-body"><span class="schedule-session">Poster Session</span><span class="schedule-detail">Poster Presentations — All Tracks</span></div></div>
+        <div class="schedule-row"><div class="schedule-time">18:30–19:30</div><div class="schedule-body"><span class="schedule-session">Panel Discussion</span><span class="schedule-detail">Convergence Science for Circular and Sustainable Development — All Halls</span></div></div>
+      </div>
+    </div>
+
+    <div id="day2" class="tab-panel" role="tabpanel" aria-labelledby="tab-day2" tabindex="0" hidden>
+      <div class="schedule-list">
+        <div class="schedule-row"><div class="schedule-time">09:30–10:15</div><div class="schedule-body"><span class="schedule-session">Plenary Speaker 2</span><span class="schedule-detail">Sustainable Systems and Circular Bioeconomy — All Halls</span></div></div>
+        <div class="schedule-row"><div class="schedule-time">10:15–11:30</div><div class="schedule-body"><span class="schedule-session">Plenary Speaker 3</span><span class="schedule-detail">Convergence Science and Emerging Frontiers — All Halls</span></div></div>
+        <div class="schedule-row"><div class="schedule-time">11:30–11:45</div><div class="schedule-body"><span class="schedule-session">Tea Break</span><span class="schedule-detail">All Halls</span></div></div>
+        <div class="schedule-row"><div class="schedule-time">11:45–13:15</div><div class="schedule-body"><span class="schedule-session">Technical Session IV — Oral Session from Participants</span><span class="schedule-detail">Oral Presentations from Participants — All Halls</span></div></div>
+        <div class="schedule-row"><div class="schedule-time">13:15–14:15</div><div class="schedule-body"><span class="schedule-session">Lunch</span><span class="schedule-detail">All Halls</span></div></div>
+        <div class="schedule-row"><div class="schedule-time">14:15–15:00</div><div class="schedule-body"><span class="schedule-session">Plenary Speaker 4 — Industry and Innovation</span><span class="schedule-detail">Industry Perspectives and Translational Science — All Halls</span></div></div>
+        <div class="schedule-row"><div class="schedule-time">15:00–15:30</div><div class="schedule-body"><span class="schedule-session">Tea Break</span><span class="schedule-detail">All Halls</span></div></div>
+        <div class="schedule-row"><div class="schedule-time">15:30–16:30</div><div class="schedule-body"><span class="schedule-session">Valedictory Session</span><span class="schedule-detail">Awards, Summary and Closing Ceremony — All Halls</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ REGISTRATION (required before abstract submission) ============ -->
+<section id="registration" class="alt">
+  <div class="container">
+    <div class="section-title reveal">
+      <span class="section-label">Step 1 — Registration</span>
+      <h2>Conference Registration</h2>
+      <p>Registration is required before submitting an abstract. Registration categories and fees will be announced by the Organizing Committee — no payment is collected at this step.</p>
+    </div>
+    <div class="table-wrap"><table>
+      <caption class="visually-hidden">Registration fee categories</caption>
+      <thead><tr><th scope="col">Category</th><th scope="col">Early Registration</th><th scope="col">Regular Registration</th></tr></thead>
+      <tbody>
+      <tr><td>Faculty / Scientist</td><td>₹ [ ]</td><td>₹ [ ]</td></tr>
+      <tr><td>Research Scholar</td><td>₹ [ ]</td><td>₹ [ ]</td></tr>
+      <tr><td>Student</td><td>₹ [ ]</td><td>₹ [ ]</td></tr>
+      <tr><td>Industry Participant</td><td>₹ [ ]</td><td>₹ [ ]</td></tr>
+      <tr><td>International Participant</td><td>USD [ ]</td><td>USD [ ]</td></tr>
+      </tbody>
+    </table></div>
+    <p style="margin:var(--s-5) 0"><b>Note:</b> At least one author must register for an accepted contribution to be included in the conference programme.</p>
+
+    <div class="card reveal" style="margin-top:var(--s-6)" id="registrationForm-wrap">
+      <h3>Register for the Conference</h3>
+      <p style="color:var(--ink-500);margin-top:-6px;margin-bottom:var(--s-5)">Fees are yet to be announced — no payment is collected here. You'll receive a Registration ID by email, which you'll need to submit an abstract.</p>
+      <form id="registrationForm" novalidate>
+        <div class="form-row">
+          <div class="field">
+            <label for="regName">Full Name</label>
+            <input type="text" id="regName" name="regName" placeholder="Your full name" autocomplete="name" aria-describedby="regName-error">
+            <div class="error-msg" id="regName-error" role="alert"></div>
+          </div>
+          <div class="field">
+            <label for="regEmail">Email</label>
+            <input type="email" id="regEmail" name="regEmail" placeholder="name@example.com" autocomplete="email" aria-describedby="regEmail-error">
+            <div class="error-msg" id="regEmail-error" role="alert"></div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label for="regPhone">Phone Number</label>
+            <input type="tel" id="regPhone" name="regPhone" placeholder="+91 98765 43210" autocomplete="tel" aria-describedby="regPhone-error">
+            <div class="error-msg" id="regPhone-error" role="alert"></div>
+          </div>
+          <div class="field">
+            <label for="regCategory">Registration Category</label>
+            <select id="regCategory" name="regCategory" aria-describedby="regCategory-error">
+              <option value="">Select a category</option>
+              <option value="Faculty / Scientist">Faculty / Scientist</option>
+              <option value="Research Scholar">Research Scholar</option>
+              <option value="Student">Student</option>
+              <option value="Industry Participant">Industry Participant</option>
+              <option value="International Participant">International Participant</option>
+            </select>
+            <div class="error-msg" id="regCategory-error" role="alert"></div>
+          </div>
+        </div>
+        <div class="field">
+          <label for="regAffiliation">Affiliation</label>
+          <input type="text" id="regAffiliation" name="regAffiliation" placeholder="Institute / University / Organization" autocomplete="organization" aria-describedby="regAffiliation-error">
+          <div class="error-msg" id="regAffiliation-error" role="alert"></div>
+        </div>
+        <button type="submit" class="btn btn-solid" id="regSubmitBtn" style="justify-self:start">Register</button>
+        <div class="success-box" id="regSuccess" role="status"></div>
+        <div class="error-box" id="regError" role="alert"></div>
+        <div class="info-box" id="regInfo" role="status"></div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CALL FOR PAPERS (photographic banner) + the real submission form ============ -->
+<section class="photo-banner">
+  <div class="hero-bg" style="background-image:url('assets/images/venue-auditorium.jpg')"></div>
+  <div class="container photo-banner-inner reveal">
+    <span class="section-label">Step 2 — Call for Papers</span>
+    <h2>Submit Your Research Work</h2>
+    <p>Researchers, faculty, scientists, research scholars and students are invited to contribute original work across all five conference themes. Registration (above) is required first.</p>
+    <a class="btn btn-primary" href="#abstracts">Submit Abstract</a>
+  </div>
+</section>
+
+<section id="abstracts">
+  <div class="container">
+    <div class="section-title reveal">
+      <span class="section-label">Step 2 — Abstract Submission</span>
+      <h2>Call for Abstracts</h2>
+      <p>Presentation categories: Oral, Poster and Invited. Recommended length 250–300 words. Anyone may read the guidelines below — submitting requires a completed conference registration.</p>
+    </div>
+
+    <div class="card reveal" id="abstractGate">
+      <h3>Registration Required</h3>
+      <p>You must register for the conference before submitting an abstract. Please complete your conference registration first.</p>
+      <a class="btn btn-solid" href="#registration">Register Now</a>
+
+      <div class="gate-divider">
+        <h3 style="font-size:1rem">Already Registered?</h3>
+        <p style="color:var(--ink-500);margin-top:-6px;margin-bottom:var(--s-5)">If you registered on this or another device, enter your Registration ID and the email you registered with to continue.</p>
+        <form id="verifyForm" novalidate>
+          <div class="form-row">
+            <div class="field">
+              <label for="verifyRegistrationId">Registration ID</label>
+              <input type="text" id="verifyRegistrationId" name="verifyRegistrationId" placeholder="REG-XXXXXXXX" aria-describedby="verifyRegistrationId-error">
+              <div class="error-msg" id="verifyRegistrationId-error" role="alert"></div>
+            </div>
+            <div class="field">
+              <label for="verifyEmail">Email</label>
+              <input type="email" id="verifyEmail" name="verifyEmail" placeholder="name@example.com" autocomplete="email" aria-describedby="verifyEmail-error">
+              <div class="error-msg" id="verifyEmail-error" role="alert"></div>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-outline" id="verifySubmitBtn" style="justify-self:start">Continue</button>
+          <div class="error-box" id="verifyError" role="alert"></div>
+        </form>
+      </div>
+    </div>
+
+    <div class="card reveal" id="abstractForm-wrap" hidden>
+      <h3>Abstract Submission Form</h3>
+      <div class="reg-badge-row">
+        <p class="reg-badge" id="abstractRegBadge" style="margin:0"></p>
+        <button type="button" class="link-btn" id="switchRegistrationBtn">Not you? Switch registration</button>
+      </div>
+      <form id="abstractForm" novalidate>
+        <input type="hidden" id="absRegistrationId" name="absRegistrationId">
+        <div class="field">
+          <label for="absTitle">Title of Abstract</label>
+          <input type="text" id="absTitle" name="absTitle" placeholder="Enter the title of your work" aria-describedby="absTitle-error">
+          <div class="error-msg" id="absTitle-error" role="alert"></div>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label for="absAuthor">Author(s)</label>
+            <input type="text" id="absAuthor" name="absAuthor" placeholder="e.g. Jane Doe, John Smith" aria-describedby="absAuthor-error">
+            <div class="error-msg" id="absAuthor-error" role="alert"></div>
+          </div>
+          <div class="field">
+            <label for="absEmail">Corresponding Author Email</label>
+            <input type="email" id="absEmail" name="absEmail" placeholder="name@example.com" autocomplete="email" readonly aria-describedby="absEmail-error">
+            <div class="error-msg" id="absEmail-error" role="alert"></div>
+          </div>
+        </div>
+        <div class="field">
+          <label for="absCategory">Presentation Category</label>
+          <select id="absCategory" name="absCategory" aria-describedby="absCategory-error">
+            <option value="">Select a category</option>
+            <option value="Oral Presentation">Oral Presentation</option>
+            <option value="Poster Presentation">Poster Presentation</option>
+            <option value="Invited Presentation">Invited Presentation</option>
+          </select>
+          <div class="error-msg" id="absCategory-error" role="alert"></div>
+        </div>
+        <div class="field">
+          <label for="absText">Abstract Text <span id="wordCounter" style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--ink-500)">0 / 350 words</span></label>
+          <textarea id="absText" name="absText" rows="6" placeholder="Paste your abstract (50–350 words)" aria-describedby="absText-error"></textarea>
+          <div class="error-msg" id="absText-error" role="alert"></div>
+        </div>
+        <button type="submit" class="btn btn-solid" id="abstractSubmitBtn" style="justify-self:start">Submit Abstract</button>
+        <div class="success-box" id="abstractSuccess" role="status"></div>
+        <div class="error-box" id="abstractError" role="alert"></div>
+        <div class="info-box" id="abstractInfo" role="status"></div>
+      </form>
+    </div>
+
+    <div class="card reveal" id="abstractAlreadySubmitted" hidden>
+      <h3>Abstract Already Submitted</h3>
+      <p id="abstractAlreadySubmittedText">You have already submitted an abstract for this registration. Only one abstract is accepted per registration.</p>
+      <button type="button" class="link-btn" id="switchRegistrationBtnLocked">Not you? Switch registration</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ IMPORTANT DATES ============ -->
+<section id="dates">
+  <div class="container">
+    <div class="section-title reveal">
+      <span class="section-label">Timeline</span>
+      <h2>Important Dates</h2>
+      <p>Dates marked below can be updated as the conference planning progresses.</p>
+    </div>
+    <div class="timeline">
+      <div class="datebox reveal"><strong>Abstract Submission Opens</strong><span>[Date]</span></div>
+      <div class="datebox reveal"><strong>Abstract Deadline</strong><span>[Date]</span></div>
+      <div class="datebox reveal"><strong>Acceptance Notification</strong><span>[Date]</span></div>
+      <div class="datebox reveal is-active"><strong>Conference</strong><span>21–22 January 2027</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ORGANIZING COMMITTEE ============ -->
+<section id="committee" class="alt">
+  <div class="container">
+    <div class="section-title reveal">
+      <span class="section-label">Committee</span>
+      <h2>Organizing Committee</h2>
+      <p>The complete committee will be announced shortly.</p>
+    </div>
+    <div class="cards">
+      <div class="card reveal"><h3>Chief Patron</h3><p>[Name]<br>[Designation]<br>[Institution]</p></div>
+      <div class="card reveal"><h3>Patron</h3><p>[Name]<br>[Designation]</p></div>
+      <div class="card reveal"><h3>Conference Chair</h3><p>Prof. [Name]<br>[Designation]</p></div>
+      <div class="card reveal"><h3>Organizing Secretary</h3><p>Prof. [Name]<br>[Department/Faculty]</p></div>
+      <div class="card reveal"><h3>Scientific Committee</h3><p>Experts representing Physics, Chemistry, Biology, Mathematics, Materials Science, Nanoscience, Computational Science and Industry.</p></div>
+      <div class="card reveal"><h3>International Advisory Panel</h3><p>Distinguished national and international scientists will be added following confirmation.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ VENUE ============ -->
+<section id="venue">
+  <div class="container venue-split">
+    <div class="venue-photo reveal" style="background-image:url('assets/images/venue-auditorium.jpg')" role="img" aria-label="Conference venue auditorium"></div>
+    <div class="venue-details reveal">
+      <span class="section-label">Venue</span>
+      <h2 style="margin-bottom:var(--s-5)">[Institute/University Name]</h2>
+      <p>[City, State, PIN], India</p>
+      <p>Information on airport, railway station, accommodation and local transportation will be provided before registration opens.</p>
+      <a class="btn-link" href="#contact">Contact Details →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PARTNERS (no confirmed partners yet — clearly marked placeholders) ============ -->
+<section id="partners" class="alt">
+  <div class="container">
+    <div class="section-title centered reveal">
+      <span class="section-label">Partners</span>
+      <h2>Partners &amp; Collaborators</h2>
+      <p>Institutional partners and collaborators will be announced as confirmed.</p>
+    </div>
+    <div class="partners-grid reveal">
+      <div class="partner-tile">Partner Logo</div>
+      <div class="partner-tile">Partner Logo</div>
+      <div class="partner-tile">Partner Logo</div>
+      <div class="partner-tile">Partner Logo</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section id="faq">
+  <div class="container">
+    <div class="section-title reveal">
+      <span class="section-label">FAQ</span>
+      <h2>Frequently Asked Questions</h2>
+      <p>Quick answers to common queries. Select a question to expand it.</p>
+    </div>
+    <div class="faq-item">
+      <h3><button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-a-1">Who can submit an abstract?</button></h3>
+      <div class="faq-a" id="faq-a-1"><div><p>Researchers, faculty, scientists, research scholars and students working in any of the five scientific themes are welcome to submit original work.</p></div></div>
+    </div>
+    <div class="faq-item">
+      <h3><button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-a-2">What is the recommended abstract length?</button></h3>
+      <div class="faq-a" id="faq-a-2"><div><p>250–300 words is recommended; the submission form accepts abstracts between 50 and 350 words.</p></div></div>
+    </div>
+    <div class="faq-item">
+      <h3><button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-a-3">Do I need to register to present my accepted abstract?</button></h3>
+      <div class="faq-a" id="faq-a-3"><div><p>Yes. At least one author must register for an accepted contribution to be included in the conference programme.</p></div></div>
+    </div>
+    <div class="faq-item">
+      <h3><button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-a-4">Will the registration fees be announced later?</button></h3>
+      <div class="faq-a" id="faq-a-4"><div><p>Yes, exact fees for each category are being finalized by the Organizing Committee and will be published on this page.</p></div></div>
+    </div>
+    <div class="faq-item">
+      <h3><button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-a-5">Is virtual/online participation available?</button></h3>
+      <div class="faq-a" id="faq-a-5"><div><p>Details on virtual participation, if offered, will be announced closer to the conference dates alongside venue and travel information.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CONTACT ============ -->
+<section id="contact" class="alt">
+  <div class="container">
+    <div class="section-title reveal">
+      <span class="section-label">Contact</span>
+      <h2>Contact Secretariat</h2>
+      <p>Official conference information will be updated here.</p>
+    </div>
+    <div class="cards">
+      <div class="card reveal"><h3>Conference Secretariat</h3><p><b>ICCS-CIRCLE 2027</b><br>[Department/Faculty]<br>[Institute/University Name]<br>[Full Address], India</p><p><b>Email:</b> [Official Conference Email] <button class="copy-btn" data-copy="[Official Conference Email]" type="button">Copy</button><br><b>Phone:</b> [Contact Number]</p></div>
+      <div class="card reveal"><h3>General Enquiries</h3><p>Use the form below to send a message directly to the Organizing Committee.</p></div>
+    </div>
+
+    <div class="card reveal" style="margin-top:var(--s-6)">
+      <h3>Send a Message</h3>
+      <form id="contactForm" novalidate>
+        <div class="form-row">
+          <div class="field">
+            <label for="contactName">Your Name</label>
+            <input type="text" id="contactName" name="contactName" placeholder="Your full name" autocomplete="name" aria-describedby="contactName-error">
+            <div class="error-msg" id="contactName-error" role="alert"></div>
+          </div>
+          <div class="field">
+            <label for="contactEmail">Email</label>
+            <input type="email" id="contactEmail" name="contactEmail" placeholder="name@example.com" autocomplete="email" aria-describedby="contactEmail-error">
+            <div class="error-msg" id="contactEmail-error" role="alert"></div>
+          </div>
+        </div>
+        <div class="field">
+          <label for="contactSubject">Subject</label>
+          <input type="text" id="contactSubject" name="contactSubject" placeholder="What is this about?" aria-describedby="contactSubject-error">
+          <div class="error-msg" id="contactSubject-error" role="alert"></div>
+        </div>
+        <div class="field">
+          <label for="contactMessage">Message</label>
+          <textarea id="contactMessage" name="contactMessage" rows="5" placeholder="Your message" aria-describedby="contactMessage-error"></textarea>
+          <div class="error-msg" id="contactMessage-error" role="alert"></div>
+        </div>
+        <button type="submit" class="btn btn-solid" id="contactSubmitBtn" style="justify-self:start">Send Message</button>
+        <div class="success-box" id="contactSuccess" role="status"></div>
+        <div class="error-box" id="contactError" role="alert"></div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FINAL CTA ============ -->
+<section class="photo-banner">
+  <div class="hero-bg" style="background-image:url('assets/images/venue-auditorium.jpg')"></div>
+  <div class="container photo-banner-inner reveal">
+    <span class="section-label">Join Us</span>
+    <h2>Join Us at ICCS-CIRCLE 2027</h2>
+    <p>21–22 January 2027 · India — Be part of a convergent platform connecting fundamental science, emerging computation and sustainability.</p>
+    <a class="btn btn-primary" href="#registration">Register Now</a>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">ICCS-<span>CIRCLE</span> 2027</div>
+        <p class="small">International Conference on Convergence Science · 21–22 January 2027 · India</p>
+      </div>
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <ul class="footer-links">
+          <li><a href="#about">About</a></li>
+          <li><a href="#speakers">Speakers</a></li>
+          <li><a href="#schedule">Schedule</a></li>
+          <li><a href="#venue">Venue</a></li>
+          <li><a href="#faq">FAQ</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <ul class="footer-links">
+          <li>[Official Conference Email]</li>
+          <li>[Contact Number]</li>
+          <li>[Institute/University Name], [City, State, PIN], India</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span class="small">Organized by [Institute/University Name]</span>
+      <span class="small">© 2027 ICCS-CIRCLE. All rights reserved.</span>
+    </div>
+  </div>
+</footer>
+
+<button class="back-to-top" id="backToTop" aria-label="Back to top" type="button">↑</button>
+
+<script src="js/dev-config.js?v=4"></script>
+<script src="js/api.js?v=4"></script>
+<script src="js/script.js?v=4"></script>
+</body>
+</html>

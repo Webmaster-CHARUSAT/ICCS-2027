@@ -1,0 +1,24 @@
+{
+  "name": "iccs-circle-backend",
+  "version": "1.0.0",
+  "description": "Node.js/Express backend for the ICCS-CIRCLE 2027 conference management system, backed by Google Sheets.",
+  "main": "server.js",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.2.0",
+    "helmet": "^7.1.0",
+    "nodemailer": "^10.0.10",
+    "zod": "^3.23.8"
+  }
+}
