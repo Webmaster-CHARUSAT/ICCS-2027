@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # ICCS-CIRCLE 2027 Conference Website
 
 A static public conference website (HTML/CSS/vanilla JS) for **ICCS-CIRCLE 2027** — the *International Conference on Convergence Science* (21–22 January 2027, India) — backed by a small Node.js/Express API that stores Registrations and Abstracts (and Contact Messages) in a Google Sheet and emails a confirmation copy after each step.
@@ -197,3 +198,7 @@ Two shapes are possible, chosen by where `FRONTEND_URL`/`ADMIN_URL`/CORS point:
 ## Not implemented by design
 
 No payment gateway integration; no login, accounts, or admin dashboard.
+=======
+# ICCS-2027
+ICCS -2027 PDPIAS conference wesbite
+>>>>>>> 09bd97635be436d6c98ef3cc9339dba9c605eab0
