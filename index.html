@@ -47,7 +47,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=4">
+<link rel="stylesheet" href="css/style.css?v=5">
 </head>
 <body>
 
@@ -149,45 +149,69 @@
 </section>
 
 <!-- ============ SPEAKERS ============ -->
-<!-- No speaker photographs exist yet; using the same initials-avatar treatment as before rather
-     than attaching stock photos of unrelated people to real names. -->
+<!-- Photographs live in assets/images/conference-images/. Each card keeps the initials avatar
+     behind the <img>; js/script.js hides a photo that fails to load so the avatar shows instead. -->
 <section id="speakers">
   <div class="container">
     <div class="section-title centered reveal">
       <span class="section-label">Speakers</span>
       <h2>Distinguished Speakers</h2>
-      <p>Confirmed speakers will be added following formal acceptance. Filter by session type below.</p>
+      <p>Further speakers will be added following formal acceptance. Filter by session type below.</p>
     </div>
     <div class="filter-bar" role="group" aria-label="Filter speakers by session type">
       <button class="filter-btn active" data-filter="all" type="button" aria-pressed="true">All</button>
       <button class="filter-btn" data-filter="chief" type="button" aria-pressed="false">Chief Guest</button>
-      <button class="filter-btn" data-filter="keynote" type="button" aria-pressed="false">Keynote</button>
-      <button class="filter-btn" data-filter="plenary" type="button" aria-pressed="false">Plenary</button>
+      <button class="filter-btn" data-filter="distinguished" type="button" aria-pressed="false">Distinguished Speakers</button>
     </div>
     <div class="speaker-grid" id="speakerCards">
       <div class="speaker-card reveal" data-track="chief">
-        <div class="speaker-photo"><div class="avatar">TP</div><div class="hover-reveal">Chief Guest Address</div></div>
-        <div class="speaker-meta"><span class="speaker-status">Chief Guest · Subject to confirmation</span><h3>Prof. Thalappil Pradeep</h3><p>DST Unit of Nanoscience (DST UNS) and Thematic Unit of Excellence, Department of Chemistry, Indian Institute of Technology Madras, Chennai, India.</p></div>
+        <div class="speaker-photo"><div class="avatar" aria-hidden="true">TP</div><img src="assets/images/conference-images/thalappil-pradeep.jpg" alt="Prof. Thalappil Pradeep" width="1215" height="917" loading="lazy" decoding="async"><div class="hover-reveal">Chief Guest Address</div></div>
+        <div class="speaker-meta"><span class="speaker-status">Chief Guest · Subject to confirmation</span><h3>Prof. Thalappil Pradeep</h3><p class="speaker-role">Padma Shri Awardee</p><p>Indian Institute of Technology Madras</p></div>
       </div>
-      <div class="speaker-card reveal" data-track="keynote">
-        <div class="speaker-photo"><div class="avatar">KN</div><div class="hover-reveal">Convergence Science for Circular and Sustainable Development</div></div>
-        <div class="speaker-meta"><span class="speaker-status">Keynote Lecture 1</span><h3>Speaker to be confirmed</h3><p class="speaker-topic">Convergence Science for Circular and Sustainable Development</p></div>
+      <div class="speaker-card reveal" data-track="distinguished">
+        <div class="speaker-photo"><div class="avatar" aria-hidden="true">DB</div><img src="assets/images/conference-images/dhiraj-bhatia.jpg" alt="Dr. Dhiraj Bhatia" width="634" height="423" loading="lazy" decoding="async"></div>
+        <div class="speaker-meta"><h3>Dr. Dhiraj Bhatia</h3><p>Indian Institute of Technology Gandhinagar</p></div>
       </div>
-      <div class="speaker-card reveal" data-track="plenary">
-        <div class="speaker-photo"><div class="avatar">P1</div><div class="hover-reveal">AI-Driven Intelligent Modeling in Science</div></div>
-        <div class="speaker-meta"><span class="speaker-status">Plenary Speaker 1</span><h3>Speaker to be confirmed</h3><p class="speaker-topic">AI-Driven Intelligent Modeling in Science</p></div>
+      <!-- No verified photograph available yet for Dr. Deepak Mishra; add assets/images/conference-images/deepak-mishra.jpg and an <img> here once supplied. -->
+      <div class="speaker-card reveal" data-track="distinguished">
+        <div class="speaker-photo"><div class="avatar" aria-hidden="true">DM</div></div>
+        <div class="speaker-meta"><h3>Dr. Deepak Mishra</h3><p>SE-G, SAC, ISRO, Ahmedabad</p></div>
       </div>
-      <div class="speaker-card reveal" data-track="plenary">
-        <div class="speaker-photo"><div class="avatar">P2</div><div class="hover-reveal">Sustainable Systems and Circular Bioeconomy</div></div>
-        <div class="speaker-meta"><span class="speaker-status">Plenary Speaker 2</span><h3>Speaker to be confirmed</h3><p class="speaker-topic">Sustainable Systems and Circular Bioeconomy</p></div>
+      <div class="speaker-card reveal" data-track="distinguished">
+        <div class="speaker-photo"><div class="avatar" aria-hidden="true">RP</div><img src="assets/images/conference-images/rajesh-pandey.jpg" alt="Dr. Rajesh Pandey" width="220" height="208" loading="lazy" decoding="async"></div>
+        <div class="speaker-meta"><h3>Dr. Rajesh Pandey</h3><p>Institute of Technology, Banaras Hindu University</p></div>
       </div>
-      <div class="speaker-card reveal" data-track="plenary">
-        <div class="speaker-photo"><div class="avatar">P3</div><div class="hover-reveal">Convergence Science and Emerging Frontiers</div></div>
-        <div class="speaker-meta"><span class="speaker-status">Plenary Speaker 3</span><h3>Speaker to be confirmed</h3><p class="speaker-topic">Convergence Science and Emerging Frontiers</p></div>
+      <div class="speaker-card reveal" data-track="distinguished">
+        <div class="speaker-photo"><div class="avatar" aria-hidden="true">MQ</div><img src="assets/images/conference-images/mohd-qureshi.jpg" alt="Dr. Mohd. Qureshi" width="300" height="250" loading="lazy" decoding="async"></div>
+        <div class="speaker-meta"><h3>Dr. Mohd. Qureshi</h3><p>IIT Guwahati</p></div>
       </div>
-      <div class="speaker-card reveal" data-track="plenary">
-        <div class="speaker-photo"><div class="avatar">P4</div><div class="hover-reveal">Industry Perspectives and Translational Science</div></div>
-        <div class="speaker-meta"><span class="speaker-status">Plenary Speaker 4 · Industry &amp; Innovation</span><h3>Speaker to be confirmed</h3><p class="speaker-topic">Industry Perspectives and Translational Science</p></div>
+      <div class="speaker-card reveal" data-track="distinguished">
+        <div class="speaker-photo"><div class="avatar" aria-hidden="true">SD</div><img src="assets/images/conference-images/santanu-dasgupta.jpg" alt="Dr. Santanu Dasgupta" width="768" height="769" loading="lazy" decoding="async"></div>
+        <div class="speaker-meta"><h3>Dr. Santanu Dasgupta</h3><p class="speaker-role">Founder &amp; CEO</p><p>BioOmE Life Solutions Pvt Ltd</p></div>
+      </div>
+      <div class="speaker-card reveal" data-track="distinguished">
+        <div class="speaker-photo"><div class="avatar" aria-hidden="true">AK</div><img src="assets/images/conference-images/ashutosh-kumar.jpg" alt="Dr. Ashutosh Kumar" width="300" height="400" loading="lazy" decoding="async"></div>
+        <div class="speaker-meta"><h3>Dr. Ashutosh Kumar</h3><p>School of Arts and Sciences, Ahmedabad University</p></div>
+      </div>
+      <div class="speaker-card reveal" data-track="distinguished">
+        <div class="speaker-photo"><div class="avatar" aria-hidden="true">BB</div><img src="assets/images/conference-images/bm-bhanage.jpg" alt="Prof. B. M. Bhanage" width="203" height="260" loading="lazy" decoding="async"></div>
+        <div class="speaker-meta"><h3>Prof. B. M. Bhanage</h3><p class="speaker-role">Vice-Chancellor</p><p>M S University</p></div>
+      </div>
+      <div class="speaker-card reveal" data-track="distinguished">
+        <div class="speaker-photo"><div class="avatar" aria-hidden="true">TB</div><img src="assets/images/conference-images/tanmay-basu.jpg" alt="Dr. Tanmay Basu" width="348" height="261" loading="lazy" decoding="async" style="object-position:40% 30%"></div>
+        <div class="speaker-meta"><h3>Dr. Tanmay Basu</h3><p>Indian Institute of Science Education and Research, Bhopal</p></div>
+      </div>
+      <div class="speaker-card reveal" data-track="distinguished">
+        <div class="speaker-photo"><div class="avatar" aria-hidden="true">RS</div><img src="assets/images/conference-images/rengaraj-selvaraj.jpg" alt="Prof. Rengaraj Selvaraj" width="797" height="1200" loading="lazy" decoding="async"></div>
+        <div class="speaker-meta"><h3>Prof. Rengaraj Selvaraj</h3><p>Sultan Qaboos University, Al-Khoudh, Sultanate of Oman</p></div>
+      </div>
+      <div class="speaker-card reveal" data-track="distinguished">
+        <div class="speaker-photo"><div class="avatar" aria-hidden="true">GN</div><img src="assets/images/conference-images/goli-nagaraju.jpg" alt="Dr. Goli Nagaraju" width="200" height="200" loading="lazy" decoding="async"></div>
+        <div class="speaker-meta"><h3>Dr. Goli Nagaraju</h3><p>Imperial College London, London SW7 2AZ, UK</p></div>
+      </div>
+      <div class="speaker-card reveal" data-track="distinguished">
+        <div class="speaker-photo"><div class="avatar" aria-hidden="true">GD</div><img src="assets/images/conference-images/goutam-kumar-dalapati.jpg" alt="Dr. Goutam Kumar Dalapati" width="128" height="128" loading="lazy" decoding="async"></div>
+        <div class="speaker-meta"><h3>Dr. Goutam Kumar Dalapati</h3><p>National University of Singapore, Singapore</p></div>
       </div>
     </div>
     <p class="empty-state-inline" id="speakerEmptyState" hidden>No speakers in this category yet.</p>
@@ -438,9 +462,11 @@
     <div class="cards">
       <div class="card reveal"><h3>Chief Patron</h3><p>[Name]<br>[Designation]<br>[Institution]</p></div>
       <div class="card reveal"><h3>Patron</h3><p>[Name]<br>[Designation]</p></div>
-      <div class="card reveal"><h3>Conference Chair</h3><p>Prof. [Name]<br>[Designation]</p></div>
-      <div class="card reveal"><h3>Organizing Secretary</h3><p>Prof. [Name]<br>[Department/Faculty]</p></div>
-      <div class="card reveal"><h3>Scientific Committee</h3><p>Experts representing Physics, Chemistry, Biology, Mathematics, Materials Science, Nanoscience, Computational Science and Industry.</p></div>
+      <div class="card reveal"><h3>Conveners</h3><p>Dr. Gayatri Dave<br>Dean, Faculty of Science</p><p style="margin-top:var(--s-3)">Dr. Abhishek Dadhania<br>Principal, PDPIAS</p></div>
+      <div class="card reveal"><h3>Organizing Secretary</h3><p>Prof. C K Sumesh</p></div>
+      <div class="card reveal"><h3>Local Organizing Team</h3><p>Experts representing Physics, Chemistry, Biology, Mathematics, Materials Science, Nanoscience, Computational Science and Industry.</p></div>
+      <!-- Treasurer name not yet provided by the organizers; replace [Name] once confirmed. -->
+      <div class="card reveal"><h3>Treasurer</h3><p>[Name]</p></div>
       <div class="card reveal"><h3>International Advisory Panel</h3><p>Distinguished national and international scientists will be added following confirmation.</p></div>
     </div>
   </div>
@@ -605,6 +631,6 @@
 
 <script src="js/dev-config.js?v=4"></script>
 <script src="js/api.js?v=4"></script>
-<script src="js/script.js?v=4"></script>
+<script src="js/script.js?v=5"></script>
 </body>
 </html>

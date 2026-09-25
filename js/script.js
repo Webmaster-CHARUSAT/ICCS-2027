@@ -147,9 +147,16 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
+  /* ---------- Speaker photo fallback: reveal the initials avatar if a photo fails to load ---------- */
+  document.querySelectorAll('.speaker-photo img').forEach(function (img) {
+    var markMissing = function () { img.parentNode.classList.add('is-missing'); };
+    if (img.complete && img.naturalWidth === 0) markMissing();
+    else img.addEventListener('error', markMissing);
+  });
+
   /* ---------- Theme/track filter for speakers ---------- */
   var filterBtns = Array.prototype.slice.call(document.querySelectorAll('.filter-btn'));
-  var speakerCards = Array.prototype.slice.call(document.querySelectorAll('#speakers .card[data-track]'));
+  var speakerCards = Array.prototype.slice.call(document.querySelectorAll('#speakers .speaker-card[data-track]'));
   var speakerEmptyState = document.getElementById('speakerEmptyState');
   filterBtns.forEach(function (btn) {
     btn.addEventListener('click', function () {
