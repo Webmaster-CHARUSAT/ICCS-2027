@@ -312,3 +312,4 @@ footer{background:var(--footer-bg);color:var(--footer-text);padding:var(--s-8) 0
  .footer-grid{grid-template-columns:1fr}
  .countdown div{min-width:64px;padding:var(--s-3)}
 }
+.nowrap{white-space:nowrap}
