@@ -1,4 +1,5 @@
 require('dotenv').config();
+const crypto = require('crypto');
 
 function required(name, fallback) {
   const value = process.env[name];
@@ -43,12 +44,23 @@ const config = {
     // than let that be a recurring support issue.
     pass: required('SMTP_PASS').replace(/\s+/g, ''),
     from: required('EMAIL_FROM', 'ICCS-CIRCLE 2027 <no-reply@iccs-circle.org>')
-  }
+  },
+
+  // Signs faculty dashboard session tokens (services/authService.js). Must be a long random
+  // string (32+ bytes) — anyone who knows it can forge a faculty login.
+  authSecret: required('AUTH_SECRET')
 };
 
 config.isProduction = config.env === 'production';
 config.sheetsConfigured = Boolean(config.appsScript.url && config.appsScript.secret);
 config.emailConfigured = Boolean(config.smtp.host && config.smtp.user && config.smtp.pass);
+
+// Outside production a missing AUTH_SECRET gets a random per-process value so the dashboard
+// still works locally — faculty just have to log in again after every restart.
+if (!config.authSecret && !config.isProduction) {
+  config.authSecret = crypto.randomBytes(32).toString('hex');
+  console.warn('AUTH_SECRET is not set — using a temporary random secret (dashboard logins reset on restart).');
+}
 
 // Fail loudly and immediately in production rather than serving traffic with a broken or
 // accidentally-still-pointed-at-localhost configuration — the kind of misconfiguration that
@@ -58,6 +70,7 @@ if (config.isProduction) {
   if (!config.appsScript.url) problems.push('APPS_SCRIPT_URL is not set.');
   if (!config.appsScript.secret) problems.push('APPS_SCRIPT_SECRET is not set.');
   if (!config.frontendUrl) problems.push('FRONTEND_URL is not set.');
+  if (!config.authSecret || config.authSecret.length < 32) problems.push('AUTH_SECRET is not set or is shorter than 32 characters.');
   if (/^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])/i.test(config.frontendUrl)) {
     problems.push('FRONTEND_URL is still a localhost address (' + config.frontendUrl + ') in production.');
   }

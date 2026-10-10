@@ -209,7 +209,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   /* ---------- Copy email buttons ---------- */
-  document.querySelectorAll('.copy-btn').forEach(function (btn) {
+  function bindCopyButton(btn) {
     btn.addEventListener('click', function () {
       var text = btn.dataset.copy;
       navigator.clipboard && navigator.clipboard.writeText(text).then(function () {
@@ -218,7 +218,8 @@ document.addEventListener('DOMContentLoaded', function () {
         setTimeout(function () { btn.textContent = original; }, 1500);
       });
     });
-  });
+  }
+  document.querySelectorAll('.copy-btn').forEach(bindCopyButton);
 
   /* ---------- Form validation helpers ---------- */
   function validateField(field, condition, message) {
@@ -343,15 +344,157 @@ document.addEventListener('DOMContentLoaded', function () {
     if (abstractGate) abstractGate.hidden = true;
     if (abstractFormWrap) abstractFormWrap.hidden = true;
     abstractLocked.hidden = false;
+    abstractLocked.classList.add('visible'); // skip the scroll fade-in: it's already where the user is looking
     if (abstractLockedText) {
       abstractLockedText.textContent = customMessage ||
         ('You have already submitted an abstract for registration ' + reg.registration_id +
           (reg.abstract_id ? ' (Abstract ID: ' + reg.abstract_id + ')' : '') + '. Only one abstract is accepted per registration.');
     }
+    loadAbstractStatus(reg, !!customMessage);
   }
   function unlockAbstractForm(reg) {
-    if (reg.abstractSubmitted) showAbstractLocked(reg);
-    else showAbstractForm(reg);
+    if (reg.abstractSubmitted) {
+      showAbstractLocked(reg);
+      return;
+    }
+    showAbstractForm(reg);
+    // On a new device/browser the local abstractSubmitted flag is missing, so ask the server
+    // whether this registration already has an abstract — if so, show its status instead of
+    // an empty form that would only fail with ABSTRACT_ALREADY_SUBMITTED.
+    ICCS_API.request('/abstracts/status', {
+      method: 'POST',
+      body: { registrationId: reg.registration_id, email: reg.email }
+    }).then(function (res) {
+      if (!res.data.abstract) return;
+      reg.abstractSubmitted = true;
+      reg.abstract_id = res.data.abstract.abstract_id;
+      setStoredRegistration(reg);
+      showAbstractLocked(reg);
+    }).catch(function () { /* the form stays usable; submission re-checks server-side */ });
+  }
+
+  /* ---------- Abstract review status + post-acceptance payment details ----------
+     The status (and, once Accepted, the payment instructions) come from POST /api/abstracts/
+     status, which checks the Registration ID + email. Payment details are deliberately NOT in
+     the page source — the server only returns them for an accepted abstract. All server data is
+     inserted with textContent/createElement, never innerHTML. */
+  var statusBox = document.getElementById('abstractStatus');
+  var statusChip = document.getElementById('abstractStatusChip');
+  var statusTitle = document.getElementById('abstractStatusTitle');
+  var statusNote = document.getElementById('abstractStatusNote');
+  var statusComments = document.getElementById('abstractStatusComments');
+  var statusCommentsText = document.getElementById('abstractStatusCommentsText');
+  var statusError = document.getElementById('abstractStatusError');
+  var statusRefreshBtn = document.getElementById('abstractStatusRefresh');
+  var paymentPanel = document.getElementById('abstractPayment');
+
+  var STATUS_NOTES = {
+    'Submitted': 'Your abstract has been received and is awaiting review.',
+    'Under Review': 'Your abstract is currently being reviewed by the faculty committee.',
+    'Accepted': 'Congratulations — your abstract has been accepted. Please complete the registration fee payment using the details below.',
+    'Rejected': 'We regret that your abstract was not accepted for the conference.',
+    'Revision Required': 'The reviewers have requested a revision. Please contact the organizers.'
+  };
+  var STATUS_CHIP_CLASS = { 'Accepted': 'is-accepted', 'Rejected': 'is-rejected', 'Under Review': 'is-review' };
+
+  function el(tag, className, text) {
+    var node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined) node.textContent = text;
+    return node;
+  }
+
+  function renderPayment(payment) {
+    while (paymentPanel.firstChild) paymentPanel.removeChild(paymentPanel.firstChild);
+    if (!payment) { paymentPanel.hidden = true; return; }
+
+    paymentPanel.appendChild(el('h4', '', 'Registration Fee Payment'));
+    var cards = el('div', 'cards');
+
+    var indian = el('div', 'card');
+    indian.appendChild(el('h3', '', payment.indian.title));
+    indian.appendChild(el('p', '', payment.indian.description));
+    var payWrap = el('p', 'pay-online');
+    var payLink = el('a', 'btn btn-solid', 'Pay Online');
+    payLink.href = payment.indian.payUrl;
+    payLink.target = '_blank';
+    payLink.rel = 'noopener noreferrer';
+    payWrap.appendChild(payLink);
+    indian.appendChild(payWrap);
+    cards.appendChild(indian);
+
+    var intl = el('div', 'card');
+    intl.appendChild(el('h3', '', payment.international.title));
+    var details = el('p', 'bank-details');
+    payment.international.bankDetails.forEach(function (pair, i) {
+      if (i > 0) details.appendChild(document.createElement('br'));
+      details.appendChild(el('b', '', pair[0] + ': '));
+      details.appendChild(document.createTextNode(pair[1]));
+      if (pair[0] === 'Bank A/c Number' || pair[0] === 'Bank SWIFT Code' || pair[0] === 'Bank IFSC Code') {
+        var copy = el('button', 'copy-btn', 'Copy');
+        copy.type = 'button';
+        copy.dataset.copy = pair[1];
+        copy.setAttribute('aria-label', 'Copy ' + pair[0]);
+        bindCopyButton(copy);
+        details.appendChild(copy);
+      }
+    });
+    intl.appendChild(details);
+    cards.appendChild(intl);
+
+    paymentPanel.appendChild(cards);
+    paymentPanel.appendChild(el('p', 'payment-disclaimer', payment.disclaimer + ' Please keep your payment receipt.'));
+    paymentPanel.hidden = false;
+  }
+
+  function renderStatus(data, keepMessage) {
+    hideBox(statusError);
+    if (!data.abstract) {
+      statusBox.hidden = true;
+      renderPayment(null);
+      return;
+    }
+    var a = data.abstract;
+    if (abstractLockedText && !keepMessage) {
+      abstractLockedText.textContent = 'Abstract ID: ' + a.abstract_id + ' · Registration ID: ' + data.registration_id;
+    }
+    statusChip.textContent = a.submission_status;
+    statusChip.className = 'status-chip ' + (STATUS_CHIP_CLASS[a.submission_status] || '');
+    statusTitle.textContent = a.title;
+    statusNote.textContent = STATUS_NOTES[a.submission_status] || '';
+    statusComments.hidden = !a.review_comments;
+    statusCommentsText.textContent = a.review_comments || '';
+    statusBox.hidden = false;
+    renderPayment(data.payment);
+  }
+
+  var currentStatusReg = null;
+  // keepMessage: leave the card's message (e.g. the just-submitted confirmation) in place.
+  function loadAbstractStatus(reg, keepMessage) {
+    if (!statusBox || !reg) return;
+    currentStatusReg = reg;
+    if (statusRefreshBtn) { statusRefreshBtn.disabled = true; statusRefreshBtn.textContent = 'Checking…'; }
+    ICCS_API.request('/abstracts/status', {
+      method: 'POST',
+      body: { registrationId: reg.registration_id, email: reg.email }
+    }).then(function (res) {
+      renderStatus(res.data, keepMessage);
+    }).catch(function (err) {
+      if (err.code === 'REGISTRATION_NOT_FOUND' || err.code === 'REGISTRATION_INVALID') {
+        clearStoredRegistration();
+        lockAbstractForm();
+        showBox(document.getElementById('verifyError'), err.message);
+        return;
+      }
+      showBox(statusError, 'Could not load your abstract status: ' + err.message);
+    }).finally(function () {
+      if (statusRefreshBtn) { statusRefreshBtn.disabled = false; statusRefreshBtn.textContent = 'Refresh status'; }
+    });
+  }
+  if (statusRefreshBtn) {
+    statusRefreshBtn.addEventListener('click', function () {
+      loadAbstractStatus(currentStatusReg || getStoredRegistration(), false);
+    });
   }
   // Kept as the one function that fully resets to "no registration" — used by both switch-
   // registration links and by the REGISTRATION_REQUIRED/NOT_FOUND/INVALID error paths below.

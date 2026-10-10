@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<!-- Same pre-paint theme script as the public site (external file: CSP is script-src 'self'). -->
+<script src="/js/theme-init.js?v=4"></script>
+<title>Abstract Review | ICCS-CIRCLE 2027</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23000'/%3E%3Ctext x='32' y='42' font-family='Arial,sans-serif' font-size='24' font-weight='700' fill='%23c6922d' text-anchor='middle'%3EIC%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css?v=10">
+<link rel="stylesheet" href="/admin/admin.css?v=3">
+</head>
+<body class="admin">
+
+<header class="admin-bar">
+  <div class="container admin-bar-inner">
+    <span class="logo"><span class="logo-text">ICCS-<span>CIRCLE</span> 2027</span> <small>Abstract Review</small></span>
+    <div class="admin-bar-controls">
+      <span class="admin-user" id="adminUser" hidden></span>
+      <button class="theme-toggle" id="themeToggle" type="button">Dark</button>
+      <button class="theme-toggle" id="logoutBtn" type="button" hidden>Log out</button>
+    </div>
+  </div>
+</header>
+
+<main class="container admin-main">
+
+  <!-- ============ LOGIN ============ -->
+  <section id="loginView" class="admin-login" hidden>
+    <div class="card">
+      <h1>Faculty Login</h1>
+      <p class="admin-muted">Sign in to review submitted abstracts.</p>
+      <form id="loginForm" novalidate>
+        <div class="field">
+          <label for="loginEmail">Email</label>
+          <input type="email" id="loginEmail" name="email" autocomplete="username" required>
+        </div>
+        <div class="field">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" name="password" autocomplete="current-password" required>
+        </div>
+        <button type="submit" class="btn btn-solid" id="loginBtn">Log in</button>
+        <div class="error-box" id="loginError" role="alert"></div>
+      </form>
+    </div>
+  </section>
+
+  <!-- ============ DASHBOARD ============ -->
+  <section id="dashView" hidden>
+    <div class="admin-head">
+      <h1>Submitted Abstracts</h1>
+      <button type="button" class="btn btn-outline-dark" id="refreshBtn">Refresh</button>
+    </div>
+
+    <div class="stat-tiles" id="statTiles" aria-live="polite"></div>
+
+    <div class="admin-filters" role="search">
+      <div class="field">
+        <label for="filterSearch">Search</label>
+        <input type="search" id="filterSearch" placeholder="Title, author, email, keyword or ID">
+      </div>
+      <div class="field">
+        <label for="filterStatus">Status</label>
+        <select id="filterStatus"><option value="">All statuses</option></select>
+      </div>
+      <div class="field">
+        <label for="filterCategory">Category</label>
+        <select id="filterCategory"><option value="">All categories</option></select>
+      </div>
+    </div>
+
+    <div class="error-box" id="listError" role="alert"></div>
+
+    <div class="table-wrap admin-table-wrap">
+      <table class="admin-table">
+        <caption class="visually-hidden">Submitted abstracts</caption>
+        <thead>
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Title</th>
+            <th scope="col" class="col-optional">Authors</th>
+            <th scope="col" class="col-optional">Category</th>
+            <th scope="col" class="col-optional">Submitted</th>
+            <th scope="col">Status</th>
+          </tr>
+        </thead>
+        <tbody id="abstractRows"></tbody>
+      </table>
+    </div>
+    <p class="admin-muted admin-empty" id="emptyState" hidden>No abstracts match these filters.</p>
+
+    <nav class="admin-pager" aria-label="Pagination">
+      <button type="button" class="btn btn-outline-dark" id="prevPage">Previous</button>
+      <span id="pageInfo"></span>
+      <button type="button" class="btn btn-outline-dark" id="nextPage">Next</button>
+    </nav>
+  </section>
+</main>
+
+<!-- ============ DETAIL / DECISION ============ -->
+<dialog id="detailDialog" class="admin-dialog" aria-labelledby="detailTitle">
+  <div class="admin-dialog-head">
+    <h2 id="detailTitle">Abstract</h2>
+    <button type="button" class="admin-close" id="detailClose" aria-label="Close">×</button>
+  </div>
+  <div id="detailBody" class="admin-dialog-body"></div>
+  <div class="error-box" id="detailError" role="alert"></div>
+
+  <form id="decisionForm" class="admin-decision" novalidate hidden>
+    <div class="field">
+      <label for="decisionComments">Comments <span class="admin-muted">(optional — sent to the author)</span></label>
+      <textarea id="decisionComments" rows="4" maxlength="2000"></textarea>
+    </div>
+    <div class="admin-decision-actions">
+      <button type="button" class="btn btn-accept" id="acceptBtn">Accept</button>
+      <button type="button" class="btn btn-reject" id="rejectBtn">Reject</button>
+    </div>
+    <div class="success-box" id="decisionSuccess" role="status"></div>
+  </form>
+</dialog>
+
+<script src="/js/api.js?v=4"></script>
+<script src="/admin/admin.js?v=1"></script>
+</body>
+</html>

@@ -1,5 +1,6 @@
 const nodemailer = require('nodemailer');
 const config = require('../config/config');
+const paymentInfo = require('../config/paymentInfo');
 
 let transporter = null;
 
@@ -136,4 +137,73 @@ async function sendRegistrationConfirmation(record) {
   await t.sendMail({ from: config.smtp.from, to: record.email, subject: subject, text: text, html: html });
 }
 
-module.exports = { sendAbstractConfirmation: sendAbstractConfirmation, sendRegistrationConfirmation: sendRegistrationConfirmation };
+// Sent when a faculty reviewer accepts an abstract (adminAbstractController.decide). Does NOT
+// contain the payment details themselves — it points the author to the website, where entering
+// their Registration ID + email reveals them (abstractController.status).
+function buildAcceptanceEmail(abstract) {
+  const siteUrl = String(config.frontendUrl || '').replace(/\/+$/, '') + '/#abstracts';
+  const subject = 'ICCS-CIRCLE 2027 — Abstract Accepted (' + abstract.abstract_id + ')';
+  const comments = String(abstract.review_comments || '').trim();
+
+  const text = [
+    'Congratulations! Your abstract submitted to ICCS-CIRCLE 2027 has been accepted.',
+    '',
+    'Abstract ID: ' + abstract.abstract_id,
+    'Registration ID: ' + (abstract.registration_id || '—'),
+    'Title: ' + abstract.title,
+    'Presentation Category: ' + abstract.presentation_category
+  ].concat(comments ? ['', 'Reviewer comments:', comments] : []).concat([
+    '',
+    'Next step — registration fee payment:',
+    'Visit ' + siteUrl + ' and enter your Registration ID and registered email under',
+    '"Call for Abstracts" to view the payment details.',
+    '',
+    paymentInfo.disclaimer,
+    '',
+    '— ICCS-CIRCLE 2027 Organizing Committee'
+  ]).join('\n');
+
+  const html =
+    '<div style="font-family:Arial,Helvetica,sans-serif;color:#243447;max-width:600px;margin:0 auto">' +
+    '<h2 style="color:#10243e;margin-bottom:4px">Abstract Accepted</h2>' +
+    '<p style="color:#607080;margin-top:0">Congratulations! Your abstract submitted to <b>ICCS-CIRCLE 2027</b> has been accepted.</p>' +
+    '<table style="width:100%;border-collapse:collapse;font-size:14px;margin:16px 0">' +
+    row('Abstract ID', abstract.abstract_id) +
+    row('Registration ID', abstract.registration_id) +
+    row('Title', abstract.title) +
+    row('Presentation Category', abstract.presentation_category) +
+    '</table>' +
+    (comments
+      ? '<p style="color:#607080;margin-bottom:4px">Reviewer comments</p>' +
+        '<p style="white-space:pre-wrap;background:#f4f7fa;padding:14px;border-radius:8px;font-size:14px;line-height:1.5">' + escapeHtml(comments) + '</p>'
+      : '') +
+    '<p style="margin-top:20px"><b>Next step — registration fee payment.</b> Visit <a href="' + escapeHtml(siteUrl) + '">' + escapeHtml(siteUrl) + '</a> ' +
+    'and enter your Registration ID and registered email under “Call for Abstracts” to view the payment details.</p>' +
+    '<p style="color:#607080;font-size:13px">' + escapeHtml(paymentInfo.disclaimer) + '</p>' +
+    '<p style="color:#607080;font-size:13px">— ICCS-CIRCLE 2027 Organizing Committee</p>' +
+    '</div>';
+
+  return { to: abstract.email, subject: subject, text: text, html: html };
+}
+
+async function sendAcceptanceEmail(abstract) {
+  const t = getTransporter();
+  if (!t) {
+    console.warn('SMTP not configured — skipping acceptance email to ' + abstract.email);
+    return;
+  }
+  const mail = buildAcceptanceEmail(abstract);
+  await t.sendMail(Object.assign({ from: config.smtp.from }, mail));
+}
+
+function isConfigured() {
+  return config.emailConfigured;
+}
+
+module.exports = {
+  sendAbstractConfirmation: sendAbstractConfirmation,
+  sendRegistrationConfirmation: sendRegistrationConfirmation,
+  sendAcceptanceEmail: sendAcceptanceEmail,
+  buildAcceptanceEmail: buildAcceptanceEmail,
+  isConfigured: isConfigured
+};

@@ -145,3 +145,31 @@ listed in step d.2 plus `NODE_ENV=production` and `TRUST_PROXY=1`. Railway doesn
 `render.yaml`; create the service from the GitHub repo in the Railway dashboard, set the root
 directory to `backend`, and fill in the same env vars manually. Repeat step e using the URL
 Railway assigns.
+
+## i. Faculty review dashboard (/admin)
+
+Faculty log in at `/admin` to accept or reject submitted abstracts, which are read live from the
+`Abstracts` tab. Accepting an abstract emails the author; once accepted, the author sees the fee
+payment details by entering their Registration ID and email under **Call for Abstracts** (those
+details are no longer shown publicly on the page).
+
+1. **Set `AUTH_SECRET`** in the Render dashboard (Environment) — 32+ random characters:
+   `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`. The server will not
+   start in production without it.
+2. **Make sure the spreadsheet has a `Users` tab** with this exact header row:
+   `user_id | name | email | password_hash | role | status | created_at | updated_at`
+   (it is in the sample template). No other sheet changes are needed.
+3. **Create each faculty account** from a machine with `backend/.env` pointing at the live sheet:
+   ```bash
+   cd backend
+   npm run create-faculty -- --name "Dr. Jane Doe" --email jane@charusat.ac.in --role reviewer
+   ```
+   You will be asked for the password (hidden; minimum 10 characters). Roles: `reviewer` or
+   `admin` (both can review today). To disable an account, change its `status` cell to `disabled`.
+4. Smoke test:
+   ```bash
+   curl -s -X POST $URL/api/admin/login -H "Content-Type: application/json"      -d '{"email":"jane@charusat.ac.in","password":"..."}'          # -> {"success":true,"data":{"token":...}}
+   curl -s $URL/api/admin/abstracts -H "Authorization: Bearer <token>" # -> items, pagination, stats
+   curl -s -X POST $URL/api/abstracts/status -H "Content-Type: application/json"      -d '{"registrationId":"REG-XXXXXXXX","email":"smoke.test+1@example.com"}'
+   ```
+   Login allows 10 attempts per 15 minutes per IP; the 11th returns 429.

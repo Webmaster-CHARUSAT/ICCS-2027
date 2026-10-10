@@ -47,7 +47,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=6">
+<link rel="stylesheet" href="css/style.css?v=10">
 </head>
 <body>
 
@@ -59,7 +59,7 @@
 
 <header id="siteHeader">
   <div class="container nav">
-    <a class="logo" href="#home">ICCS-<span>CIRCLE</span> 2027</a>
+    <a class="logo" href="#home"><img src="assets/images/pdpias-logo-160.png" srcset="assets/images/pdpias-logo-160.png 1x, assets/images/pdpias-logo-320.png 2x" alt="" aria-hidden="true" width="36" height="36" class="logo-mark"><span class="logo-text">ICCS-<span>CIRCLE</span> 2027</span></a>
     <nav id="primaryNav">
       <a href="#about">About</a>
       <a href="#speakers">Speakers</a>
@@ -257,14 +257,11 @@
     <p style="margin-top:var(--s-3);color:var(--ink-500);font-size:.9rem">Fees are inclusive of conference kit, working lunches and refreshments.</p>
     <p style="margin:var(--s-5) 0"><b>Note:</b> At least one author must register for an accepted contribution to be included in the conference programme.</p>
 
-    <div class="cards">
-      <div class="card reveal"><h3>Indian Participants</h3><p>Pay the registration fee online through the conference payment link.</p><p style="margin-top:var(--s-5)"><a class="btn btn-solid" href="https://rzp.io/rzp/GT56wXc" target="_blank" rel="noopener">Pay Online</a></p></div>
-      <div class="card reveal"><h3>Participants from Outside India</h3><p><b>Bank A/c Name:</b> Charotar University of Science &amp; Technology<br><b>Bank A/c Number:</b> 30875081005<br><b>Bank A/c Type:</b> Current A/c<br><b>Bank Branch Address:</b> Darshan Hostel, Changa-Valetva Road, Changa, Dist. Anand<br><b>Bank Branch Code:</b> 10961<br><b>Bank MICR Code:</b> 388002502<br><b>Bank IFSC Code:</b> SBIN0010961<br><b>Bank SWIFT Code:</b> SBININBB718<br><b>PAN No:</b> AABTC1178Q<br><b>Bank Telephone No.:</b> (02692) 248540<br><b>Bank Email ID:</b> sbi10961@sbi.co.in</p></div>
-    </div>
+    <div class="info-box is-visible"><b>Payment details</b> are shared with authors once their abstract is accepted. After acceptance, check your status under <a href="#abstracts">Call for Abstracts</a> using your Registration ID and registered email.</div>
 
     <div class="card reveal" style="margin-top:var(--s-6)" id="registrationForm-wrap">
       <h3>Register for the Conference</h3>
-      <p style="color:var(--ink-500);margin-top:-6px;margin-bottom:var(--s-5)">No payment is collected through this form — please use the payment options above. You'll receive a Registration ID by email, which you'll need to submit an abstract.</p>
+      <p style="color:var(--ink-500);margin-top:-6px;margin-bottom:var(--s-5)">No payment is collected through this form — payment details are shared once your abstract is accepted. You'll receive a Registration ID by email, which you'll need to submit an abstract.</p>
       <form id="registrationForm" novalidate>
         <div class="form-row">
           <div class="field">
@@ -404,10 +401,25 @@
       </form>
     </div>
 
+    <!-- Abstract status panel: shown once this registration has an abstract on file. Filled in by
+         js/script.js from POST /api/abstracts/status; payment details appear only when Accepted. -->
     <div class="card reveal" id="abstractAlreadySubmitted" hidden>
-      <h3>Abstract Already Submitted</h3>
+      <h3>Your Abstract</h3>
       <p id="abstractAlreadySubmittedText">You have already submitted an abstract for this registration. Only one abstract is accepted per registration.</p>
-      <button type="button" class="link-btn" id="switchRegistrationBtnLocked">Not you? Switch registration</button>
+      <div class="abstract-status" id="abstractStatus" hidden>
+        <p class="abstract-status-row"><span class="status-chip" id="abstractStatusChip"></span><span id="abstractStatusTitle"></span></p>
+        <p class="abstract-status-note" id="abstractStatusNote"></p>
+        <div class="abstract-status-comments" id="abstractStatusComments" hidden>
+          <b>Reviewer comments</b>
+          <p id="abstractStatusCommentsText"></p>
+        </div>
+      </div>
+      <div class="payment-panel" id="abstractPayment" hidden></div>
+      <div class="error-box" id="abstractStatusError" role="alert"></div>
+      <p class="abstract-status-actions">
+        <button type="button" class="btn btn-outline-dark" id="abstractStatusRefresh">Refresh status</button>
+        <button type="button" class="link-btn" id="switchRegistrationBtnLocked">Not you? Switch registration</button>
+      </p>
     </div>
   </div>
 </section>
@@ -454,6 +466,7 @@
     <div class="venue-photo reveal" style="background-image:url('assets/images/pdpias-building.jpg')" role="img" aria-label="P D Patel Institute of Applied Sciences building, CHARUSAT"></div>
     <div class="venue-details reveal">
       <span class="section-label">Venue</span>
+      <img src="assets/images/pdpias-logo-160.png" srcset="assets/images/pdpias-logo-160.png 1x, assets/images/pdpias-logo-320.png 2x" alt="P D Patel Institute of Applied Sciences logo" width="64" height="64" loading="lazy" decoding="async" class="venue-logo">
       <h2 style="margin-bottom:var(--s-5)">P D Patel Institute of Applied Sciences</h2>
       <p>Charotar University of Science and Technology (CHARUSAT)<br>Changa – 388 421, Gujarat, India</p>
       <p>Information on airport, railway station, accommodation and local transportation will be provided before registration opens.</p>
@@ -462,19 +475,26 @@
   </div>
 </section>
 
-<!-- ============ PARTNERS (no confirmed partners yet — clearly marked placeholders) ============ -->
+<!-- ============ PARTNERS ============ -->
 <section id="partners" class="alt">
   <div class="container">
     <div class="section-title centered reveal">
       <span class="section-label">Partners</span>
       <h2>Partners &amp; Collaborators</h2>
-      <p>Institutional partners and collaborators will be announced as confirmed.</p>
     </div>
-    <div class="partners-grid reveal">
-      <div class="partner-tile">Partner Logo</div>
-      <div class="partner-tile">Partner Logo</div>
-      <div class="partner-tile">Partner Logo</div>
-      <div class="partner-tile">Partner Logo</div>
+    <div class="partners-layout reveal">
+      <div class="organizer-card">
+        <img src="assets/images/pdpias-logo-160.png" srcset="assets/images/pdpias-logo-160.png 1x, assets/images/pdpias-logo-320.png 2x" alt="P D Patel Institute of Applied Sciences logo" width="120" height="120" loading="lazy" decoding="async">
+        <div>
+          <span class="organizer-label">Organized by</span>
+          <strong>P D Patel Institute of Applied Sciences</strong>
+          <span>Charotar University of Science and Technology (CHARUSAT)</span>
+        </div>
+      </div>
+      <div class="partner-tile partner-coming-soon">
+        <strong>Coming Soon</strong>
+        <span>Institutional partners and collaborators will be announced here once confirmed.</span>
+      </div>
     </div>
   </div>
 </section>
@@ -575,6 +595,10 @@
       <div>
         <div class="footer-brand">ICCS-<span>CIRCLE</span> 2027</div>
         <p class="small">International Conference on Convergence Science · 21–22 January 2027 · India</p>
+        <div class="footer-organizer">
+          <img src="assets/images/pdpias-logo-160.png" srcset="assets/images/pdpias-logo-160.png 1x, assets/images/pdpias-logo-320.png 2x" alt="P D Patel Institute of Applied Sciences logo" width="56" height="56" loading="lazy" decoding="async">
+          <span class="small">Organized by<br>P D Patel Institute of Applied Sciences, CHARUSAT</span>
+        </div>
       </div>
       <div class="footer-col">
         <h4>Quick Links</h4>
@@ -600,7 +624,6 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <span class="small">Organized by P D Patel Institute of Applied Sciences, CHARUSAT</span>
       <span class="small">© 2027 ICCS-CIRCLE. All rights reserved.</span>
     </div>
   </div>
@@ -610,6 +633,6 @@
 
 <script src="js/dev-config.js?v=4"></script>
 <script src="js/api.js?v=4"></script>
-<script src="js/script.js?v=5"></script>
+<script src="js/script.js?v=7"></script>
 </body>
 </html>

@@ -313,3 +313,47 @@ footer{background:var(--footer-bg);color:var(--footer-text);padding:var(--s-8) 0
  .countdown div{min-width:64px;padding:var(--s-3)}
 }
 .nowrap{white-space:nowrap}
+
+/* ---------- Abstract status panel + post-acceptance payment details (filled by js/script.js) ---------- */
+.info-box.is-visible{display:block;margin:0 0 var(--s-6)}
+.btn-outline-dark{border:1px solid var(--ink-900);color:var(--ink-900);background:transparent;padding:10px 20px}
+.btn-outline-dark:hover{background:var(--ink-900);color:var(--surface)}
+.btn-outline-dark:disabled{opacity:.55;cursor:wait}
+.abstract-status{margin-top:var(--s-4)}
+.abstract-status-row{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s-3);font-weight:600;color:var(--ink-900)}
+.abstract-status-note{margin-top:var(--s-3);color:var(--ink-700)}
+.abstract-status-comments{margin-top:var(--s-4);padding:var(--s-4);background:var(--panel);border:1px solid var(--border)}
+.abstract-status-comments p{margin-top:var(--s-2);white-space:pre-wrap;color:var(--ink-700)}
+.abstract-status-actions{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s-5);margin-top:var(--s-6)}
+.status-chip{display:inline-block;padding:4px 10px;border-radius:2px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;border:1px solid var(--border);background:var(--panel);color:var(--ink-700)}
+.status-chip.is-accepted{background:var(--success-bg);border-color:var(--success-border);color:var(--success-text)}
+.status-chip.is-rejected{background:var(--danger-bg);border-color:var(--danger-border);color:var(--danger)}
+.status-chip.is-review{background:var(--info-bg);border-color:var(--info-border);color:var(--info-text)}
+.payment-panel{margin-top:var(--s-6);border-top:1px solid var(--border);padding-top:var(--s-6)}
+.payment-panel>h4{font-size:1rem;text-transform:uppercase;letter-spacing:1px;margin:0 0 var(--s-5)}
+.payment-panel .card h3{margin-bottom:var(--s-2)}
+.payment-panel .bank-details{line-height:1.7}
+.payment-disclaimer{margin-top:var(--s-5);font-size:.85rem;color:var(--ink-500)}
+.payment-panel .pay-online{margin-top:var(--s-5)}
+
+/* ---------- PDPIAS (organizer) logo ---------- */
+.logo{display:inline-flex;align-items:center;gap:var(--s-3)}
+.logo-mark{width:36px;height:36px;flex:none}
+.partners-layout{display:grid;grid-template-columns:1.2fr 1fr;gap:var(--s-5);max-width:900px;margin:0 auto}
+.organizer-card{display:flex;align-items:center;gap:var(--s-5);border:1px solid var(--border);background:var(--surface);padding:var(--s-6)}
+.organizer-card img{width:120px;height:120px;flex:none}
+.organizer-card div{display:grid;gap:var(--s-1)}
+.organizer-card strong{font-size:1.1rem;color:var(--ink-900)}
+.organizer-card span{color:var(--ink-500);font-size:.9rem}
+.organizer-card .organizer-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--accent)}
+.partner-coming-soon{gap:var(--s-2);text-align:center;text-transform:none;letter-spacing:0;font-size:.9rem}
+.partner-coming-soon strong{font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-900)}
+.footer-organizer{display:flex;align-items:center;gap:var(--s-3);margin-top:var(--s-4)}
+.footer-organizer img{width:56px;height:56px;flex:none}
+.venue-logo{width:64px;height:64px;margin-bottom:var(--s-4)}
+@media(max-width:700px){
+  .partners-layout{grid-template-columns:1fr}
+  .organizer-card{flex-direction:column;text-align:center}
+}
+.logo .logo-text{color:#fff;white-space:nowrap}
+.logo .logo-text span{color:var(--gold)}

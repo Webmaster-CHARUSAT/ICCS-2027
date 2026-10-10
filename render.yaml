@@ -36,3 +36,6 @@ services:
         sync: false
       - key: EMAIL_FROM
         sync: false
+      # Signs /admin faculty logins — 32+ random characters (see .env.example).
+      - key: AUTH_SECRET
+        sync: false

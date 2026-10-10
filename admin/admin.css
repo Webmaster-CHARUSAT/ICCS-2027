@@ -1,0 +1,66 @@
+/* Faculty review dashboard — builds on the public site's tokens and components (css/style.css). */
+body.admin{background:var(--bg,var(--surface));min-height:100vh}
+.admin-bar{background:var(--color-black);color:#fff;position:sticky;top:0;z-index:20}
+.admin-bar-inner{display:flex;align-items:center;justify-content:space-between;gap:var(--s-4);padding:var(--s-4) 0;flex-wrap:wrap}
+.admin-bar .logo small{font-size:.7rem;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.7);margin-left:var(--s-2)}
+.admin-bar-controls{display:flex;align-items:center;gap:var(--s-3)}
+.admin-user{font-size:.85rem;color:rgba(255,255,255,.85)}
+.admin-main{padding:var(--s-7) 0}
+.admin-main section{padding:0}
+.admin-main h1{font-size:1.6rem;text-transform:uppercase;letter-spacing:.5px;margin:0;color:var(--ink-900);max-width:none}
+.admin-muted{color:var(--ink-500)}
+
+.admin-login{max-width:420px;margin:var(--s-7) auto}
+.admin-login .card h1{margin-bottom:var(--s-2)}
+.admin-login form{display:grid;gap:var(--s-4);margin-top:var(--s-5)}
+
+.admin-head{display:flex;align-items:center;justify-content:space-between;gap:var(--s-4);flex-wrap:wrap;margin-bottom:var(--s-6)}
+
+.stat-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:var(--s-4);margin-bottom:var(--s-6)}
+.stat-tile{background:var(--surface);border:1px solid var(--border);padding:var(--s-4);text-align:left;cursor:pointer;font:inherit;color:inherit}
+.stat-tile:hover,.stat-tile.is-active{border-color:var(--ink-900)}
+.stat-tile strong{display:block;font-size:1.6rem;color:var(--ink-900)}
+.stat-tile span{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-500)}
+.stat-tile.is-loading strong{color:transparent;background:var(--panel);width:3ch}
+
+.admin-filters{display:grid;grid-template-columns:2fr 1fr 1fr;gap:var(--s-4);margin-bottom:var(--s-5)}
+
+.admin-table tbody tr{cursor:pointer}
+.admin-table tbody tr:hover td,.admin-table tbody tr:focus td{background:var(--panel)}
+.admin-table tbody tr:focus{outline:2px solid var(--accent);outline-offset:-2px}
+.admin-table td{vertical-align:middle}
+.admin-table .cell-title{font-weight:600;color:var(--ink-900)}
+.admin-table .skeleton td{color:transparent}
+.admin-table .skeleton td::after{content:'';display:block;height:12px;background:var(--panel)}
+.admin-empty{text-align:center;padding:var(--s-6)}
+
+.admin-pager{display:flex;align-items:center;justify-content:center;gap:var(--s-5);margin-top:var(--s-5)}
+.admin-pager .btn:disabled{opacity:.4;cursor:default}
+
+.admin-dialog{width:min(820px,94vw);max-height:90vh;border:1px solid var(--border);border-radius:2px;padding:0;background:var(--surface);color:var(--ink-900)}
+.admin-dialog::backdrop{background:rgba(0,0,0,.55)}
+.admin-dialog-head{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--s-4);padding:var(--s-5) var(--s-6);border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--surface)}
+.admin-dialog-head h2{font-size:1.2rem;margin:0}
+.admin-close{background:none;border:0;font-size:1.8rem;line-height:1;cursor:pointer;color:var(--ink-700)}
+.admin-dialog-body{padding:var(--s-5) var(--s-6)}
+.admin-dialog .error-box{margin:0 var(--s-6) var(--s-4)}
+.detail-grid{display:grid;grid-template-columns:170px 1fr;gap:var(--s-2) var(--s-4);font-size:.92rem;margin-bottom:var(--s-5)}
+.detail-grid dt{color:var(--ink-500)}
+.detail-grid dd{margin:0;word-break:break-word}
+.detail-text{white-space:pre-wrap;background:var(--panel);border:1px solid var(--border);padding:var(--s-4);line-height:1.6;font-size:.95rem}
+.detail-section{font-size:.8rem;text-transform:uppercase;letter-spacing:1px;color:var(--ink-500);margin:var(--s-5) 0 var(--s-2)}
+.admin-decision{padding:var(--s-5) var(--s-6) var(--s-6);border-top:1px solid var(--border);display:grid;gap:var(--s-4)}
+.admin-decision-actions{display:flex;gap:var(--s-4);flex-wrap:wrap}
+.btn-accept{background:#155c3d;color:#fff}
+.btn-reject{background:#b3261e;color:#fff}
+.btn-accept:disabled,.btn-reject:disabled{opacity:.55;cursor:wait}
+
+@media(max-width:760px){
+  .admin-filters{grid-template-columns:1fr}
+  .admin-table .col-optional{display:none}
+  .admin-table th,.admin-table td{padding:var(--s-3) var(--s-2)}
+  .admin-table td:first-child{white-space:normal;word-break:break-all;font-size:.8rem}
+  .detail-grid{grid-template-columns:1fr}
+  .detail-grid dt{margin-top:var(--s-2)}
+  .admin-dialog-head,.admin-dialog-body,.admin-decision{padding-left:var(--s-4);padding-right:var(--s-4)}
+}

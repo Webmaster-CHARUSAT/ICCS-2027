@@ -11,6 +11,7 @@ const { AppError } = require('./utils/errors');
 const abstractRoutes = require('./routes/abstracts');
 const registrationRoutes = require('./routes/registrations');
 const contactRoutes = require('./routes/contact');
+const adminRoutes = require('./routes/admin');
 
 const app = express();
 
@@ -91,6 +92,7 @@ app.get('/api/health', (req, res) => {
 app.use('/api/abstracts', abstractRoutes);
 app.use('/api/registrations', registrationRoutes);
 app.use('/api/contact', contactRoutes);
+app.use('/api/admin', adminRoutes);
 
 // 404 for unmatched API routes.
 app.use('/api', (req, res) => {
@@ -125,6 +127,17 @@ function sendIndex(req, res) {
   res.sendFile(path.join(FRONTEND_ROOT, 'index.html'));
 }
 app.get(['/', '/index.html'], sendIndex);
+
+// Faculty review dashboard. Registered before the catch-all below, which would otherwise answer
+// /admin with the public page. Never cached (it's the shell that loads the versioned assets)
+// and kept out of search engines; access control lives in the /api/admin endpoints, not here.
+const ADMIN_ROOT = path.join(FRONTEND_ROOT, 'admin');
+app.get(['/admin', '/admin/'], function (req, res) {
+  res.set('Cache-Control', 'no-cache');
+  res.set('X-Robots-Tag', 'noindex, nofollow');
+  res.sendFile(path.join(ADMIN_ROOT, 'index.html'));
+});
+app.use('/admin', express.static(ADMIN_ROOT, Object.assign({ index: false }, staticOptions)));
 
 // Fallback: any other non-API GET (a bookmarked/typed path, a stale link, etc.) gets the page
 // instead of a bare 404, since this is a single-page site with in-page anchors rather than

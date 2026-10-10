@@ -3,6 +3,7 @@ const registrationModel = require('../models/registration');
 const idService = require('../services/idService');
 const emailService = require('../services/emailService');
 const config = require('../config/config');
+const paymentInfo = require('../config/paymentInfo');
 const response = require('../utils/response');
 const {
   RegistrationRequiredError,
@@ -99,4 +100,58 @@ async function create(req, res, next) {
   }
 }
 
-module.exports = { create: create };
+// Statuses after which a faculty decision has been made — only then are the reviewer's
+// comments shown to the author.
+const DECIDED_STATUSES = ['Accepted', 'Rejected', 'Revision Required'];
+
+// The participant's abstract, if any. Matches on registration_id; rows with no registration_id
+// (an Abstracts tab created before that column was added — the sample sheet lacks it) fall back
+// to the email, which create() above guarantees equals the registration's email.
+async function findAbstractForRegistration(registration) {
+  const regEmail = String(registration.email).toLowerCase();
+  const matches = (await abstractModel.repository.listAll()).filter(function (a) {
+    if (!a.abstract_id) return false; // blank row
+    if (a.registration_id) return String(a.registration_id) === String(registration.registration_id);
+    return String(a.email || '').toLowerCase() === regEmail;
+  });
+  matches.sort(function (a, b) { return String(b.created_at).localeCompare(String(a.created_at)); });
+  return matches[0] || null;
+}
+
+// Public: a registrant checks the review status of their abstract, proving identity the same
+// way as /api/registrations/verify (Registration ID + registered email). Payment instructions
+// are included ONLY once the abstract is Accepted — that is the sole place they are published.
+async function status(req, res, next) {
+  try {
+    const data = req.validated;
+    const registration = await registrationModel.repository.get(data.registrationId);
+    if (!registration) {
+      throw new RegistrationNotFoundError();
+    }
+    if (String(registration.email).toLowerCase() !== data.email.toLowerCase()) {
+      throw new RegistrationInvalidError('The email address does not match this Registration ID.');
+    }
+
+    const abstract = await findAbstractForRegistration(registration);
+    if (!abstract) {
+      return response.ok(res, { registration_id: registration.registration_id, abstract: null, payment: null });
+    }
+
+    const decided = DECIDED_STATUSES.indexOf(abstract.submission_status) !== -1;
+    return response.ok(res, {
+      registration_id: registration.registration_id,
+      abstract: {
+        abstract_id: abstract.abstract_id,
+        title: abstract.title,
+        presentation_category: abstract.presentation_category,
+        submission_status: abstract.submission_status || 'Submitted',
+        review_comments: decided ? (abstract.review_comments || '') : ''
+      },
+      payment: abstract.submission_status === 'Accepted' ? paymentInfo : null
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { create: create, status: status, findAbstractForRegistration: findAbstractForRegistration };

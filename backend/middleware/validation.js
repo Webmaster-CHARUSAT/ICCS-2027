@@ -51,8 +51,30 @@ const registrationSchema = z.object({
 // For returning registrants re-unlocking the abstract form on a new device/session — see
 // registrationController.verify. Deliberately minimal: just enough to look the record up.
 const registrationVerifySchema = z.object({
-  registrationId: z.string().trim().min(1, 'Please enter your Registration ID.'),
+  // IDs are issued uppercase (REG-XXXXXXXX); accept however the registrant types it.
+  registrationId: z.string().trim().min(1, 'Please enter your Registration ID.')
+    .transform(function (v) { return v.toUpperCase(); }),
   email: emailSchema
+});
+
+// Participant status lookup (POST /api/abstracts/status) — same proof of identity as /verify:
+// the Registration ID AND the email it was registered under.
+const abstractStatusSchema = z.object({
+  registrationId: z.string().trim().min(1, 'Please enter your Registration ID.').max(40)
+    .transform(function (v) { return v.toUpperCase(); }),
+  email: emailSchema
+});
+
+// Faculty dashboard.
+const loginSchema = z.object({
+  email: emailSchema,
+  password: z.string().min(1, 'Please enter your password.').max(200)
+});
+
+const DECISIONS = ['Accepted', 'Rejected'];
+const decisionSchema = z.object({
+  decision: z.enum(DECISIONS, { errorMap: () => ({ message: 'Decision must be Accepted or Rejected.' }) }),
+  comments: z.string().trim().max(2000, 'Comments must be 2000 characters or fewer.').optional().default('')
 });
 
 const contactSchema = z.object({
@@ -67,5 +89,9 @@ module.exports = {
   abstractSchema: abstractSchema,
   registrationSchema: registrationSchema,
   registrationVerifySchema: registrationVerifySchema,
+  abstractStatusSchema: abstractStatusSchema,
+  loginSchema: loginSchema,
+  decisionSchema: decisionSchema,
+  DECISIONS: DECISIONS,
   contactSchema: contactSchema
 };
