@@ -71,6 +71,11 @@ const loginSchema = z.object({
   password: z.string().min(1, 'Please enter your password.').max(200)
 });
 
+// "Sign in with Google": the ID token the Google button returns (a JWT, ~1–2 KB).
+const googleLoginSchema = z.object({
+  credential: z.string().min(20, 'Missing Google sign-in token.').max(8192)
+});
+
 const DECISIONS = ['Accepted', 'Rejected'];
 const decisionSchema = z.object({
   decision: z.enum(DECISIONS, { errorMap: () => ({ message: 'Decision must be Accepted or Rejected.' }) }),
@@ -91,6 +96,7 @@ module.exports = {
   registrationVerifySchema: registrationVerifySchema,
   abstractStatusSchema: abstractStatusSchema,
   loginSchema: loginSchema,
+  googleLoginSchema: googleLoginSchema,
   decisionSchema: decisionSchema,
   DECISIONS: DECISIONS,
   contactSchema: contactSchema

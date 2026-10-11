@@ -159,14 +159,19 @@ details are no longer shown publicly on the page).
 2. **Make sure the spreadsheet has a `Users` tab** with this exact header row:
    `user_id | name | email | password_hash | role | status | created_at | updated_at`
    (it is in the sample template). No other sheet changes are needed.
-3. **Create each faculty account** from a machine with `backend/.env` pointing at the live sheet:
+3. **Optional — "Sign in with Google".** Set `GOOGLE_CLIENT_ID` (the Web Client ID from Google
+   Cloud Console; add your live `https://` URL under *Authorised JavaScript origins*). Faculty then
+   just click the Google button; access is still controlled by the `Users` tab — the Google email
+   must match an `active` row. Such rows can be added by hand (`user_id`, `name`, `email`,
+   `role`, `status` = `active`; leave `password_hash` empty). The client secret is not used.
+4. **Create each faculty account** from a machine with `backend/.env` pointing at the live sheet:
    ```bash
    cd backend
    npm run create-faculty -- --name "Dr. Jane Doe" --email jane@charusat.ac.in --role reviewer
    ```
    You will be asked for the password (hidden; minimum 10 characters). Roles: `reviewer` or
    `admin` (both can review today). To disable an account, change its `status` cell to `disabled`.
-4. Smoke test:
+5. Smoke test:
    ```bash
    curl -s -X POST $URL/api/admin/login -H "Content-Type: application/json"      -d '{"email":"jane@charusat.ac.in","password":"..."}'          # -> {"success":true,"data":{"token":...}}
    curl -s $URL/api/admin/abstracts -H "Authorization: Bearer <token>" # -> items, pagination, stats

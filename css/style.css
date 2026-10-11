@@ -338,7 +338,7 @@ footer{background:var(--footer-bg);color:var(--footer-text);padding:var(--s-8) 0
 
 /* ---------- PDPIAS (organizer) logo ---------- */
 .logo{display:inline-flex;align-items:center;gap:var(--s-3)}
-.logo-mark{width:36px;height:36px;flex:none}
+.logo-mark{width:44px;height:44px;flex:none}
 .partners-layout{display:grid;grid-template-columns:1.2fr 1fr;gap:var(--s-5);max-width:900px;margin:0 auto}
 .organizer-card{display:flex;align-items:center;gap:var(--s-5);border:1px solid var(--border);background:var(--surface);padding:var(--s-6)}
 .organizer-card img{width:120px;height:120px;flex:none}
@@ -357,3 +357,47 @@ footer{background:var(--footer-bg);color:var(--footer-text);padding:var(--s-8) 0
 }
 .logo .logo-text{color:#fff;white-space:nowrap}
 .logo .logo-text span{color:var(--gold)}
+
+/* ---------- ICCS-CIRCLE conference logo (light + dark variants) ---------- */
+.hero-logo{width:140px;height:140px;margin-bottom:var(--s-5)}
+.about-logo{margin-top:var(--s-6);width:220px;max-width:60%}
+.about-logo img{width:100%;height:auto}
+/* Show the variant that matches the active theme (data-theme is set by js/theme-init.js). */
+.logo-for-dark{display:none}
+:root[data-theme="dark"] .logo-for-light{display:none}
+:root[data-theme="dark"] .logo-for-dark{display:block}
+.footer-brand{display:flex;align-items:center;gap:var(--s-3)}
+.footer-logo{width:56px;height:56px;flex:none}
+@media(max-width:600px){
+  .hero-logo{width:96px;height:96px;margin-bottom:var(--s-4)}
+  .about-logo{width:160px}
+}
+.footer-brand .footer-brand-text{color:#fff}
+.footer-brand .footer-brand-text span{color:var(--gold)}
+
+/* ---------- Line spacing (vertical rhythm) ----------
+   Display headings stay tight because they're large and uppercase; smaller headings, labels and
+   body text get more air so multi-line text doesn't crowd, and card titles no longer touch the
+   text beneath them. */
+body{line-height:1.65}
+h1{line-height:1.08}
+h2{line-height:1.18}
+h3{line-height:1.3}
+.section-title h2,.editorial-split .col-heading h2{line-height:1.15}
+.section-title p{line-height:1.7}
+.hero h2{line-height:1.55}
+.hero-eyebrow{line-height:1.7}
+.card h3{margin-bottom:var(--s-3)}
+.card p{line-height:1.7}
+.highlight-title{line-height:1.35}
+.highlight-desc{line-height:1.65}
+.speaker-meta h3{line-height:1.3}
+.speaker-meta p{line-height:1.6}
+.schedule-session{line-height:1.45}
+.faq-q{line-height:1.45}
+.faq-a p{line-height:1.7}
+label{line-height:1.4}
+.datebox strong{line-height:1.4}
+.footer-links{gap:var(--s-2)}
+.footer-links li{line-height:1.6}
+.small{line-height:1.6}

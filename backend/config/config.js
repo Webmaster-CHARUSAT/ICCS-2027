@@ -48,7 +48,12 @@ const config = {
 
   // Signs faculty dashboard session tokens (services/authService.js). Must be a long random
   // string (32+ bytes) — anyone who knows it can forge a faculty login.
-  authSecret: required('AUTH_SECRET')
+  authSecret: required('AUTH_SECRET'),
+
+  // "Sign in with Google" for the faculty dashboard: the OAuth 2.0 Web Client ID from Google
+  // Cloud Console (ends in .apps.googleusercontent.com). Public by design — it is sent to the
+  // browser. The client SECRET is not used anywhere and must not be put in this app.
+  googleClientId: required('GOOGLE_CLIENT_ID')
 };
 
 config.isProduction = config.env === 'production';

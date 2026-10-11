@@ -7,18 +7,18 @@
 <!-- Same pre-paint theme script as the public site (external file: CSP is script-src 'self'). -->
 <script src="/js/theme-init.js?v=4"></script>
 <title>Abstract Review | ICCS-CIRCLE 2027</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23000'/%3E%3Ctext x='32' y='42' font-family='Arial,sans-serif' font-size='24' font-weight='700' fill='%23c6922d' text-anchor='middle'%3EIC%3C/text%3E%3C/svg%3E">
+<link rel="icon" type="image/png" href="/assets/images/iccs-circle-logo-light-96.png?v=2">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/style.css?v=10">
-<link rel="stylesheet" href="/admin/admin.css?v=3">
+<link rel="stylesheet" href="/css/style.css?v=13">
+<link rel="stylesheet" href="/admin/admin.css?v=5">
 </head>
 <body class="admin">
 
 <header class="admin-bar">
   <div class="container admin-bar-inner">
-    <span class="logo"><span class="logo-text">ICCS-<span>CIRCLE</span> 2027</span> <small>Abstract Review</small></span>
+    <span class="logo"><img src="/assets/images/iccs-circle-logo-dark-96.png?v=2" srcset="/assets/images/iccs-circle-logo-dark-96.png?v=2 1x, /assets/images/iccs-circle-logo-dark-192.png?v=2 2x" alt="" width="36" height="36" aria-hidden="true" class="logo-mark"><span class="logo-text">ICCS-<span>CIRCLE</span> 2027</span> <small>Abstract Review</small></span>
     <div class="admin-bar-controls">
       <span class="admin-user" id="adminUser" hidden></span>
       <button class="theme-toggle" id="themeToggle" type="button">Dark</button>
@@ -34,6 +34,13 @@
     <div class="card">
       <h1>Faculty Login</h1>
       <p class="admin-muted">Sign in to review submitted abstracts.</p>
+      <!-- "Sign in with Google" — rendered by admin.js once the server reports its Client ID.
+           Only Google accounts listed as active in the Users sheet are let in. -->
+      <div class="google-signin" id="googleSignin" hidden>
+        <div id="googleButton"></div>
+        <div class="error-box" id="googleError" role="alert"></div>
+        <p class="login-divider"><span>or sign in with password</span></p>
+      </div>
       <form id="loginForm" novalidate>
         <div class="field">
           <label for="loginEmail">Email</label>
@@ -123,7 +130,8 @@
   </form>
 </dialog>
 
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="/js/api.js?v=4"></script>
-<script src="/admin/admin.js?v=1"></script>
+<script src="/admin/admin.js?v=2"></script>
 </body>
 </html>

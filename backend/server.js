@@ -132,7 +132,24 @@ app.get(['/', '/index.html'], sendIndex);
 // /admin with the public page. Never cached (it's the shell that loads the versioned assets)
 // and kept out of search engines; access control lives in the /api/admin endpoints, not here.
 const ADMIN_ROOT = path.join(FRONTEND_ROOT, 'admin');
-app.get(['/admin', '/admin/'], function (req, res) {
+
+// "Sign in with Google" loads Google's script, stylesheet and an iframe from accounts.google.com
+// (Google's documented CSP for Identity Services). Granted on the /admin page ONLY — the public
+// site keeps the stricter policy above. Google's popup also needs the opener relationship kept
+// (same-origin-allow-popups) and the page origin sent as the referrer.
+const GOOGLE_GSI = 'https://accounts.google.com/gsi/';
+const adminCsp = helmet.contentSecurityPolicy({
+  useDefaults: false,
+  directives: Object.assign({}, cspDirectives, {
+    scriptSrc: cspDirectives.scriptSrc.concat(GOOGLE_GSI + 'client'),
+    styleSrc: cspDirectives.styleSrc.concat(GOOGLE_GSI + 'style'),
+    frameSrc: ["'self'", GOOGLE_GSI],
+    connectSrc: cspDirectives.connectSrc.concat(GOOGLE_GSI)
+  })
+});
+app.get(['/admin', '/admin/'], adminCsp, function (req, res) {
+  res.set('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
+  res.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   res.set('Cache-Control', 'no-cache');
   res.set('X-Robots-Tag', 'noindex, nofollow');
   res.sendFile(path.join(ADMIN_ROOT, 'index.html'));

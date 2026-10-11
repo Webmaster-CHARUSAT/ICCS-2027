@@ -39,3 +39,6 @@ services:
       # Signs /admin faculty logins — 32+ random characters (see .env.example).
       - key: AUTH_SECRET
         sync: false
+      # "Sign in with Google" Web Client ID (not the secret) — see .env.example.
+      - key: GOOGLE_CLIENT_ID
+        sync: false

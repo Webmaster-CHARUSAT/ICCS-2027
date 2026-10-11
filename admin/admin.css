@@ -64,3 +64,12 @@ body.admin{background:var(--bg,var(--surface));min-height:100vh}
   .detail-grid dt{margin-top:var(--s-2)}
   .admin-dialog-head,.admin-dialog-body,.admin-decision{padding-left:var(--s-4);padding-right:var(--s-4)}
 }
+
+/* "Sign in with Google" */
+.google-signin{display:grid;gap:var(--s-4);margin-top:var(--s-5)}
+.google-signin #googleButton{min-height:44px;display:flex;justify-content:center}
+.login-divider{display:flex;align-items:center;gap:var(--s-3);color:var(--ink-500);font-size:.8rem;text-transform:uppercase;letter-spacing:1px;margin:var(--s-2) 0 0}
+.login-divider::before,.login-divider::after{content:'';flex:1;border-top:1px solid var(--border)}
+
+/* Conference mark in the top bar (global .logo-mark is 44px; the bar is shorter). */
+.admin-bar .logo-mark{width:36px;height:36px}

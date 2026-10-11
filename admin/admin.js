@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var session = getSession();
     options.headers = Object.assign({}, options.headers, session ? { Authorization: 'Bearer ' + session.token } : {});
     return ICCS_API.request('/admin' + endpoint, options).catch(function (err) {
-      if (err.status === 401 && endpoint !== '/login') {
+      if (err.status === 401 && endpoint !== '/login' && endpoint !== '/google') {
         clearSession();
         showLogin('Your session has expired. Please log in again.');
       }
@@ -96,6 +96,8 @@ document.addEventListener('DOMContentLoaded', function () {
     clearSession();
     $('loginForm').reset();
     hideBox($('loginError'));
+    // Stop Google from silently re-selecting the same account on the next visit.
+    if (window.google && google.accounts && google.accounts.id) google.accounts.id.disableAutoSelect();
     showLogin();
   });
 
@@ -110,17 +112,56 @@ document.addEventListener('DOMContentLoaded', function () {
     var btn = $('loginBtn');
     btn.disabled = true;
     btn.textContent = 'Signing in…';
-    api('/login', { method: 'POST', body: { email: email, password: password } }).then(function (res) {
-      setSession({ token: res.data.token, user: res.data.user });
-      $('loginPassword').value = '';
-      showDashboard(res.data.user);
-    }).catch(function (err) {
+    api('/login', { method: 'POST', body: { email: email, password: password } }).then(finishLogin).catch(function (err) {
       showBox($('loginError'), err.message);
     }).finally(function () {
       btn.disabled = false;
       btn.textContent = 'Log in';
     });
   });
+
+  /* ---------- Sign in with Google ----------
+     Google's script (accounts.google.com/gsi/client, loaded async in index.html) renders the
+     button and hands back an ID token, which the server verifies with Google and matches against
+     the Users sheet. The Client ID comes from the server so it is configured in one place. */
+  function finishLogin(res) {
+    setSession({ token: res.data.token, user: res.data.user });
+    $('loginPassword').value = '';
+    showDashboard(res.data.user);
+  }
+
+  function handleGoogleCredential(response) {
+    hideBox($('googleError'));
+    hideBox($('loginError'));
+    api('/google', { method: 'POST', body: { credential: response.credential } })
+      .then(finishLogin)
+      .catch(function (err) { showBox($('googleError'), err.message); });
+  }
+
+  function whenGoogleReady(callback, attemptsLeft) {
+    if (window.google && google.accounts && google.accounts.id) return callback();
+    if (attemptsLeft <= 0) {
+      showBox($('googleError'), 'Google sign-in could not be loaded (blocked by the browser or network). You can still sign in with a password below.');
+      return;
+    }
+    setTimeout(function () { whenGoogleReady(callback, attemptsLeft - 1); }, 200);
+  }
+
+  function initGoogleSignIn() {
+    ICCS_API.request('/admin/config').then(function (res) {
+      var clientId = res.data.googleClientId;
+      if (!clientId) return; // not configured on this server — password login only
+      $('googleSignin').hidden = false;
+      whenGoogleReady(function () {
+        google.accounts.id.initialize({ client_id: clientId, callback: handleGoogleCredential, ux_mode: 'popup' });
+        google.accounts.id.renderButton($('googleButton'), {
+          theme: root.getAttribute('data-theme') === 'dark' ? 'filled_black' : 'outline',
+          size: 'large', text: 'signin_with', shape: 'rectangular', width: 300
+        });
+      }, 50);
+    }).catch(function () { /* config unavailable: password login still works */ });
+  }
+  initGoogleSignIn();
 
   /* ---------- List: filters, stats, table, paging ---------- */
   var state = { page: 1, status: '', category: '', search: '', totalPages: 1 };
