@@ -589,7 +589,8 @@ document.addEventListener('DOMContentLoaded', function () {
           email: email.value.trim(),
           phone: phone.value.trim(),
           category: category.value,
-          affiliation: affiliation.value.trim()
+          affiliation: affiliation.value.trim(),
+          website: document.getElementById('regWebsite').value
         }
       }).then(function (res) {
         var reg = { registration_id: res.data.registration_id, email: email.value.trim().toLowerCase() };
@@ -734,7 +735,8 @@ document.addEventListener('DOMContentLoaded', function () {
           name: name.value.trim(),
           email: email.value.trim(),
           subject: subject.value.trim(),
-          message: message.value.trim()
+          message: message.value.trim(),
+          website: document.getElementById('contactWebsite').value
         }
       }).then(function () {
         showBox(contactSuccessBox, 'Thank you — your message has been sent to the Organizing Committee.');

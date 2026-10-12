@@ -1,267 +1,549 @@
 /**
- * ICCS-CIRCLE 2027 — Google Apps Script Web App backend for the conference spreadsheet.
+ * ICCS-CIRCLE 2027 — Google Apps Script Web App: the website's only "backend".
  *
- * This is the "direct" alternative to the googleapis/service-account integration: it runs
- * inside the spreadsheet itself and is called by the Node.js backend over plain HTTP, so
- * there's no Google Cloud project, no service account, and no private key to manage.
+ * The website is static (hosted on Vercel) and its forms post straight to this script, which
+ * lives inside the conference spreadsheet. There is no Node.js server. Everything that has to
+ * be trusted therefore happens here, never in the browser: input validation, ID generation,
+ * duplicate checks, writing rows, confirmation emails, and deciding when an author may see the
+ * payment details.
  *
- * DESIGN NOTE — where the business logic lives:
- * This script is deliberately a thin, generic data layer. It does NOT generate IDs, decide
- * statuses, verify registrations, or know what a "registration" or "abstract" is. All of that
- * belongs to the Node backend (backend/controllers/*), which is the single source of truth —
- * duplicating it here would mean two implementations drifting apart, and (worst of all) IDs
- * generated here would never reach the browser, so the ID a submitter is shown would not match
- * the ID actually stored in the sheet.
+ * PUBLIC ACTIONS (POST, JSON body with an "action" field — see js/api.js):
+ *   register            new conference registration          -> { registration_id, ... }
+ *   verifyRegistration  returning registrant: ID + email      -> { registration_id, email }
+ *   submitAbstract      one abstract per registration         -> { abstract_id, ... }
+ *   abstractStatus      review status (+ payment once Accepted)
+ *   contact             contact-form message
+ * Every response is { success: true, data } or { success: false, error: { code, message, status } }.
  *
- * The one exception is the `createUnique` action below. Uniqueness is the single thing the
- * Node backend genuinely CANNOT do safely on its own: it would have to read the sheet, decide,
- * then write in a separate HTTP call, leaving a window where two simultaneous submissions both
- * pass the check before either writes. Doing the check + append together inside one lock here
- * closes that window. The Node backend still supplies the values to check and the record to
- * write — this script only answers "was it unique, and did I append it?".
+ * FACULTY REVIEW happens directly in the Abstracts tab: set submission_status to Accepted /
+ * Rejected (and optionally review_comments / reviewer). An installable trigger
+ * (onAbstractStatusEdit) emails the author when an abstract becomes Accepted.
  *
- * SETUP
- * 1. Open the ICCS-CIRCLE 2027 spreadsheet (the one with the Registrations/Abstracts/
- *    ContactMessages tabs already created with their header rows).
- * 2. Extensions -> Apps Script.
- * 3. Delete any starter code in Code.gs and paste this entire file in its place.
- * 4. Set the secret as a SCRIPT PROPERTY (not a hardcoded constant — a constant would put the
- *    secret in this file's source, which you may commit to a repository):
- *      Project Settings (gear icon, left sidebar) -> Script Properties -> Add script property
- *      Property: SHARED_SECRET
- *      Value:    a long random string — generate one with
- *                node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
- *    Use the SAME string as APPS_SCRIPT_SECRET in backend/.env.
- * 5. Deploy -> New deployment -> gear icon -> "Web app".
- *      Execute as: Me
- *      Who has access: Anyone
- *    Deploy, authorize the requested permissions, then copy the Web App URL (ends in /exec).
- * 6. Paste that URL into backend/.env as APPS_SCRIPT_URL.
- * 7. Whenever you edit this script, you must create a NEW deployment (or "Manage deployments"
- *    -> edit -> new version) for the change to take effect on the existing /exec URL. Editing a
- *    Script Property does NOT require a new deployment — it's read fresh on every request.
+ * SETUP / UPDATING
+ * 1. Spreadsheet -> Extensions -> Apps Script. Replace Code.gs with this whole file. Save.
+ * 2. Run installTriggers once (pick it in the toolbar's function list, click Run, authorize).
+ * 3. Deploy -> Manage deployments -> (your existing Web app) -> Edit (pencil) ->
+ *    Version: "New version" -> Deploy. Editing the EXISTING deployment keeps the same /exec URL
+ *    that js/config.js uses. Execute as: Me. Who has access: Anyone.
+ * Every later edit to this file needs step 3 again, or the website keeps running the old code.
  *
- * SECURITY NOTE: "Who has access: Anyone" means anyone who has (or guesses) this URL can send
- * it requests — the SHARED_SECRET check below is what actually protects your data. Treat the
- * Script Property value like a password: rotate it if it's ever shared, screenshotted, or
- * pasted anywhere outside Project Settings (e.g. into a chat, ticket, or commit).
+ * Emails are sent from the Google account that deploys the script (Gmail daily quota applies:
+ * about 100 recipients/day on a personal account, 1,500 on Google Workspace).
  */
 
-function doPost(e) {
-  var sharedSecret = PropertiesService.getScriptProperties().getProperty('SHARED_SECRET');
-  if (!sharedSecret) {
-    return jsonResponse_({ ok: false, error: 'Server secret not configured.' });
-  }
+/* ============================== Configuration ============================== */
 
+var SHEET = { REG: 'Registrations', ABS: 'Abstracts', MSG: 'ContactMessages' };
+
+// Columns each tab must have (row 1). Checked on every request, so a missing column fails loudly
+// instead of silently dropping data. Extra columns are fine; order does not matter.
+var REQUIRED_HEADERS = {
+  Registrations: ['registration_id', 'name', 'email', 'phone', 'institution', 'category',
+    'payment_status', 'registration_status', 'created_at', 'updated_at'],
+  Abstracts: ['abstract_id', 'registration_id', 'title', 'authors', 'corresponding_author', 'email',
+    'affiliation', 'keywords', 'presentation_category', 'abstract_text', 'word_count',
+    'submission_status', 'reviewer', 'review_comments', 'created_at', 'updated_at'],
+  ContactMessages: ['message_id', 'name', 'email', 'subject', 'message', 'status', 'created_at']
+};
+
+var REG_CATEGORIES = ['Faculty / Scientist', 'Research Scholar', 'Student', 'Industry Participant', 'International Participant'];
+var ABSTRACT_CATEGORIES = ['Oral Presentation', 'Poster Presentation', 'Invited Presentation'];
+var ABSTRACT_ELIGIBLE_STATUSES = ['Submitted', 'Confirmed']; // registration_status values that may submit
+var DECIDED_STATUSES = ['Accepted', 'Rejected', 'Revision Required']; // reviewer comments shown after these
+
+var ORGANIZER_EMAIL = 'iccscircle@gmail.com';
+var SITE_URL = 'https://iccs-circle2027.charusat.ac.in/#abstracts';
+var MAIL_SENDER_NAME = 'ICCS-CIRCLE 2027';
+
+// Shown to an author ONLY once their abstract is Accepted (abstractStatus). Payment itself is
+// handled entirely by CHARUSAT — this script never tracks or verifies payments.
+var PAYMENT_INFO = {
+  disclaimer: 'Payments are processed directly by Charotar University of Science and Technology. ' +
+    'This portal cannot confirm payment status — for payment queries, contact the organizers.',
+  indian: {
+    title: 'Indian Participants',
+    description: 'Pay the registration fee online through the conference payment link.',
+    payUrl: 'https://rzp.io/rzp/GT56wXc'
+  },
+  international: {
+    title: 'Participants from Outside India',
+    bankDetails: [
+      ['Bank A/c Name', 'Charotar University of Science & Technology'],
+      ['Bank A/c Number', '30875081005'],
+      ['Bank A/c Type', 'Current A/c'],
+      ['Bank Branch Address', 'Darshan Hostel, Changa-Valetva Road, Changa, Dist. Anand'],
+      ['Bank Branch Code', '10961'],
+      ['Bank MICR Code', '388002502'],
+      ['Bank IFSC Code', 'SBIN0010961'],
+      ['Bank SWIFT Code', 'SBININBB718'],
+      ['PAN No', 'AABTC1178Q'],
+      ['Bank Telephone No.', '(02692) 248540'],
+      ['Bank Email ID', 'sbi10961@sbi.co.in']
+    ]
+  }
+};
+
+// Per-email throttle for public writes (the script has no IP addresses to limit on).
+var RATE_LIMIT = { max: 5, windowSeconds: 600 };
+
+/* ============================== Entry points ============================== */
+
+function doPost(e) {
   var body;
   try {
-    if (!e || !e.postData || !e.postData.contents) {
-      return jsonResponse_({ ok: false, error: 'Request body is missing.' });
-    }
-    body = JSON.parse(e.postData.contents);
+    body = JSON.parse((e && e.postData && e.postData.contents) || '');
   } catch (err) {
-    return jsonResponse_({ ok: false, error: 'Invalid JSON body.' });
+    return json_({ success: false, error: { code: 'INVALID_JSON', message: 'The request body is not valid JSON.', status: 400 } });
+  }
+  if (!body || typeof body !== 'object') {
+    return json_({ success: false, error: { code: 'INVALID_JSON', message: 'The request body is not valid JSON.', status: 400 } });
   }
 
-  if (body.secret !== sharedSecret) {
-    return jsonResponse_({ ok: false, error: 'Unauthorized.' });
-  }
-
-  // Writes are serialized with a script-wide lock so two near-simultaneous requests can't
-  // interleave their read-modify-write against the same sheet. Reads (list) don't need it.
-  var isWrite = body.action === 'create' || body.action === 'createUnique' ||
-    body.action === 'update' || body.action === 'remove';
-  var lock = isWrite ? LockService.getScriptLock() : null;
-  if (lock) {
-    try {
-      lock.waitLock(30000);
-    } catch (err) {
-      return jsonResponse_({ ok: false, error: 'The spreadsheet is busy, please try again in a moment.' });
-    }
+  var handlers = {
+    register: register_,
+    verifyRegistration: verifyRegistration_,
+    submitAbstract: submitAbstract_,
+    abstractStatus: abstractStatus_,
+    contact: contact_
+  };
+  var handler = handlers[body.action];
+  if (!handler) {
+    return json_({ success: false, error: { code: 'NOT_FOUND', message: 'Unknown action.', status: 404 } });
   }
 
   try {
-    var data;
-    switch (body.action) {
-      case 'list':
-        data = listRecords_(body.sheet);
-        break;
-      case 'create':
-        data = createRecord_(body.sheet, body.record);
-        break;
-      case 'createUnique':
-        data = createUniqueRecord_(body.sheet, body.record, body.uniqueGroups);
-        break;
-      case 'update':
-        data = updateRecord_(body.sheet, body.idField, body.id, body.patch);
-        break;
-      case 'remove':
-        data = removeRecord_(body.sheet, body.idField, body.id);
-        break;
-      default:
-        return jsonResponse_({ ok: false, error: 'Unknown action: ' + body.action });
-    }
-    return jsonResponse_({ ok: true, data: data });
+    return json_({ success: true, data: handler(body) });
   } catch (err) {
-    return jsonResponse_({ ok: false, error: String(err && err.message ? err.message : err) });
-  } finally {
-    if (lock) lock.releaseLock();
+    if (err && err.appError) return json_({ success: false, error: err.appError });
+    console.error('Unhandled error in ' + body.action + ': ' + (err && err.stack ? err.stack : err));
+    return json_({ success: false, error: { code: 'INTERNAL_ERROR', message: 'An unexpected error occurred. Please try again.', status: 500 } });
   }
 }
 
-function doGet(e) {
-  return jsonResponse_({ ok: false, error: 'This endpoint only accepts POST requests.' });
+// Health check: open the /exec URL in a browser to confirm the deployment is live.
+function doGet() {
+  return json_({ success: true, data: { status: 'ok', service: 'ICCS-CIRCLE 2027 forms' } });
 }
 
-function getSheet_(name) {
+/* ============================== Actions ============================== */
+
+function register_(b) {
+  checkHoneypot_(b);
+  var name = text_(b.name, 'name', 3, 120, 'Please enter your full name.');
+  var email = email_(b.email);
+  var phoneRaw = text_(b.phone, 'phone', 7, 20, 'Please enter a valid phone number.');
+  if (!/^[0-9+\-\s()]+$/.test(phoneRaw) || phoneRaw.replace(/\D/g, '').length < 7) {
+    throw fail_(400, 'VALIDATION_ERROR', 'phone: Please enter a valid phone number.');
+  }
+  var category = oneOf_(b.category, REG_CATEGORIES, 'category', 'Please select a valid registration category.');
+  var affiliation = text_(b.affiliation, 'affiliation', 2, 200, 'Please enter your affiliation.');
+  var phone = normalizePhone_(phoneRaw);
+  rateLimit_('register', email);
+
+  var now = new Date().toISOString();
+  var record = withLock_(function () {
+    var sheet = sheet_(SHEET.REG);
+    var all = readAll_(sheet);
+    // One registration per person: the same email OR the same phone number counts as a duplicate.
+    var duplicate = all.rows.some(function (r) {
+      return (r.email && String(r.email).trim().toLowerCase() === email) ||
+        (r.phone && normalizePhone_(r.phone) === phone);
+    });
+    if (duplicate) {
+      throw fail_(409, 'ALREADY_REGISTERED', 'You are already registered using this email address or phone number.');
+    }
+    var rec = {
+      registration_id: uniqueId_('REG', all.rows, 'registration_id'),
+      name: name,
+      email: email,
+      phone: phone,
+      institution: affiliation,
+      designation: '',
+      category: category,
+      country: '',
+      presentation_type: '',
+      payment_status: 'Not Required',
+      registration_status: 'Submitted',
+      created_at: now,
+      updated_at: now
+    };
+    append_(sheet, all.headers, rec);
+    return rec;
+  });
+
+  var emailSent = sendMail_(record.email, 'ICCS-CIRCLE 2027 — Registration Confirmed (' + record.registration_id + ')',
+    'Registration Confirmed', 'Thank you for registering for ICCS-CIRCLE 2027. Here is a copy of your registration.',
+    [['Registration ID', record.registration_id], ['Name', record.name], ['Email', record.email],
+      ['Institution', record.institution], ['Category', record.category], ['Registration Status', record.registration_status]],
+    'Keep this Registration ID — you will need it to submit an abstract. Use the same email address you registered with when you submit.');
+
+  return { registration_id: record.registration_id, registration_status: record.registration_status, email_queued: emailSent };
+}
+
+function verifyRegistration_(b) {
+  var reg = findRegistration_(b.registrationId, b.email);
+  if (ABSTRACT_ELIGIBLE_STATUSES.indexOf(String(reg.registration_status || 'Submitted')) === -1) {
+    throw fail_(403, 'REGISTRATION_INVALID', 'This registration is not currently valid for abstract submission. Please contact the organizers.');
+  }
+  return { registration_id: String(reg.registration_id), email: String(reg.email).toLowerCase() };
+}
+
+function submitAbstract_(b) {
+  if (!String(b.registrationId || '').trim()) {
+    throw fail_(400, 'REGISTRATION_REQUIRED', 'Please complete conference registration before submitting an abstract.');
+  }
+  var title = text_(b.title, 'title', 5, 300, 'Title must be at least 5 characters.');
+  var authors = text_(b.authors, 'authors', 3, 500, 'Please enter the author name(s).');
+  var category = oneOf_(b.category, ABSTRACT_CATEGORIES, 'category', 'Please select a valid presentation category.');
+  var abstractText = text_(b.abstractText, 'abstractText', 1, 5000, 'Abstract text is required.');
+  var keywords = optionalText_(b.keywords, 'keywords', 300);
+  var wc = abstractText.split(/\s+/).filter(String).length;
+  if (wc < 50 || wc > 350) {
+    throw fail_(400, 'VALIDATION_ERROR', 'Abstract must be between 50 and 350 words (currently ' + wc + ').');
+  }
+
+  var reg = findRegistration_(b.registrationId, b.email);
+  if (ABSTRACT_ELIGIBLE_STATUSES.indexOf(String(reg.registration_status || 'Submitted')) === -1) {
+    throw fail_(403, 'REGISTRATION_INVALID', 'Your conference registration is not currently valid for abstract submission. Please contact the organizers.');
+  }
+  var regId = String(reg.registration_id);
+  var email = String(reg.email).toLowerCase();
+  rateLimit_('submitAbstract', email);
+
+  var now = new Date().toISOString();
+  var record = withLock_(function () {
+    var sheet = sheet_(SHEET.ABS);
+    var all = readAll_(sheet);
+    // One abstract per registration. Rows written before registration_id existed fall back to email.
+    var existing = all.rows.some(function (a) { return belongsTo_(a, regId, email); });
+    if (existing) {
+      throw fail_(409, 'ABSTRACT_ALREADY_SUBMITTED', 'An abstract has already been submitted for registration ' + regId + '.');
+    }
+    var id = uniqueId_('ABS', all.rows, 'abstract_id');
+    var rec = {
+      abstract_id: id,
+      submission_id: id,
+      registration_id: regId,
+      title: title,
+      authors: authors,
+      corresponding_author: authors,
+      email: email,
+      affiliation: String(reg.institution || ''),
+      keywords: keywords,
+      presentation_category: category,
+      abstract_text: abstractText,
+      word_count: String(wc),
+      submission_status: 'Submitted',
+      reviewer: '',
+      review_comments: '',
+      created_at: now,
+      updated_at: now
+    };
+    append_(sheet, all.headers, rec);
+    return rec;
+  });
+
+  var emailSent = sendMail_(record.email, 'ICCS-CIRCLE 2027 — Abstract Submission Received (' + record.abstract_id + ')',
+    'Abstract Submission Received', 'Thank you for submitting your abstract to ICCS-CIRCLE 2027. Here is a copy of the details you submitted.',
+    [['Submission ID', record.abstract_id], ['Registration ID', record.registration_id], ['Title', record.title],
+      ['Authors', record.authors], ['Presentation Category', record.presentation_category],
+      ['Keywords', record.keywords], ['Word Count', record.word_count], ['Status', record.submission_status]],
+    'Please keep this Submission ID for your records. The Organizing Committee will contact you regarding the review outcome.',
+    record.abstract_text);
+
+  return { abstract_id: record.abstract_id, registration_id: record.registration_id, submission_status: record.submission_status, email_queued: emailSent };
+}
+
+function abstractStatus_(b) {
+  var reg = findRegistration_(b.registrationId, b.email);
+  var regId = String(reg.registration_id);
+  var email = String(reg.email).toLowerCase();
+  var matches = readAll_(sheet_(SHEET.ABS)).rows.filter(function (a) { return belongsTo_(a, regId, email); });
+  matches.sort(function (a, b2) { return String(b2.created_at).localeCompare(String(a.created_at)); });
+  var a = matches[0];
+  if (!a) return { registration_id: regId, abstract: null, payment: null };
+
+  var status = String(a.submission_status || 'Submitted').trim();
+  return {
+    registration_id: regId,
+    abstract: {
+      abstract_id: String(a.abstract_id),
+      title: String(a.title),
+      presentation_category: String(a.presentation_category || ''),
+      submission_status: status,
+      review_comments: DECIDED_STATUSES.indexOf(status) !== -1 ? String(a.review_comments || '') : ''
+    },
+    payment: status === 'Accepted' ? PAYMENT_INFO : null
+  };
+}
+
+function contact_(b) {
+  checkHoneypot_(b);
+  var name = text_(b.name, 'name', 2, 120, 'Please enter your name.');
+  var email = email_(b.email);
+  var subject = text_(b.subject, 'subject', 2, 200, 'Please enter a subject.');
+  var message = text_(b.message, 'message', 5, 5000, 'Please enter a message.');
+  rateLimit_('contact', email);
+
+  var rec = withLock_(function () {
+    var sheet = sheet_(SHEET.MSG);
+    var all = readAll_(sheet);
+    var r = {
+      message_id: uniqueId_('MSG', all.rows, 'message_id'),
+      name: name, email: email, subject: subject, message: message,
+      status: 'unread', created_at: new Date().toISOString()
+    };
+    append_(sheet, all.headers, r);
+    return r;
+  });
+
+  // Let the organizers know straight away; replying to this email answers the sender.
+  sendMail_(ORGANIZER_EMAIL, 'ICCS-CIRCLE 2027 — New contact message: ' + subject,
+    'New Contact Message', 'A new message was sent through the conference website.',
+    [['From', name], ['Email', email], ['Subject', subject], ['Message ID', rec.message_id]],
+    'Reply to this email to answer ' + name + ' directly.', message, email);
+
+  return { message_id: rec.message_id };
+}
+
+/* ============================== Faculty review trigger ============================== */
+
+/**
+ * Installable "on edit" trigger: when a reviewer sets submission_status to "Accepted" in the
+ * Abstracts tab, email the author that their abstract was accepted and that the payment details
+ * are now visible on the website. Each abstract is emailed at most once (remembered in Script
+ * Properties), so re-selecting "Accepted" or editing other cells never re-sends it.
+ * Installed by installTriggers() — a simple onEdit() cannot send email.
+ */
+function onAbstractStatusEdit(e) {
+  if (!e || !e.range) return;
+  var sheet = e.range.getSheet();
+  if (sheet.getName() !== SHEET.ABS) return;
+  var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(function (h) { return String(h).trim(); });
+  var statusCol = headers.indexOf('submission_status') + 1;
+  if (!statusCol) return;
+  var firstCol = e.range.getColumn();
+  var lastCol = firstCol + e.range.getNumColumns() - 1;
+  if (statusCol < firstCol || statusCol > lastCol) return;
+
+  var props = PropertiesService.getScriptProperties();
+  var startRow = Math.max(e.range.getRow(), 2);
+  var endRow = e.range.getRow() + e.range.getNumRows() - 1;
+  if (endRow < startRow) return;
+  var values = sheet.getRange(startRow, 1, endRow - startRow + 1, headers.length).getValues();
+  values.forEach(function (row) {
+    var a = {};
+    headers.forEach(function (h, i) { a[h] = row[i]; });
+    if (String(a.submission_status).trim() !== 'Accepted' || !a.abstract_id || !a.email) return;
+    var key = 'accepted-mail:' + a.abstract_id;
+    if (props.getProperty(key)) return;
+    var comments = String(a.review_comments || '').trim();
+    var sent = sendMail_(String(a.email), 'ICCS-CIRCLE 2027 — Abstract Accepted (' + a.abstract_id + ')',
+      'Abstract Accepted', 'Congratulations! Your abstract submitted to ICCS-CIRCLE 2027 has been accepted.',
+      [['Abstract ID', a.abstract_id], ['Registration ID', a.registration_id], ['Title', a.title],
+        ['Presentation Category', a.presentation_category]],
+      'Next step — registration fee payment: visit ' + SITE_URL + ' and enter your Registration ID and registered email ' +
+      'under "Call for Abstracts" to view the payment details. ' + PAYMENT_INFO.disclaimer,
+      comments ? 'Reviewer comments:\n' + comments : '');
+    if (sent) props.setProperty(key, new Date().toISOString());
+  });
+}
+
+// Run ONCE from the Apps Script editor (and again only if you delete the trigger).
+function installTriggers() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  ScriptApp.getProjectTriggers().forEach(function (t) {
+    if (t.getHandlerFunction() === 'onAbstractStatusEdit') ScriptApp.deleteTrigger(t);
+  });
+  ScriptApp.newTrigger('onAbstractStatusEdit').forSpreadsheet(ss).onEdit().create();
+  return 'Acceptance-email trigger installed.';
+}
+
+/* ============================== Helpers ============================== */
+
+function fail_(status, code, message) {
+  var e = new Error(message);
+  e.appError = { code: code, message: message, status: status };
+  return e;
+}
+
+function json_(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
+}
+
+// A hidden "website" field real visitors never see or fill in; bots that fill every field are
+// rejected before anything is written.
+function checkHoneypot_(b) {
+  if (String(b.website || '').trim()) throw fail_(400, 'VALIDATION_ERROR', 'Your submission could not be accepted.');
+}
+
+function text_(value, field, min, max, message) {
+  var s = String(value === undefined || value === null ? '' : value).trim();
+  if (s.length < min) throw fail_(400, 'VALIDATION_ERROR', field + ': ' + message);
+  if (s.length > max) throw fail_(400, 'VALIDATION_ERROR', field + ': Must be ' + max + ' characters or fewer.');
+  return s;
+}
+
+function optionalText_(value, field, max) {
+  var s = String(value === undefined || value === null ? '' : value).trim();
+  if (s.length > max) throw fail_(400, 'VALIDATION_ERROR', field + ': Must be ' + max + ' characters or fewer.');
+  return s;
+}
+
+function email_(value) {
+  var s = String(value || '').trim().toLowerCase();
+  if (s.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s)) {
+    throw fail_(400, 'VALIDATION_ERROR', 'email: Please enter a valid email address.');
+  }
+  return s;
+}
+
+function oneOf_(value, allowed, field, message) {
+  var s = String(value || '').trim();
+  if (allowed.indexOf(s) === -1) throw fail_(400, 'VALIDATION_ERROR', field + ': ' + message);
+  return s;
+}
+
+// "+91 98765 43210", "09876543210" and "9876543210" are the same number for duplicate checks.
+function normalizePhone_(phone) {
+  var digits = String(phone || '').replace(/\D/g, '');
+  if (digits.length === 12 && digits.indexOf('91') === 0) digits = digits.slice(2);
+  else if (digits.length === 11 && digits.indexOf('0') === 0) digits = digits.slice(1);
+  return digits;
+}
+
+function rateLimit_(action, email) {
+  var cache = CacheService.getScriptCache();
+  var key = 'rl:' + action + ':' + email;
+  var count = Number(cache.get(key) || 0) + 1;
+  if (count > RATE_LIMIT.max) {
+    throw fail_(429, 'RATE_LIMITED', 'Too many requests. Please try again in a few minutes.');
+  }
+  cache.put(key, String(count), RATE_LIMIT.windowSeconds);
+}
+
+// Serializes writes so two simultaneous submissions can't both pass a duplicate check.
+function withLock_(fn) {
+  var lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(10000);
+  } catch (err) {
+    throw fail_(503, 'SERVICE_UNAVAILABLE', 'The registration system is busy. Please try again in a moment.');
+  }
+  try {
+    return fn();
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function sheet_(name) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(name);
-  if (!sheet) throw new Error('Sheet tab "' + name + '" was not found in this spreadsheet.');
+  if (!sheet) {
+    console.error('Missing sheet tab: ' + name);
+    throw fail_(503, 'SERVICE_UNAVAILABLE', 'The submission system is not set up correctly. Please contact the organizers.');
+  }
   return sheet;
 }
 
-// Reads the whole tab; row 1 is treated as the header. Returns { headers, rows } where each
-// row is a plain object keyed by header name, plus a "__row" (1-indexed sheet row number)
-// used only internally by updateRecord_/removeRecord_ below.
+// Reads a tab into { headers, rows }; rows are objects keyed by header. Blank rows (formatted or
+// dropdown-only rows inside the data range) are skipped. Fails loudly if a required column is missing.
 function readAll_(sheet) {
   var values = sheet.getDataRange().getValues();
-  if (values.length === 0) return { headers: [], rows: [] };
-  var headers = values[0];
-  var rows = values.slice(1).map(function (row, i) {
-    var record = { __row: i + 2 };
-    headers.forEach(function (h, c) {
-      record[h] = row[c];
-    });
-    return record;
-  });
+  var headers = (values[0] || []).map(function (h) { return String(h).trim(); });
+  var missing = (REQUIRED_HEADERS[sheet.getName()] || []).filter(function (h) { return headers.indexOf(h) === -1; });
+  if (missing.length) {
+    console.error('Sheet "' + sheet.getName() + '" is missing column(s): ' + missing.join(', '));
+    throw fail_(503, 'SERVICE_UNAVAILABLE', 'The submission system is not set up correctly. Please contact the organizers.');
+  }
+  var rows = [];
+  for (var i = 1; i < values.length; i++) {
+    var row = values[i];
+    if (!row.some(function (v) { return String(v).trim() !== ''; })) continue;
+    var rec = {};
+    headers.forEach(function (h, c) { rec[h] = row[c]; });
+    rows.push(rec);
+  }
   return { headers: headers, rows: rows };
 }
 
-function stripRow_(record) {
-  var copy = {};
-  for (var key in record) {
-    if (key !== '__row') copy[key] = record[key];
-  }
-  return copy;
-}
-
-function listRecords_(sheetName) {
-  var sheet = getSheet_(sheetName);
-  return readAll_(sheet).rows.map(stripRow_);
-}
-
-// Appends the record as-is, mapping it onto whatever columns the sheet's header row defines.
-// Fields with no matching header are dropped; headers with no matching field become ''.
-function appendMapped_(sheet, headers, record) {
+// Writes the record in the tab's own column order. Every value is written as plain text (a
+// leading apostrophe, which Sheets hides): this stops formula injection (a submitted
+// "=HYPERLINK(...)" stays text), keeps phone numbers and IDs from being reformatted as numbers,
+// and keeps timestamps as ISO strings.
+function append_(sheet, headers, record) {
   var row = headers.map(function (h) {
-    return record[h] !== undefined ? record[h] : '';
+    var v = record[h];
+    if (v === undefined || v === null || v === '') return '';
+    return "'" + String(v);
   });
   sheet.appendRow(row);
-  return record;
 }
 
-function createRecord_(sheetName, record) {
-  if (!record) throw new Error('Record is required.');
-  var sheet = getSheet_(sheetName);
-  var headers = readAll_(sheet).headers;
-  if (headers.length === 0) throw new Error('Sheet "' + sheetName + '" does not have a header row.');
-  return appendMapped_(sheet, headers, record);
-}
-
-/**
- * Atomic "append only if no existing row conflicts" — the whole point of this action is that
- * the check and the append happen together inside doPost's lock, which the Node backend cannot
- * achieve across two separate HTTP calls.
- *
- * uniqueGroups is an array of groups; each group is an array of conditions. A row conflicts if
- * EVERY condition in ANY ONE group matches it. So:
- *   [[email], [phone]]           -> conflict on same email OR same phone      (registrations)
- *   [[registration_id]]          -> conflict on same registration_id         (abstracts — one per registration)
- *   [[email, title]]             -> conflict on same email AND same title    (an alternative rule, not currently used)
- * Each condition: { field: 'email', value: 'a@b.com', normalize: 'email'|'phone'|'text'|'exact' }
- *
- * Returns { created: true } or { created: false, conflict: true } — a duplicate is an expected
- * outcome, not a script failure, so it comes back as a normal ok:true response and the Node
- * backend decides which HTTP status the user sees.
- */
-function createUniqueRecord_(sheetName, record, uniqueGroups) {
-  if (!record) throw new Error('Record is required.');
-  if (!uniqueGroups || !uniqueGroups.length) throw new Error('uniqueGroups is required for createUnique.');
-
-  var sheet = getSheet_(sheetName);
-  var all = readAll_(sheet);
-  if (all.headers.length === 0) throw new Error('Sheet "' + sheetName + '" does not have a header row.');
-
-  for (var i = 0; i < all.rows.length; i++) {
-    var existing = all.rows[i];
-    for (var g = 0; g < uniqueGroups.length; g++) {
-      var group = uniqueGroups[g];
-      if (!group || !group.length) continue;
-      var allMatch = true;
-      for (var c = 0; c < group.length; c++) {
-        var cond = group[c];
-        var wanted = normalizeValue_(cond.value, cond.normalize);
-        var actual = normalizeValue_(existing[cond.field], cond.normalize);
-        // An empty wanted/actual never counts as a match, so blank cells in the sheet (or a
-        // blank optional field) can't collide with each other.
-        if (!wanted || !actual || wanted !== actual) { allMatch = false; break; }
-      }
-      if (allMatch) return { created: false, conflict: true };
-    }
+function uniqueId_(prefix, rows, field) {
+  var taken = {};
+  rows.forEach(function (r) { taken[String(r[field]).toUpperCase()] = true; });
+  for (var attempt = 0; attempt < 5; attempt++) {
+    var id = prefix + '-' + Utilities.getUuid().replace(/-/g, '').slice(0, 12).toUpperCase();
+    if (!taken[id]) return id;
   }
-
-  appendMapped_(sheet, all.headers, record);
-  return { created: true };
+  throw fail_(500, 'INTERNAL_ERROR', 'Could not generate a unique ID. Please try again.');
 }
 
-// Mirrors the normalization the Node backend applies before storing these values
-// (backend/controllers/registrationController.js normalizePhone + .toLowerCase() on emails).
-// Kept in sync deliberately: rows written by older versions may not be normalized on disk.
-function normalizeValue_(value, mode) {
-  if (value === undefined || value === null) return '';
-  var str = String(value).trim();
-  if (mode === 'email') return str.toLowerCase();
-  if (mode === 'phone') {
-    var digits = str.replace(/\D/g, '');
-    if (digits.length === 12 && digits.indexOf('91') === 0) digits = digits.substring(2);
-    else if (digits.length === 11 && digits.indexOf('0') === 0) digits = digits.substring(1);
-    return digits;
+// Registration ID + the email it was registered under — both must match.
+function findRegistration_(registrationId, email) {
+  var id = String(registrationId || '').trim().toUpperCase();
+  if (!id) throw fail_(400, 'VALIDATION_ERROR', 'registrationId: Please enter your Registration ID.');
+  var e = email_(email);
+  var reg = null;
+  var rows = readAll_(sheet_(SHEET.REG)).rows;
+  for (var i = 0; i < rows.length; i++) {
+    if (String(rows[i].registration_id).trim().toUpperCase() === id) { reg = rows[i]; break; }
   }
-  if (mode === 'text') return str.toLowerCase().replace(/\s+/g, ' ');
-  return str;
+  if (!reg) {
+    throw fail_(404, 'REGISTRATION_NOT_FOUND', 'We could not verify your conference registration. Please register first or contact the conference organizers.');
+  }
+  if (String(reg.email).trim().toLowerCase() !== e) {
+    throw fail_(403, 'REGISTRATION_INVALID', 'The email address does not match this Registration ID.');
+  }
+  return reg;
 }
 
-function updateRecord_(sheetName, idField, id, patch) {
-  var sheet = getSheet_(sheetName);
-  var all = readAll_(sheet);
-  var match = null;
-  for (var i = 0; i < all.rows.length; i++) {
-    if (String(all.rows[i][idField]) === String(id)) { match = all.rows[i]; break; }
-  }
-  if (!match) return null;
+function belongsTo_(abstractRow, regId, email) {
+  if (!abstractRow.abstract_id) return false;
+  if (String(abstractRow.registration_id || '').trim()) return String(abstractRow.registration_id).trim() === regId;
+  return String(abstractRow.email || '').trim().toLowerCase() === email;
+}
 
-  var merged = {};
-  for (var k in match) merged[k] = match[k];
-  for (var p in patch) merged[p] = patch[p];
-
-  var row = all.headers.map(function (h) {
-    return merged[h] !== undefined ? merged[h] : '';
+function escapeHtml_(s) {
+  return String(s === undefined || s === null ? '' : s).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
   });
-  sheet.getRange(match.__row, 1, 1, row.length).setValues([row]);
-  return stripRow_(merged);
 }
 
-function removeRecord_(sheetName, idField, id) {
-  var sheet = getSheet_(sheetName);
-  var all = readAll_(sheet);
-  var match = null;
-  for (var i = 0; i < all.rows.length; i++) {
-    if (String(all.rows[i][idField]) === String(id)) { match = all.rows[i]; break; }
+// Sends a simple branded email (plain text + HTML). Returns true if sent. A mail failure (quota,
+// bad address) is logged, never thrown — the submission is already saved by the time this runs.
+function sendMail_(to, subject, heading, intro, rows, closing, longText, replyTo) {
+  try {
+    var text = [intro, ''].concat(rows.map(function (r) { return r[0] + ': ' + (r[1] || '—'); }))
+      .concat(longText ? ['', longText] : []).concat(['', closing, '', '— ICCS-CIRCLE 2027 Organizing Committee']).join('\n');
+    var html = '<div style="font-family:Arial,Helvetica,sans-serif;color:#243447;max-width:600px;margin:0 auto">' +
+      '<h2 style="color:#10243e;margin-bottom:4px">' + escapeHtml_(heading) + '</h2>' +
+      '<p style="color:#607080;margin-top:0">' + escapeHtml_(intro) + '</p>' +
+      '<table style="width:100%;border-collapse:collapse;font-size:14px;margin:16px 0">' +
+      rows.map(function (r) {
+        return '<tr><td style="padding:6px 12px 6px 0;color:#607080;white-space:nowrap;vertical-align:top">' + escapeHtml_(r[0]) +
+          '</td><td style="padding:6px 0">' + escapeHtml_(r[1] || '—') + '</td></tr>';
+      }).join('') + '</table>' +
+      (longText ? '<p style="white-space:pre-wrap;background:#f4f7fa;padding:14px;border-radius:8px;font-size:14px;line-height:1.5">' + escapeHtml_(longText) + '</p>' : '') +
+      '<p style="margin-top:20px">' + escapeHtml_(closing) + '</p>' +
+      '<p style="color:#607080;font-size:13px">— ICCS-CIRCLE 2027 Organizing Committee</p></div>';
+    var options = { to: to, subject: subject, body: text, htmlBody: html, name: MAIL_SENDER_NAME };
+    if (replyTo) options.replyTo = replyTo;
+    MailApp.sendEmail(options);
+    return true;
+  } catch (err) {
+    console.error('Email to ' + to + ' failed: ' + err);
+    return false;
   }
-  if (!match) return false;
-  sheet.deleteRow(match.__row);
-  return true;
-}
-
-function jsonResponse_(obj) {
-  return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
 }

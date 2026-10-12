@@ -3,13 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<!-- The backend's own port, for js/dev-config.js when the page is served from a different
-     local static server than the API (e.g. a separate dev server on :5500). Not used at all
-     in the recommended same-origin setup (backend serving the site on one port). -->
-<meta name="iccs-api-port" content="8080">
 <!-- Applies the stored/preferred theme before first paint (avoids a flash of the wrong theme).
      External + synchronous + before the stylesheet: must run before CSS applies, and must be
-     an external file (not inline) to satisfy the backend's script-src 'self' CSP. -->
+     an external file (not inline) so the page stays compatible with a strict script-src 'self' CSP. -->
 <script src="js/theme-init.js?v=4"></script>
 <title>ICCS-CIRCLE 2027 | International Conference on Convergence Science</title>
 <meta name="description" content="ICCS-CIRCLE 2027, International Conference on Convergence Science, 21–22 January 2027, India.">
@@ -47,7 +43,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=13">
+<link rel="stylesheet" href="css/style.css?v=14">
 </head>
 <body>
 
@@ -268,6 +264,8 @@
       <h3>Register for the Conference</h3>
       <p style="color:var(--ink-500);margin-top:-6px;margin-bottom:var(--s-5)">No payment is collected through this form — payment details are shared once your abstract is accepted. You'll receive a Registration ID by email, which you'll need to submit an abstract.</p>
       <form id="registrationForm" novalidate>
+        <!-- Anti-spam: hidden from people and screen readers; bots that fill it are rejected. -->
+        <div class="hp-field" aria-hidden="true"><label for="regWebsite">Website</label><input type="text" id="regWebsite" name="website" tabindex="-1" autocomplete="off"></div>
         <div class="form-row">
           <div class="field">
             <label for="regName">Full Name</label>
@@ -407,7 +405,7 @@
     </div>
 
     <!-- Abstract status panel: shown once this registration has an abstract on file. Filled in by
-         js/script.js from POST /api/abstracts/status; payment details appear only when Accepted. -->
+         js/script.js from the Apps Script "abstractStatus" action; payment details appear only when Accepted. -->
     <div class="card reveal" id="abstractAlreadySubmitted" hidden>
       <h3>Your Abstract</h3>
       <p id="abstractAlreadySubmittedText">You have already submitted an abstract for this registration. Only one abstract is accepted per registration.</p>
@@ -551,6 +549,8 @@
     <div class="card reveal" style="margin-top:var(--s-6)">
       <h3>Send a Message</h3>
       <form id="contactForm" novalidate>
+        <!-- Anti-spam: hidden from people and screen readers; bots that fill it are rejected. -->
+        <div class="hp-field" aria-hidden="true"><label for="contactWebsite">Website</label><input type="text" id="contactWebsite" name="website" tabindex="-1" autocomplete="off"></div>
         <div class="form-row">
           <div class="field">
             <label for="contactName">Your Name</label>
@@ -636,8 +636,8 @@
 
 <button class="back-to-top" id="backToTop" aria-label="Back to top" type="button">↑</button>
 
-<script src="js/dev-config.js?v=4"></script>
-<script src="js/api.js?v=4"></script>
-<script src="js/script.js?v=7"></script>
+<script src="js/config.js?v=1"></script>
+<script src="js/api.js?v=5"></script>
+<script src="js/script.js?v=8"></script>
 </body>
 </html>

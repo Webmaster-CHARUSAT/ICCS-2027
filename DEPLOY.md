@@ -1,180 +1,84 @@
 # Deploying ICCS-CIRCLE 2027
 
-Single web service, same-origin (the backend serves the public site itself — see `server.js`).
-Primary target: [Render](https://render.com). Railway works identically; see the note at the end.
+The site has **no server of its own**. It is two pieces:
 
-## a. Rotate secrets first
+| Piece | What it is | Hosted on |
+|---|---|---|
+| Website | Static files: `index.html`, `css/`, `js/`, `assets/` | Vercel (auto-deploys on every push to `main`) |
+| Forms backend | `google-apps-script/Code.gs`, a Google Apps Script attached to the conference spreadsheet | Google (deployed as a Web App) |
 
-Do this **before** pushing anything to GitHub, regardless of whether you believe the current
-values have leaked — they were pasted in plaintext during earlier local debugging, which is
-reason enough to treat them as no longer private.
+The browser sends every form (registration, verify, abstract, abstract status, contact) straight
+to the Apps Script's `/exec` URL, set in `js/config.js`. The script validates the input, writes
+the spreadsheet, enforces "one registration per email/phone" and "one abstract per
+registration", and sends the emails. Faculty review abstracts directly in the spreadsheet.
 
-1. **Gmail App Password**: go to <https://myaccount.google.com/apppasswords>, revoke the old one,
-   generate a new one. You'll use it as `SMTP_PASS` in step d.
-2. **Apps Script shared secret**: generate a new random value —
-   ```bash
-   node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
-   ```
-   Keep this value handy for step b and step d — it must be identical in both places.
+---
 
-## b. Update Apps Script
+## 1. The spreadsheet
+
+Four tabs with these header rows (row 1). Names are case-sensitive, column order doesn't matter,
+extra columns are fine. The script refuses to write if a required column is missing.
+
+| Tab | Required columns |
+|---|---|
+| `Registrations` | registration_id, name, email, phone, institution, category, payment_status, registration_status, created_at, updated_at (optional: designation, country, presentation_type) |
+| `Abstracts` | abstract_id, registration_id, title, authors, corresponding_author, email, affiliation, keywords, presentation_category, abstract_text, word_count, submission_status, reviewer, review_comments, created_at, updated_at (optional: submission_id) |
+| `ContactMessages` | message_id, name, email, subject, message, status, created_at |
+
+The old `Users` tab is no longer used and can be deleted.
+
+## 2. Deploy or update the Apps Script
 
 1. Open the spreadsheet → **Extensions → Apps Script**.
-2. Confirm `Code.gs` matches the version in this repo (it reads the secret from a Script
-   Property now, not a hardcoded constant — if you're updating an older deployment, paste the
-   current `google-apps-script/Code.gs` over it).
-3. **Project Settings** (gear icon, left sidebar) → **Script Properties** → **Add script
-   property**: key `SHARED_SECRET`, value = the new secret from step a.2. (If a `SHARED_SECRET`
-   script property already exists, edit it instead.)
-4. **Deploy → Manage deployments** → pencil icon on the existing deployment → **New version** →
-   **Deploy**. Confirm the settings show **Execute as: Me**, **Who has access: Anyone**.
-5. Copy the Web App URL (ends in `/exec`) if you don't already have it — you'll need it in step d.
+2. Replace the contents of `Code.gs` with `google-apps-script/Code.gs` from this repo. Save.
+3. **Once:** choose `installTriggers` in the function dropdown → **Run** → authorize. This
+   installs the trigger that emails authors when their abstract is accepted.
+4. **Deploy → Manage deployments →** select the existing Web app → ✏️ **Edit** → Version:
+   **New version** → **Deploy**. Keep *Execute as: Me* and *Who has access: Anyone*.
+   - Editing the existing deployment keeps the same `/exec` URL, so `js/config.js` doesn't change.
+   - If you create a *new* deployment instead, copy its URL into `js/config.js` and push.
+5. Check: open the `/exec` URL in a browser → `{"success":true,"data":{"status":"ok",...}}`.
 
-## c. Push to GitHub
+**Every edit to `Code.gs` needs step 4 again**, or the live forms keep running the old version.
+The `SHARED_SECRET` script property from the old setup is no longer used and can be deleted.
 
-1. If this isn't already a git repository: `git init`.
-2. **Before your first commit**, verify `.env` will not be tracked:
-   ```bash
-   git ls-files | grep -i '\.env$'
-   ```
-   This must print nothing. If it prints `backend/.env`, stop — do not commit — and instead run
-   `git rm --cached backend/.env` first (the `.gitignore` in this repo already excludes it going
-   forward, but that only prevents *new* commits from including it).
-3. Commit and push to a GitHub repository.
+## 3. Deploy the website
 
-## d. Deploy on Render
+Push to `main`; Vercel publishes the files as they are (no build step). After deploying, hard
+refresh (Ctrl+F5). Static assets use `?v=N` query strings — bump `N` in `index.html` when you
+change a CSS/JS/image file so browsers fetch the new copy.
 
-1. Render dashboard → **New → Blueprint** → select this repository. Render reads `render.yaml`
-   at the repo root and creates the web service.
-2. Fill in the env vars marked `sync: false` in `render.yaml`:
-   - `APPS_SCRIPT_URL` — the `/exec` URL from step b.5
-   - `APPS_SCRIPT_SECRET` — the secret from step a.2 (must exactly match the Script Property)
-   - `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `EMAIL_FROM` — from step a.1
-   - `FRONTEND_URL`, `ADMIN_URL` — see step e; a placeholder value is fine for the very first
-     deploy, since you don't know the final URL until after it exists
-3. Deploy.
+## 4. Reviewing abstracts (faculty)
 
-## e. Point FRONTEND_URL/ADMIN_URL at the real URL
+In the `Abstracts` tab, set **`submission_status`** to `Accepted` or `Rejected` (the column has
+a dropdown). Optionally fill `review_comments` (shown to the author after the decision) and
+`reviewer`.
 
-After the first deploy succeeds, Render shows you the service's URL
-(`https://<service-name>.onrender.com`, or your custom domain once added — see step f).
+- Setting **Accepted** emails the author once (via the trigger from step 2.3). They then see
+  the payment details by entering their Registration ID and email under *Call for Abstracts*.
+- Payment details are only ever sent for an `Accepted` abstract. They live in `PAYMENT_INFO`
+  near the top of `Code.gs`.
 
-1. Render dashboard → the service → **Environment** → set `FRONTEND_URL` and `ADMIN_URL` to that
-   URL (exactly, including `https://`, no trailing slash).
-2. Save → this triggers a redeploy automatically. Without this step, the app will actually
-   **refuse to boot** — `config.js`'s production validation exits with a `FATAL` log line if
-   `FRONTEND_URL` is missing or still a `localhost` address, specifically to catch this exact
-   omission before it becomes a confusing runtime CORS error instead.
+## 5. Smoke test after a deploy
 
-## f. Custom domain (optional)
+On the live site:
+1. Register with a test email → you see a Registration ID and receive the confirmation email.
+2. Register again with the same email → "Already Registered".
+3. Submit a 50+ word abstract → status panel shows **Submitted**, no payment details.
+4. In the sheet, set that abstract to **Accepted** → the author email arrives; *Refresh status*
+   on the site shows **Accepted** with the payment details.
+5. Send a contact message → it appears in `ContactMessages` and iccscircle@gmail.com is emailed.
 
-1. Render dashboard → the service → **Settings → Custom Domains** → add your domain.
-2. At your DNS provider, add the CNAME record Render shows you.
-3. Render provisions HTTPS automatically once the CNAME resolves (can take a few minutes to a
-   few hours depending on DNS propagation).
-4. Repeat step e with the custom domain instead of the `.onrender.com` URL.
-5. Also update `index.html`'s `<link rel="canonical">` and `og:url` (currently a `YOUR_DOMAIN`
-   placeholder with a `TODO` comment next to it) to the real domain.
+Then delete the test rows from the three tabs.
 
-## g. Smoke test
+## Limits to know
 
-Replace `$URL` with your deployed URL (no trailing slash) in the commands below.
-
-```bash
-# Health — both should be true. If either is false, the corresponding env var is missing/wrong.
-curl -s $URL/api/health
-
-# Register (use a real-looking but unique email/phone each time you retest this)
-curl -s -X POST $URL/api/registrations -H "Content-Type: application/json" -d '{
-  "name":"Smoke Test","email":"smoke.test+1@example.com","phone":"9876543210",
-  "category":"Student","affiliation":"Test University"}'
-# -> 201, {"success":true,"data":{"registration_id":"REG-...", ...}}
-
-# Duplicate registration (same email as above) — expect 409 ALREADY_REGISTERED
-curl -s -i -X POST $URL/api/registrations -H "Content-Type: application/json" -d '{
-  "name":"Smoke Test","email":"smoke.test+1@example.com","phone":"9876543211",
-  "category":"Student","affiliation":"Test University"}'
-
-# Verify (use the registration_id returned above)
-curl -s -X POST $URL/api/registrations/verify -H "Content-Type: application/json" -d '{
-  "registrationId":"REG-XXXXXXXX","email":"smoke.test+1@example.com"}'
-# -> 200, {"success":true,"data":{"registration_id":"REG-XXXXXXXX","email":"smoke.test+1@example.com"}}
-
-# Abstract submission (registrationId + email must match a real registration from above)
-curl -s -X POST $URL/api/abstracts -H "Content-Type: application/json" -d '{
-  "registrationId":"REG-XXXXXXXX","title":"Smoke Test Submission Title","authors":"Smoke Test",
-  "email":"smoke.test+1@example.com","category":"Oral Presentation",
-  "abstractText":"'"$(python3 -c "print('word '*60)" 2>/dev/null || printf 'word %.0s' {1..60})"'"}'
-# -> 201, {"success":true,"data":{"abstract_id":"ABS-...","registration_id":"REG-...", ...}}
-
-# Contact message
-curl -s -X POST $URL/api/contact -H "Content-Type: application/json" -d '{
-  "name":"Smoke Test","email":"smoke.test+1@example.com","subject":"Test","message":"Smoke test message."}'
-# -> 201
-
-# Malformed JSON — expect 400 INVALID_JSON (not a 500)
-curl -s -i -X POST $URL/api/abstracts -H "Content-Type: application/json" -d '{not valid json'
-```
-
-Also open `$URL` in a browser and confirm: the page loads, dark/light theme toggle works, the
-Registration form and (after registering) the Abstract form both submit successfully, and no
-Content-Security-Policy errors appear in the DevTools console.
-
-Afterward, delete the smoke-test rows from the `Registrations`, `Abstracts` and `ContactMessages`
-tabs in the spreadsheet.
-
-## h. About Render's free tier
-
-The free plan **sleeps after ~15 minutes of no traffic** and takes roughly 30–50 seconds to wake
-on the next request — the first visitor after a quiet period will see a long hang (and it also
-means `APPS_SCRIPT_TIMEOUT_MS`'s 15s default could itself time out before the *app* has even
-finished waking up, compounding the delay). This is a poor experience right around the
-registration/abstract deadline, when traffic is bursty. Two options:
-
-- Upgrade the service to the **Starter** plan (Render dashboard → service → Settings), which
-  doesn't sleep. Do this in the dashboard directly rather than in `render.yaml`, so the blueprint
-  doesn't silently commit you to a paid plan for anyone else who deploys from this repo.
-- Or keep the free plan and run an uptime pinger (e.g. a free UptimeRobot check hitting
-  `$URL/api/health` every 5–10 minutes) during the registration/submission window, to keep the
-  service warm.
-
-## i. Alternative: Railway
-
-Railway works the same way — same `startCommand` (`npm start`), same environment variables as
-listed in step d.2 plus `NODE_ENV=production` and `TRUST_PROXY=1`. Railway doesn't read
-`render.yaml`; create the service from the GitHub repo in the Railway dashboard, set the root
-directory to `backend`, and fill in the same env vars manually. Repeat step e using the URL
-Railway assigns.
-
-## i. Faculty review dashboard (/admin)
-
-Faculty log in at `/admin` to accept or reject submitted abstracts, which are read live from the
-`Abstracts` tab. Accepting an abstract emails the author; once accepted, the author sees the fee
-payment details by entering their Registration ID and email under **Call for Abstracts** (those
-details are no longer shown publicly on the page).
-
-1. **Set `AUTH_SECRET`** in the Render dashboard (Environment) — 32+ random characters:
-   `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`. The server will not
-   start in production without it.
-2. **Make sure the spreadsheet has a `Users` tab** with this exact header row:
-   `user_id | name | email | password_hash | role | status | created_at | updated_at`
-   (it is in the sample template). No other sheet changes are needed.
-3. **Optional — "Sign in with Google".** Set `GOOGLE_CLIENT_ID` (the Web Client ID from Google
-   Cloud Console; add your live `https://` URL under *Authorised JavaScript origins*). Faculty then
-   just click the Google button; access is still controlled by the `Users` tab — the Google email
-   must match an `active` row. Such rows can be added by hand (`user_id`, `name`, `email`,
-   `role`, `status` = `active`; leave `password_hash` empty). The client secret is not used.
-4. **Create each faculty account** from a machine with `backend/.env` pointing at the live sheet:
-   ```bash
-   cd backend
-   npm run create-faculty -- --name "Dr. Jane Doe" --email jane@charusat.ac.in --role reviewer
-   ```
-   You will be asked for the password (hidden; minimum 10 characters). Roles: `reviewer` or
-   `admin` (both can review today). To disable an account, change its `status` cell to `disabled`.
-5. Smoke test:
-   ```bash
-   curl -s -X POST $URL/api/admin/login -H "Content-Type: application/json"      -d '{"email":"jane@charusat.ac.in","password":"..."}'          # -> {"success":true,"data":{"token":...}}
-   curl -s $URL/api/admin/abstracts -H "Authorization: Bearer <token>" # -> items, pagination, stats
-   curl -s -X POST $URL/api/abstracts/status -H "Content-Type: application/json"      -d '{"registrationId":"REG-XXXXXXXX","email":"smoke.test+1@example.com"}'
-   ```
-   Login allows 10 attempts per 15 minutes per IP; the 11th returns 429.
+- **Email quota:** Apps Script sends from the account that deployed it — about 100
+  recipients/day on a personal Gmail account, 1,500 on Google Workspace. Each registration,
+  abstract, acceptance and contact message uses one.
+- **Spam protection:** hidden honeypot field, input length limits, and at most 5 submissions per
+  email address per 10 minutes. There is no per-IP limit (Apps Script cannot see IP addresses).
+- **Speed:** the first request after a quiet period can take a few seconds while Google starts
+  the script.
+- The `/exec` URL in `js/config.js` is public by design; the script only exposes the five form
+  actions above — nobody can read or list the spreadsheet through it.

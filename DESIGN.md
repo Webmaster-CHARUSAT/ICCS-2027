@@ -1,9 +1,8 @@
 # ICCS-CIRCLE 2027 — Design System
 
 How the conference website looks and why, written for anyone changing the page or adding a
-section. Everything here is taken from the code: `css/style.css` (public site) and
-`admin/admin.css` (faculty review dashboard). When this document and the CSS disagree, the CSS
-wins — update this file.
+section. Everything here is taken from the code in `css/style.css`. When this document and the
+CSS disagree, the CSS wins — update this file.
 
 ---
 
@@ -77,7 +76,7 @@ for dark mode.
 
 - Activated by `data-theme="dark"` on `<html>`. `js/theme-init.js` sets it **before first paint**
   from `localStorage['iccs-theme']`, falling back to the OS preference; the header button toggles
-  it. The dashboard shares the same key, so the choice carries across.
+  it.
 - Only the semantic tokens change. Components must never check the theme themselves.
 - The header, footer, hero and photo banners are dark in **both** themes by design.
 
@@ -119,7 +118,7 @@ Card titles have `--s-3` space below them so they never touch the text underneat
 text to roughly 60–75 characters per line (`.section-title p` is capped at `60ch`).
 
 > **Gotcha:** the global `h1` rule is white and hero-sized because the only public `h1` sits on the
-> hero photo. Any `h1` elsewhere (e.g. the dashboard) must override `color` and `font-size`.
+> hero photo. Any `h1` added elsewhere must override `color` and `font-size`.
 
 ---
 
@@ -172,7 +171,6 @@ Prefer `auto-fit` + `minmax` over fixed column counts so layouts reflow without 
 | Width | Changes |
 |---|---|
 | ≤1080px | Nav collapses to the ☰ menu; split layouts and two-column forms stack; footer 2 columns |
-| ≤760px | (Dashboard) filters stack; table hides Authors/Category/Submitted; detail grid stacks |
 | ≤700px | Table first column becomes sticky; partners and organizer card stack |
 | ≤600px | Section padding 60px; hero full height; timeline and schedule stack; footer 1 column |
 
@@ -190,7 +188,7 @@ Everything must work at **360px wide with no horizontal page scroll**. Wide tabl
   The text sits in `.logo-text` so it never wraps.
 - Nav links: 13px uppercase white; hover/active draws a 1px gold underline from the left, and
   the active section's link turns gold (scroll-spy in `js/script.js`).
-- Controls: outlined `.theme-toggle` (also used for "Log out" in the dashboard) and the ☰ menu.
+- Controls: outlined `.theme-toggle` (light/dark) and the ☰ menu.
 
 ### Buttons
 | Class | Look | Use |
@@ -242,7 +240,8 @@ committee cards.
 ### Status chips
 `.status-chip` — 11px uppercase label in a bordered box. Variants: `.is-accepted` (success),
 `.is-rejected` (danger), `.is-review` (info); the neutral default covers "Submitted". Used in the
-participant status panel and the dashboard table, so the vocabulary matches in both.
+participant's abstract status panel; the labels match the `submission_status` values faculty set
+in the spreadsheet.
 
 ### Important dates
 `.timeline` of `.datebox` cells separated by 1px gaps on a border-coloured background; the
@@ -267,8 +266,7 @@ hover, copyright row under a faint rule.
 
 - Use 96/192 together (`srcset` 1×/2×) for anything up to 96px, and 320/640 above that.
 - Placements: header 44px (dark — the header is dark in both themes), hero 140px / 96px on
-  phones (dark), About section 220px (theme-switching), footer 56px (dark), dashboard bar 36px
-  (dark), favicon (light 96px).
+  phones (dark), About section 220px (theme-switching), footer 56px (dark), favicon (light 96px).
 - **Theme-switching logo:** put both images side by side with `.logo-for-light` and
   `.logo-for-dark`; CSS shows the one matching `data-theme`. Give the dark copy `alt=""` and
   `aria-hidden="true"` so screen readers announce the logo once.
@@ -315,8 +313,7 @@ corners, so it works on light and dark backgrounds — don't add a border or bac
 ## 8. Accessibility rules
 
 - Keep the skip link (`.skip-link`) and the visible focus ring (`:focus-visible` → 2px teal).
-- Interactive things are `<button>`s or `<a>`s — never clickable `<div>`s. Table rows in the
-  dashboard are the exception and are keyboard-focusable with Enter/Space.
+- Interactive things are `<button>`s or `<a>`s — never clickable `<div>`s.
 - Tabs follow the ARIA tabs pattern (arrow keys); filters and toggles expose `aria-pressed`;
   accordions expose `aria-expanded`.
 - Error and status messages use `role="alert"` / `role="status"`.
@@ -325,29 +322,14 @@ corners, so it works on light and dark backgrounds — don't add a border or bac
 
 ---
 
-## 9. Faculty dashboard (`/admin`)
+## 9. Implementation rules
 
-The dashboard reuses `css/style.css` (tokens, buttons, fields, cards, tables, chips) and adds
-`admin/admin.css`:
-
-- Black top bar with the wordmark, signed-in user, theme toggle and log-out button.
-- Login card: "Sign in with Google" (Google's own button, `outline` / `filled_black` theme to
-  match) above an "or sign in with password" divider.
-- Stat tiles (clickable filters), a search + status + category filter row, a bordered table
-  with status chips, and a native `<dialog>` for abstract detail and the Accept / Reject decision.
-- Accept / Reject use fixed green (`#155c3d`) and red (`#b3261e`) fills with white text in both
-  themes, so they stay legible in dark mode.
-- Overrides needed because of global rules: `.admin-main section { padding: 0 }` and the `h1`
-  colour/size (see the typography gotcha).
-
----
-
-## 10. Implementation rules
-
-- **No inline scripts.** The Content-Security-Policy is `script-src 'self'` (plus Google's sign-in
-  script on `/admin` only). All behaviour lives in `js/*.js` or `admin/admin.js`.
+- **Static site, no server.** Pages are plain files on Vercel; forms post to the Google Apps
+  Script set in `js/config.js` (see `DEPLOY.md`). Never put secrets in front-end files.
+- **No inline scripts.** Keep all behaviour in `js/*.js` so the page stays compatible with a strict
+  `script-src 'self'` Content-Security-Policy.
 - **Cache-busting:** stylesheets and scripts are linked with `?v=N`. Bump `N` in `index.html`
-  (or `admin/index.html`) whenever you change that file.
+  whenever you change that file.
 - **Add new styles as tokens + classes**, appended in a commented block near related components.
   Avoid new inline `style=""` attributes; a few legacy ones remain and should migrate to classes.
 - **New section checklist:** section-title pattern · alternate `.alt` background · `.reveal` on
