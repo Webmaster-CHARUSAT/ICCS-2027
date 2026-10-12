@@ -4,5 +4,5 @@
 // If you create a NEW deployment (instead of a new version of the existing one), paste its
 // /exec URL here.
 window.ICCS_CONFIG = {
-  appsScriptUrl: 'https://script.google.com/macros/s/AKfycbzZVGJBa82aGVkKFSH3C9-Vs_JjJ9YcZttz1EDHIAGKqcdXIMIsebyOIMGDo4aMpKndow/exec'
+  appsScriptUrl: 'https://script.google.com/macros/s/AKfycbxyEAq9VSj6N9U7gRo03n_c1K-tEaJczVkATC7CZLhnPRpaWDnqjXDVjdCy3CR94hBbYQ/exec'
 };
