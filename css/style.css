@@ -32,7 +32,8 @@
 
   /* ---------- Type ---------- */
   --font-body:'Inter',Arial,Helvetica,sans-serif;
-  --font-heading:'Inter',Arial,Helvetica,sans-serif;
+  /* Headings: Source Serif 4 (free, Google Fonts). Body/UI stays Inter. */
+  --font-heading:'Source Serif 4',Georgia,'Times New Roman',serif;
   --fs-nav:13px; --fs-eyebrow:16px; --fs-hero:clamp(2.6rem,5vw + 1rem,4.6rem);
   --fs-h2:clamp(2rem,3.2vw,2.75rem); --fs-h3:1.15rem; --fs-body:1rem; --fs-btn:14px;
 
@@ -404,3 +405,101 @@ label{line-height:1.4}
 
 /* Anti-spam honeypot field: off-screen for people and screen readers, still in the form for bots. */
 .hp-field{position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden}
+
+/* ==========================================================================
+   Register Now CTA (.register-btn) — one component, three sizes:
+   --primary (hero, Join Us banner) · --nav (header, compact) · --sticky (mobile bottom bar)
+   Markup: <a class="register-btn register-btn--primary" href="#registration">
+             <span class="register-btn__ring" aria-hidden="true"></span>
+             <span class="register-btn__face">Register Now <span class="register-btn__arrow" aria-hidden="true">→</span></span>
+           </a>
+   Animates transform/opacity only. Looping effects pause off-screen (.is-offscreen, set by
+   js/script.js) and are removed entirely under prefers-reduced-motion.
+   ========================================================================== */
+:root{
+  --brand-ink:#0A0A0A; --brand-teal:#0B787E; --brand-gold:#C58A2B; --brand-bg:#FFFFFF;
+  /* The button fill stays the light-theme teal in BOTH themes: white text on it is 5.25:1,
+     whereas white on the dark-theme teal (#13959C) is only 3.62:1. */
+  --cta-fill:#0B787E; --cta-fill-hover:#086569; --cta-ring:rgba(11,120,126,.45);
+}
+:root[data-theme="dark"]{--brand-ink:#F5F5F5; --brand-teal:#13959C; --brand-gold:#D9A043; --brand-bg:#0E1416}
+
+.register-btn{position:relative;display:inline-flex;padding:2px;border-radius:2px;background:var(--cta-ring);color:#fff;
+  text-decoration:none;isolation:isolate;transition:transform .2s ease-out}
+.register-btn__face{position:relative;z-index:1;display:inline-flex;align-items:center;gap:var(--s-3);overflow:hidden;
+  border-radius:1px;background:var(--cta-fill);color:#fff;font-weight:700;text-transform:uppercase;letter-spacing:1px;
+  padding:14px 30px;font-size:var(--fs-btn);line-height:1.2;white-space:nowrap;transition:background .2s ease-out}
+.register-btn__arrow{color:var(--brand-gold);font-size:1.15em;line-height:1;transition:transform .2s ease-out}
+
+/* 1. Shimmer: a diagonal light streak sweeps across the face every 3.5s. */
+.register-btn__face::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:linear-gradient(110deg,transparent 35%,rgba(255,255,255,.28) 50%,transparent 65%);
+  transform:translateX(-120%);animation:cta-shimmer 3.5s ease-in-out infinite}
+@keyframes cta-shimmer{0%{transform:translateX(-120%)}40%,100%{transform:translateX(120%)}}
+
+/* 2. Orbit: a short gold arc travels round the 2px border every 6s (echoes the logo's orbit ring).
+   A large conic-gradient square rotates behind the face; the ring clips it to the border. */
+.register-btn__ring{position:absolute;inset:0;z-index:0;overflow:hidden;border-radius:2px;pointer-events:none}
+.register-btn__ring::before{content:"";position:absolute;left:50%;top:50%;width:300%;aspect-ratio:1;
+  background:conic-gradient(from 0deg,transparent 0 80%,var(--brand-gold) 88%,transparent 96%);
+  transform:translate(-50%,-50%) rotate(0deg);animation:cta-orbit 6s linear infinite}
+@keyframes cta-orbit{to{transform:translate(-50%,-50%) rotate(360deg)}}
+
+/* 3. Glow: a soft teal halo breathes (opacity only). */
+.register-btn::after{content:"";position:absolute;inset:0;z-index:-1;border-radius:2px;pointer-events:none;
+  box-shadow:0 0 22px 4px rgba(19,149,156,.9);opacity:.25;animation:cta-glow 2.5s ease-in-out infinite alternate}
+@keyframes cta-glow{to{opacity:.5}}
+
+/* 4–5. Hover lifts and brightens; press sinks. */
+.register-btn:hover{transform:translateY(-2px) scale(1.03);will-change:transform}
+.register-btn:hover .register-btn__face{background:var(--cta-fill-hover)}
+.register-btn:hover .register-btn__arrow{transform:translateX(4px)}
+.register-btn:hover::after{animation:none;opacity:.85}
+.register-btn:active{transform:scale(.97);transition-duration:.1s}
+.register-btn:focus-visible{outline:2px solid var(--brand-gold);outline-offset:3px}
+
+/* 6. Entrance: fade + rise once when first seen. Only applied when JS is running (.is-pending
+   is added by script), so the button is always visible without JavaScript. */
+.register-btn.is-pending{opacity:0;transform:translateY(12px)}
+.register-btn.is-pending.is-in{opacity:1;transform:none;transition:opacity .6s ease-out,transform .6s ease-out}
+
+/* Pause the loops while the button is off-screen. */
+.register-btn.is-offscreen::after,.register-btn.is-offscreen .register-btn__ring::before,
+.register-btn.is-offscreen .register-btn__face::before{animation-play-state:paused}
+
+/* Sizes */
+.register-btn--nav .register-btn__face{padding:9px 18px;font-size:12px;gap:var(--s-2)}
+.register-btn--sticky{display:flex}
+.register-btn--sticky .register-btn__face{flex:1;justify-content:center;padding:14px 20px}
+
+
+/* Header placement: compact button beside the theme toggle on tablets/desktops only. */
+.nav-controls .register-btn--nav{flex:none}
+@media(max-width:768px){.nav-controls .register-btn--nav{display:none}}
+
+/* 7. Mobile sticky bar: slides up with a spring once the hero is scrolled past. */
+.register-sticky{display:none}
+@media(max-width:768px){
+  .register-sticky{display:block;position:fixed;left:0;right:0;bottom:0;z-index:45;
+    padding:var(--s-3) var(--s-4) calc(var(--s-3) + env(safe-area-inset-bottom));
+    background:rgba(10,10,10,.92);backdrop-filter:blur(6px);border-top:1px solid rgba(255,255,255,.08);
+    transform:translateY(110%);visibility:hidden;
+    transition:transform .45s cubic-bezier(.34,1.56,.64,1),visibility 0s linear .45s}
+  .register-sticky.is-visible{transform:none;visibility:visible;transition:transform .45s cubic-bezier(.34,1.56,.64,1),visibility 0s}
+  body.has-sticky-cta .back-to-top{bottom:calc(var(--s-5) + 68px)}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .register-btn,.register-btn::after,.register-btn__ring::before,.register-btn__face::before{animation:none!important}
+  .register-btn__face::before{display:none}
+  .register-btn__ring::before{transform:translate(-50%,-50%)}
+  .register-btn:hover,.register-btn:active{transform:none}
+  .register-btn:hover .register-btn__arrow{transform:none}
+  .register-btn.is-pending{opacity:1;transform:none}
+  .register-sticky,.register-sticky.is-visible{transition:none}
+}
+/* Header: the Register Now button replaces the identical "Registration" text link on wide
+   screens (it stays in the ☰ menu below 1081px), and menu labels never wrap. */
+nav a{white-space:nowrap}
+@media(min-width:1081px){nav a[href="#registration"]{display:none}}
+@media(min-width:1081px) and (max-width:1279px){nav{gap:var(--s-5)}}

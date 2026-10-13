@@ -84,8 +84,12 @@ for dark mode.
 
 ## 3. Typography
 
-**Typeface:** Inter (Google Fonts, weights 400–800), falling back to Arial/Helvetica. Headings and
-body use the same family — hierarchy comes from size, weight, case and spacing.
+**Typefaces** (Google Fonts):
+- **Headings — Source Serif 4** (500–700; `--font-heading`): hero title and subtitle, section and
+  card headings, the wordmark, countdown numbers.
+- **Body and UI — Inter** (400–800; `--font-body`): paragraphs, nav, labels, buttons, forms.
+
+Hierarchy comes from the serif/sans contrast plus size, weight, case and spacing.
 
 | Role | Size | Weight | Case / tracking | Token / class |
 |---|---|---|---|---|

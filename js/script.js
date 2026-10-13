@@ -208,6 +208,54 @@ document.addEventListener('DOMContentLoaded', function () {
     revealEls.forEach(function (el) { el.classList.add('visible'); });
   }
 
+  /* ---------- Register Now CTA: entrance, off-screen pause, sticky bar ---------- */
+
+  var ctaButtons = Array.prototype.slice.call(document.querySelectorAll('.register-btn'));
+  var stickyBar = document.getElementById('registerSticky');
+  if ('IntersectionObserver' in window) {
+    // Entrance (fade + rise, once) for the in-page buttons; also pause their looping animations
+    // whenever they are off-screen. The sticky button has its own slide-up instead.
+    var ctaObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        var btn = entry.target;
+        btn.classList.toggle('is-offscreen', !entry.isIntersecting);
+        if (entry.isIntersecting && btn.classList.contains('is-pending') && !btn.classList.contains('is-in')) {
+          btn.classList.add('is-in');
+          // Once the entrance has played, drop its classes so hover/press transforms apply normally.
+          setTimeout(function () { btn.classList.remove('is-pending', 'is-in'); }, 700);
+        }
+      });
+    });
+    ctaButtons.forEach(function (btn) {
+      if (!btn.classList.contains('register-btn--sticky') && !btn.closest('.nav-controls')) btn.classList.add('is-pending');
+      ctaObserver.observe(btn);
+    });
+
+    // Sticky bar (mobile CSS only): visible once the hero has scrolled away, hidden while the
+    // registration form or the Join Us banner (which has its own button) is on screen.
+    var heroEl = document.querySelector('.hero');
+    var hideZones = [document.getElementById('registration'), document.getElementById('joinUs')].filter(Boolean);
+    if (stickyBar && heroEl) {
+      var heroVisible = true;
+      var zonesVisible = {};
+      var updateSticky = function () {
+        var anyZone = Object.keys(zonesVisible).some(function (k) { return zonesVisible[k]; });
+        var show = !heroVisible && !anyZone;
+        stickyBar.classList.toggle('is-visible', show);
+        document.body.classList.toggle('has-sticky-cta', show);
+      };
+      new IntersectionObserver(function (entries) {
+        heroVisible = entries[0].isIntersecting;
+        updateSticky();
+      }).observe(heroEl);
+      var zoneObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) { zonesVisible[entry.target.id] = entry.isIntersecting; });
+        updateSticky();
+      });
+      hideZones.forEach(function (z) { zoneObserver.observe(z); });
+    }
+  }
+
   /* ---------- Copy email buttons ---------- */
   function bindCopyButton(btn) {
     btn.addEventListener('click', function () {

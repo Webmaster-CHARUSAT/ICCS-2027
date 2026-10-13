@@ -42,8 +42,8 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=14">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css?v=20">
 </head>
 <body>
 
@@ -65,6 +65,7 @@
       <a href="#venue">Venue</a>
     </nav>
     <div class="nav-controls">
+      <a class="register-btn register-btn--nav" href="#registration"><span class="register-btn__ring" aria-hidden="true"></span><span class="register-btn__face">Register Now <span class="register-btn__arrow" aria-hidden="true">→</span></span></a>
       <button class="theme-toggle" id="themeToggle" type="button">Dark</button>
       <button class="menu" id="menuToggle" aria-label="Open menu" aria-expanded="false" aria-controls="primaryNav" type="button">☰</button>
     </div>
@@ -84,7 +85,7 @@
     <h2>Integrating Functional Materials, Biological Interfaces, and Intelligent Modeling for Circular and Sustainable Development.</h2>
     <div id="countdown" class="countdown" role="status" aria-label="Countdown to the conference"></div>
     <div class="buttons">
-      <a class="btn btn-primary" href="#registration">Register Now</a>
+      <a class="register-btn register-btn--primary" href="#registration"><span class="register-btn__ring" aria-hidden="true"></span><span class="register-btn__face">Register Now <span class="register-btn__arrow" aria-hidden="true">→</span></span></a>
       <a class="btn btn-outline" href="#abstracts">Submit Abstract</a>
     </div>
   </div>
@@ -156,7 +157,6 @@
 <section id="speakers">
   <div class="container">
     <div class="section-title centered reveal">
-      <span class="section-label">Speakers</span>
       <h2>Distinguished Speakers</h2>
       <p>Further speakers will be added following formal acceptance. Filter by session type below.</p>
     </div>
@@ -216,7 +216,6 @@
       </div>
     </div>
     <p class="empty-state-inline" id="speakerEmptyState" hidden>No speakers in this category yet.</p>
-    <p style="text-align:center;margin-top:var(--s-6);color:var(--ink-500)">Invited speakers will represent Functional Materials &amp; Nanoscience, Biological Interfaces &amp; Biotechnology, Data Science &amp; Sustainability, Green Chemistry, Biointerfaces &amp; Biomaterials, and Quantum &amp; Advanced Computing.</p>
   </div>
 </section>
 
@@ -333,7 +332,7 @@
     <div class="card reveal" id="abstractGate">
       <h3>Registration Required</h3>
       <p>You must register for the conference before submitting an abstract. Please complete your conference registration first.</p>
-      <a class="btn btn-solid" href="#registration">Register Now</a>
+      <a class="register-btn register-btn--nav" href="#registration"><span class="register-btn__ring" aria-hidden="true"></span><span class="register-btn__face">Register Now <span class="register-btn__arrow" aria-hidden="true">→</span></span></a>
 
       <div class="gate-divider">
         <h3 style="font-size:1rem">Already Registered?</h3>
@@ -582,13 +581,13 @@
 </section>
 
 <!-- ============ FINAL CTA ============ -->
-<section class="photo-banner">
+<section class="photo-banner" id="joinUs">
   <div class="hero-bg" style="background-image:url('assets/images/venue-auditorium.jpg')"></div>
   <div class="container photo-banner-inner reveal">
     <span class="section-label">Join Us</span>
     <h2>Join Us at ICCS-CIRCLE 2027</h2>
     <p>21–22 January 2027 · India — Be part of a convergent platform connecting fundamental science, emerging computation and sustainability.</p>
-    <a class="btn btn-primary" href="#registration">Register Now</a>
+    <a class="register-btn register-btn--primary" href="#registration"><span class="register-btn__ring" aria-hidden="true"></span><span class="register-btn__face">Register Now <span class="register-btn__arrow" aria-hidden="true">→</span></span></a>
   </div>
 </section>
 
@@ -634,10 +633,14 @@
   </div>
 </footer>
 
+<!-- Mobile-only sticky Register bar: slides up after the hero, hides over the registration
+     form and the Join Us banner (js/script.js). -->
+<div class="register-sticky" id="registerSticky"><a class="register-btn register-btn--sticky" href="#registration"><span class="register-btn__ring" aria-hidden="true"></span><span class="register-btn__face">Register Now <span class="register-btn__arrow" aria-hidden="true">→</span></span></a></div>
+
 <button class="back-to-top" id="backToTop" aria-label="Back to top" type="button">↑</button>
 
 <script src="js/config.js?v=2"></script>
 <script src="js/api.js?v=5"></script>
-<script src="js/script.js?v=8"></script>
+<script src="js/script.js?v=11"></script>
 </body>
 </html>
