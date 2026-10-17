@@ -9,10 +9,12 @@
  *
  * PUBLIC ACTIONS (POST, JSON body with an "action" field — see js/api.js):
  *   register            new conference registration          -> { registration_id, ... }
- *   verifyRegistration  returning registrant: ID + email      -> { registration_id, email }
- *   submitAbstract      one abstract per registration         -> { abstract_id, ... }
- *   abstractStatus      review status (+ payment once Accepted)
  *   contact             contact-form message
+ *
+ * DORMANT (kept, but the website no longer calls them — abstract submission now goes through
+ * EasyChair): verifyRegistration, submitAbstract, abstractStatus, and the acceptance-email
+ * trigger below. They still answer if called directly; delete them if the in-page abstract
+ * flow is not coming back.
  * Every response is { success: true, data } or { success: false, error: { code, message, status } }.
  *
  * FACULTY REVIEW happens directly in the Abstracts tab: set submission_status to Accepted /
@@ -175,7 +177,7 @@ function register_(b) {
     'Registration Confirmed', 'Thank you for registering for ICCS-CIRCLE 2027. Here is a copy of your registration.',
     [['Registration ID', record.registration_id], ['Name', record.name], ['Email', record.email],
       ['Institution', record.institution], ['Category', record.category], ['Registration Status', record.registration_status]],
-    'Keep this Registration ID — you will need it to submit an abstract. Use the same email address you registered with when you submit.');
+    'Please keep this Registration ID for your records. Payment options are listed in the Registration section of the conference website.');
 
   return { registration_id: record.registration_id, registration_status: record.registration_status, email_queued: emailSent };
 }

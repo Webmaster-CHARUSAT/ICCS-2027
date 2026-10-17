@@ -43,7 +43,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20">
+<link rel="stylesheet" href="css/style.css?v=21">
 </head>
 <body>
 
@@ -234,13 +234,13 @@
   </div>
 </section>
 
-<!-- ============ REGISTRATION (required before abstract submission) ============ -->
+<!-- ============ REGISTRATION (standalone — abstract submission is separate, via EasyChair) ============ -->
 <section id="registration" class="alt">
   <div class="container">
     <div class="section-title reveal">
-      <span class="section-label">Step 1 — Registration</span>
+      <span class="section-label">Registration</span>
       <h2>Conference Registration</h2>
-      <p>Registration is required before submitting an abstract. Fees for each category are listed below; payment options follow the table.</p>
+      <p>Fees for each category are listed below; payment options follow the table.</p>
     </div>
     <div class="table-wrap"><table>
       <caption class="visually-hidden">Registration fee categories</caption>
@@ -257,11 +257,18 @@
     <p style="margin-top:var(--s-3);color:var(--ink-500);font-size:.9rem">Fees are inclusive of conference kit, working lunches and refreshments.</p>
     <p style="margin:var(--s-5) 0"><b>Note:</b> At least one author must register for an accepted contribution to be included in the conference programme.</p>
 
-    <div class="info-box is-visible"><b>Payment details</b> are shared with authors once their abstract is accepted. After acceptance, check your status under <a href="#abstracts">Call for Abstracts</a> using your Registration ID and registered email.</div>
+    <div class="payment-options">
+      <h3 class="payment-heading">How to pay</h3>
+      <div class="cards">
+        <div class="card reveal"><h3>Indian Participants</h3><p>Pay the registration fee online through the conference payment link.</p><p class="pay-online"><a class="btn btn-solid" href="https://rzp.io/rzp/GT56wXc" target="_blank" rel="noopener noreferrer">Pay Online</a></p></div>
+        <div class="card reveal"><h3>Participants from Outside India</h3><p class="bank-details"><b>Bank A/c Name:</b> Charotar University of Science &amp; Technology<br><b>Bank A/c Number:</b> 30875081005 <button class="copy-btn" type="button" data-copy="30875081005" aria-label="Copy account number">Copy</button><br><b>Bank A/c Type:</b> Current A/c<br><b>Bank Branch Address:</b> Darshan Hostel, Changa-Valetva Road, Changa, Dist. Anand<br><b>Bank Branch Code:</b> 10961<br><b>Bank MICR Code:</b> 388002502<br><b>Bank IFSC Code:</b> SBIN0010961 <button class="copy-btn" type="button" data-copy="SBIN0010961" aria-label="Copy IFSC code">Copy</button><br><b>Bank SWIFT Code:</b> SBININBB718 <button class="copy-btn" type="button" data-copy="SBININBB718" aria-label="Copy SWIFT code">Copy</button><br><b>PAN No:</b> AABTC1178Q<br><b>Bank Telephone No.:</b> (02692) 248540<br><b>Bank Email ID:</b> sbi10961@sbi.co.in</p></div>
+      </div>
+      <p class="payment-disclaimer">Payments are processed directly by Charotar University of Science and Technology. This portal cannot confirm payment status — for payment queries, contact the organizers. Please keep your payment receipt.</p>
+    </div>
 
     <div class="card reveal" style="margin-top:var(--s-6)" id="registrationForm-wrap">
       <h3>Register for the Conference</h3>
-      <p style="color:var(--ink-500);margin-top:-6px;margin-bottom:var(--s-5)">No payment is collected through this form — payment details are shared once your abstract is accepted. You'll receive a Registration ID by email, which you'll need to submit an abstract.</p>
+      <p style="color:var(--ink-500);margin-top:-6px;margin-bottom:var(--s-5)">No payment is collected through this form — please use the payment options above. You'll receive a Registration ID and a confirmation email.</p>
       <form id="registrationForm" novalidate>
         <!-- Anti-spam: hidden from people and screen readers; bots that fill it are rejected. -->
         <div class="hp-field" aria-hidden="true"><label for="regWebsite">Website</label><input type="text" id="regWebsite" name="website" tabindex="-1" autocomplete="off"></div>
@@ -310,13 +317,13 @@
   </div>
 </section>
 
-<!-- ============ CALL FOR PAPERS (photographic banner) + the real submission form ============ -->
+<!-- ============ CALL FOR PAPERS (photographic banner) ============ -->
 <section class="photo-banner">
   <div class="hero-bg" style="background-image:url('assets/images/venue-auditorium.jpg')"></div>
   <div class="container photo-banner-inner reveal">
-    <span class="section-label">Step 2 — Call for Papers</span>
+    <span class="section-label">Call for Papers</span>
     <h2>Submit Your Research Work</h2>
-    <p>Researchers, faculty, scientists, research scholars and students are invited to contribute original work across all five conference themes. Registration (above) is required first. Selected abstracts will be published as a Book Chapter / Proceedings / Full Paper in SCOPUS-indexed journals, subject to peer review.</p>
+    <p>Researchers, faculty, scientists, research scholars and students are invited to contribute original work across all five conference themes. Selected abstracts will be published as a Book Chapter / Proceedings / Full Paper in SCOPUS-indexed journals, subject to peer review.</p>
     <a class="btn btn-primary" href="#abstracts">Submit Abstract</a>
   </div>
 </section>
@@ -324,104 +331,16 @@
 <section id="abstracts">
   <div class="container">
     <div class="section-title reveal">
-      <span class="section-label">Step 2 — Abstract Submission</span>
+      <span class="section-label">Abstract Submission</span>
       <h2>Call for Abstracts</h2>
-      <p>Presentation categories: Oral, Poster and Invited. Recommended length 250–300 words. Anyone may read the guidelines below — submitting requires a completed conference registration.</p>
+      <p>Presentation categories: Oral, Poster and Invited. Recommended length 250–300 words. Abstract submission is separate from conference registration.</p>
     </div>
 
-    <div class="card reveal" id="abstractGate">
-      <h3>Registration Required</h3>
-      <p>You must register for the conference before submitting an abstract. Please complete your conference registration first.</p>
-      <a class="register-btn register-btn--nav" href="#registration"><span class="register-btn__ring" aria-hidden="true"></span><span class="register-btn__face">Register Now <span class="register-btn__arrow" aria-hidden="true">→</span></span></a>
-
-      <div class="gate-divider">
-        <h3 style="font-size:1rem">Already Registered?</h3>
-        <p style="color:var(--ink-500);margin-top:-6px;margin-bottom:var(--s-5)">If you registered on this or another device, enter your Registration ID and the email you registered with to continue.</p>
-        <form id="verifyForm" novalidate>
-          <div class="form-row">
-            <div class="field">
-              <label for="verifyRegistrationId">Registration ID</label>
-              <input type="text" id="verifyRegistrationId" name="verifyRegistrationId" placeholder="REG-XXXXXXXX" aria-describedby="verifyRegistrationId-error">
-              <div class="error-msg" id="verifyRegistrationId-error" role="alert"></div>
-            </div>
-            <div class="field">
-              <label for="verifyEmail">Email</label>
-              <input type="email" id="verifyEmail" name="verifyEmail" placeholder="name@example.com" autocomplete="email" aria-describedby="verifyEmail-error">
-              <div class="error-msg" id="verifyEmail-error" role="alert"></div>
-            </div>
-          </div>
-          <button type="submit" class="btn btn-outline" id="verifySubmitBtn" style="justify-self:start">Continue</button>
-          <div class="error-box" id="verifyError" role="alert"></div>
-        </form>
-      </div>
-    </div>
-
-    <div class="card reveal" id="abstractForm-wrap" hidden>
-      <h3>Abstract Submission Form</h3>
-      <div class="reg-badge-row">
-        <p class="reg-badge" id="abstractRegBadge" style="margin:0"></p>
-        <button type="button" class="link-btn" id="switchRegistrationBtn">Not you? Switch registration</button>
-      </div>
-      <form id="abstractForm" novalidate>
-        <input type="hidden" id="absRegistrationId" name="absRegistrationId">
-        <div class="field">
-          <label for="absTitle">Title of Abstract</label>
-          <input type="text" id="absTitle" name="absTitle" placeholder="Enter the title of your work" aria-describedby="absTitle-error">
-          <div class="error-msg" id="absTitle-error" role="alert"></div>
-        </div>
-        <div class="form-row">
-          <div class="field">
-            <label for="absAuthor">Author(s)</label>
-            <input type="text" id="absAuthor" name="absAuthor" placeholder="e.g. Jane Doe, John Smith" aria-describedby="absAuthor-error">
-            <div class="error-msg" id="absAuthor-error" role="alert"></div>
-          </div>
-          <div class="field">
-            <label for="absEmail">Corresponding Author Email</label>
-            <input type="email" id="absEmail" name="absEmail" placeholder="name@example.com" autocomplete="email" readonly aria-describedby="absEmail-error">
-            <div class="error-msg" id="absEmail-error" role="alert"></div>
-          </div>
-        </div>
-        <div class="field">
-          <label for="absCategory">Presentation Category</label>
-          <select id="absCategory" name="absCategory" aria-describedby="absCategory-error">
-            <option value="">Select a category</option>
-            <option value="Oral Presentation">Oral Presentation</option>
-            <option value="Poster Presentation">Poster Presentation</option>
-            <option value="Invited Presentation">Invited Presentation</option>
-          </select>
-          <div class="error-msg" id="absCategory-error" role="alert"></div>
-        </div>
-        <div class="field">
-          <label for="absText">Abstract Text <span id="wordCounter" style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--ink-500)">0 / 350 words</span></label>
-          <textarea id="absText" name="absText" rows="6" placeholder="Paste your abstract (50–350 words)" aria-describedby="absText-error"></textarea>
-          <div class="error-msg" id="absText-error" role="alert"></div>
-        </div>
-        <button type="submit" class="btn btn-solid" id="abstractSubmitBtn" style="justify-self:start">Submit Abstract</button>
-        <div class="success-box" id="abstractSuccess" role="status"></div>
-        <div class="error-box" id="abstractError" role="alert"></div>
-        <div class="info-box" id="abstractInfo" role="status"></div>
-      </form>
-    </div>
-
-    <!-- Abstract status panel: shown once this registration has an abstract on file. Filled in by
-         js/script.js from the Apps Script "abstractStatus" action; payment details appear only when Accepted. -->
-    <div class="card reveal" id="abstractAlreadySubmitted" hidden>
-      <h3>Your Abstract</h3>
-      <p id="abstractAlreadySubmittedText">You have already submitted an abstract for this registration. Only one abstract is accepted per registration.</p>
-      <div class="abstract-status" id="abstractStatus" hidden>
-        <p class="abstract-status-row"><span class="status-chip" id="abstractStatusChip"></span><span id="abstractStatusTitle"></span></p>
-        <p class="abstract-status-note" id="abstractStatusNote"></p>
-        <div class="abstract-status-comments" id="abstractStatusComments" hidden>
-          <b>Reviewer comments</b>
-          <p id="abstractStatusCommentsText"></p>
-        </div>
-      </div>
-      <div class="payment-panel" id="abstractPayment" hidden></div>
-      <div class="error-box" id="abstractStatusError" role="alert"></div>
-      <p class="abstract-status-actions">
-        <button type="button" class="btn btn-outline-dark" id="abstractStatusRefresh">Refresh status</button>
-        <button type="button" class="link-btn" id="switchRegistrationBtnLocked">Not you? Switch registration</button>
-      </p>
+    <div class="card reveal">
+      <span class="status-chip is-review">Coming Soon</span>
+      <h3 class="coming-soon-title">Submit via EasyChair</h3>
+      <p>Abstracts will be submitted through EasyChair. The submission link will be published on this page as soon as it opens.</p>
+      <p class="coming-soon-dates"><b>Abstract deadline:</b> 5 December 2026<br><b>Notification of acceptance:</b> 20 December 2026</p>
     </div>
   </div>
 </section>
@@ -515,7 +434,7 @@
     </div>
     <div class="faq-item">
       <h3><button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-a-2">What is the recommended abstract length?</button></h3>
-      <div class="faq-a" id="faq-a-2"><div><p>250–300 words is recommended; the submission form accepts abstracts between 50 and 350 words.</p></div></div>
+      <div class="faq-a" id="faq-a-2"><div><p>250–300 words is recommended.</p></div></div>
     </div>
     <div class="faq-item">
       <h3><button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-a-3">Do I need to register to present my accepted abstract?</button></h3>
@@ -640,7 +559,7 @@
 <button class="back-to-top" id="backToTop" aria-label="Back to top" type="button">↑</button>
 
 <script src="js/config.js?v=2"></script>
-<script src="js/api.js?v=5"></script>
-<script src="js/script.js?v=11"></script>
+<script src="js/api.js?v=6"></script>
+<script src="js/script.js?v=12"></script>
 </body>
 </html>

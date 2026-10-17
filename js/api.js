@@ -10,9 +10,6 @@
 (function (global) {
   var ACTIONS = {
     '/registrations': 'register',
-    '/registrations/verify': 'verifyRegistration',
-    '/abstracts': 'submitAbstract',
-    '/abstracts/status': 'abstractStatus',
     '/contact': 'contact'
   };
 

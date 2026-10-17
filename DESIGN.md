@@ -260,9 +260,9 @@ Section order in `index.html` and the background each uses (`alt` = off-white pa
 | 4 | Scientific Themes | `themes` | Alt | Five numbered tracks |
 | 5 | Distinguished Speakers | `speakers` | White | Filterable photo cards |
 | 6 | Conference Programme | `schedule` | Alt | "Coming Soon" card |
-| 7 | Registration | `registration` | Alt | Fee table, payment note, registration form |
+| 7 | Registration | `registration` | Alt | Fee table, "How to pay" options, registration form — **stands alone**, no link to abstracts |
 | 8 | Call for Papers banner | — | Photo | Submission invitation |
-| 9 | Call for Abstracts | `abstracts` | White | Gate → form → status panel (+ payment once Accepted) |
+| 9 | Call for Abstracts | `abstracts` | White | "Coming Soon — submit via EasyChair" card with the deadlines (submission is separate from registration) |
 | 10 | Important Dates | `dates` | White | Early bird, deadline, notification, conference |
 | 11 | Steering Committee | `committee` | Alt | Role cards |
 | 12 | Venue | `venue` | White | Building photo, address |
@@ -299,7 +299,7 @@ The site's primary call to action — **one component, three sizes**, always a r
 | Variant | Where | Notes |
 |---|---|---|
 | `--primary` | Hero, Join Us banner | 14px, `14px 30px` padding |
-| `--nav` | Header, "Registration Required" gate | Compact: 12px, `9px 18px`; hidden in the header ≤768px |
+| `--nav` | Header | Compact: 12px, `9px 18px`; hidden in the header ≤768px |
 | `--sticky` | Mobile bottom bar (`#registerSticky`) | Full width; shows after the hero; hides over `#registration` and `#joinUs`; lifts the back-to-top button by 68px while visible |
 
 Look: sharp 2px, teal fill `--cta-fill` with white bold uppercase text, a 2px ring, and a gold →
@@ -325,10 +325,10 @@ offset 3px. Add new instances with the markup above — never copy the CSS.
 |---|---|---|
 | `.btn-outline` | White outline, fills white on hover | Secondary CTA **on dark/photo backgrounds only** (hero "Submit Abstract") |
 | `.btn-primary` | White fill, inverts on hover | Primary CTA on dark backgrounds (Call for Papers banner) |
-| `.btn-solid` | Black fill, teal on hover | Primary action on light backgrounds (form submits, Pay Online) |
-| `.btn-outline-dark` | Ink outline, compact | Secondary action on light backgrounds (Refresh status) |
+| `.btn-solid` | Black fill, teal on hover | Primary action on light backgrounds (Register, Send Message, Pay Online) |
+| `.btn-outline-dark` | Ink outline, compact | Secondary action on light backgrounds (currently unused) |
 | `.btn-link` | Uppercase text, underline | Low-emphasis navigation ("Contact Details →") |
-| `.link-btn` | Small teal underlined text | Inline actions ("Not you? Switch registration") |
+| `.link-btn` | Small teal underlined text | Inline text actions (currently unused) |
 | `.copy-btn` | Tiny outlined "COPY" | Copy an email, account number or code |
 
 All: 2px radius, uppercase, 1px press-down on `:active`, `opacity:.55` when disabled. While a
@@ -366,15 +366,19 @@ card with separate `<p>`s (add `margin-top:var(--s-3)`), as in the committee car
   (`name="website"`, off-screen, `aria-hidden`, `tabindex="-1"`). Never style it visible or label
   it meaningfully.
 
-### Abstract status and payment panel
-After a registrant verifies, the Call for Abstracts card shows their abstract: a `.status-chip`
-(Submitted / Under Review / Accepted / Rejected), the title, a one-line note and any reviewer
-comments. **Only once Accepted** does `.payment-panel` appear with two cards (Indian participants:
-"Pay Online"; others: bank details with copy buttons) and the line "This portal cannot confirm
-payment status". Payment details live in the Apps Script, never in the page source.
-- Chips (`.status-chip`, 11px uppercase, bordered): `.is-accepted` success, `.is-rejected` danger,
-  `.is-review` info, neutral default for Submitted. Labels match the `submission_status` values
-  faculty set in the spreadsheet.
+### Payment options (Registration section)
+`.payment-options` follows the fee table: a small uppercase "How to pay" heading, two `.card`s —
+Indian participants ("Pay Online" → the university's Razorpay link) and participants from outside
+India (bank details; `.copy-btn` on the account number, IFSC and SWIFT codes) — then the line
+"This portal cannot confirm payment status". Payment is processed by the university; the site only
+shows instructions and never tracks or confirms a payment.
+
+### "Coming Soon" card
+For anything not yet available (abstract submission via EasyChair, programme, partners): a `.card`
+with a `.status-chip.is-review` reading "Coming Soon", a serif `h3` (`.coming-soon-title`), one
+sentence of explanation and any known dates. Never add a link until the real destination exists.
+- **Status chips** (`.status-chip`, 11px uppercase, bordered): `.is-review` (info) is in use;
+  `.is-accepted` and `.is-rejected` are kept as the matching success/danger variants.
 
 ### Important dates
 `.timeline` of `.datebox` cells separated by 1px gaps on a border-coloured background; the
@@ -479,16 +483,14 @@ don't add a border or background behind it.
 
 ## 11. Known issues
 
-Found while writing this document; none are fixed by it.
+Found while writing this document; none are fixed by it. (The invisible "Continue" button in light mode was removed together with the old abstract form.)
 
 | # | Issue | Impact | Suggested fix |
 |---|---|---|---|
-| 1 | **"Continue" button in the "Already Registered?" form is invisible in light mode.** It uses `.btn-outline` (white text, transparent) on a white card. | Returning registrants can't see the button to continue (dark mode is fine) | Use `.btn-outline-dark` there |
-| 2 | **Teal text in dark mode is 3.99:1 on `#0a0a0a`** (3.64:1 on `#161616`) — section labels (12px) and links fall under 4.5:1 | Hard to read for some users | Use a lighter teal such as `#13959C` for text in dark mode |
-| 3 | **Form placeholder text is 2.81:1** (`#9a9a9a` on white) | Fails contrast | Darken to ≈ `#767676` |
-| 4 | **Register button's gold → arrow is 1.76:1 on teal.** It is decorative (`aria-hidden`) beside the label, but faint | Low visibility of the arrow | Use a lighter gold or white arrow |
-| 5 | **`.reveal` content is invisible with JavaScript off** (`opacity:0` by default) | No-JS visitors see blank sections | Apply the hidden state only under an `html.js` class |
-| 6 | **Register button sits flush under the paragraph in the "Registration Required" box** | Tight spacing | Add `margin-top` in that card |
-| 7 | **Dead CSS:** `.callout`, `.theme-grid`, `.partners-grid`, `.speaker-topic`, `.schedule-*`, `.sep` and `.tabs` / `.tab-*` are unused; the programme-tab script has no tabs to drive | Extra weight, confusion | Delete — restore the schedule styles from Git history when the programme is published |
-| 8 | **23 inline `style=""` attributes** remain in `index.html` | Hard to restyle; blocks a strict `style-src` | Move into classes |
-| 9 | **Two near-duplicate palettes** (§2) and an unused `--blue` | Drift | Consolidate |
+| 1 | **Teal text in dark mode is 3.99:1 on `#0a0a0a`** (3.64:1 on `#161616`) — section labels (12px) and links fall under 4.5:1 | Hard to read for some users | Use a lighter teal such as `#13959C` for text in dark mode |
+| 2 | **Form placeholder text is 2.81:1** (`#9a9a9a` on white) | Fails contrast | Darken to ≈ `#767676` |
+| 3 | **Register button's gold → arrow is 1.76:1 on teal.** It is decorative (`aria-hidden`) beside the label, but faint | Low visibility of the arrow | Use a lighter gold or white arrow |
+| 4 | **`.reveal` content is invisible with JavaScript off** (`opacity:0` by default) | No-JS visitors see blank sections | Apply the hidden state only under an `html.js` class |
+| 5 | **Dead CSS:** `.callout`, `.theme-grid`, `.partners-grid`, `.speaker-topic`, `.schedule-*`, `.sep`, `.tabs` / `.tab-*`, `.btn-outline-dark` and `.link-btn` are unused; the programme-tab script has no tabs to drive | Extra weight, confusion | Delete — restore the schedule styles from Git history when the programme is published |
+| 6 | **Inline `style=""` attributes** remain in `index.html` (17) | Hard to restyle; blocks a strict `style-src` | Move into classes |
+| 7 | **Two near-duplicate palettes** (§2) and an unused `--blue` | Drift | Consolidate |

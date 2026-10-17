@@ -258,11 +258,8 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
 .error-box{background:var(--danger-bg);border:1px solid var(--danger-border);color:var(--danger);padding:var(--s-4);border-radius:2px;margin-top:var(--s-4);display:none}
 .info-box{background:var(--info-bg);border:1px solid var(--info-border);color:var(--info-text);padding:var(--s-4);border-radius:2px;margin-top:var(--s-4);display:none}
 
-.reg-badge{display:inline-block;background:var(--info-bg);border:1px solid var(--info-border);color:var(--info-text);padding:6px 14px;border-radius:2px;font-size:13px;font-weight:600;margin:-4px 0 var(--s-5)}
-.reg-badge-row{display:flex;align-items:center;gap:var(--s-4);flex-wrap:wrap;margin:-4px 0 var(--s-5)}
 .link-btn{background:none;border:0;padding:0;cursor:pointer;font-family:inherit;font-size:13px;color:var(--accent);text-decoration:underline;text-underline-offset:2px}
 .link-btn:hover{color:var(--gold)}
-.gate-divider{margin-top:var(--s-6);padding-top:var(--s-6);border-top:1px solid var(--border)}
 
 /* ---------- Footer ---------- */
 footer{background:var(--footer-bg);color:var(--footer-text);padding:var(--s-8) 0 var(--s-6)}
@@ -315,27 +312,15 @@ footer{background:var(--footer-bg);color:var(--footer-text);padding:var(--s-8) 0
 }
 .nowrap{white-space:nowrap}
 
-/* ---------- Abstract status panel + post-acceptance payment details (filled by js/script.js) ---------- */
-.info-box.is-visible{display:block;margin:0 0 var(--s-6)}
+/* ---------- Outline button for light backgrounds + status chips ---------- */
 .btn-outline-dark{border:1px solid var(--ink-900);color:var(--ink-900);background:transparent;padding:10px 20px}
 .btn-outline-dark:hover{background:var(--ink-900);color:var(--surface)}
 .btn-outline-dark:disabled{opacity:.55;cursor:wait}
-.abstract-status{margin-top:var(--s-4)}
-.abstract-status-row{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s-3);font-weight:600;color:var(--ink-900)}
-.abstract-status-note{margin-top:var(--s-3);color:var(--ink-700)}
-.abstract-status-comments{margin-top:var(--s-4);padding:var(--s-4);background:var(--panel);border:1px solid var(--border)}
-.abstract-status-comments p{margin-top:var(--s-2);white-space:pre-wrap;color:var(--ink-700)}
-.abstract-status-actions{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s-5);margin-top:var(--s-6)}
 .status-chip{display:inline-block;padding:4px 10px;border-radius:2px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;border:1px solid var(--border);background:var(--panel);color:var(--ink-700)}
 .status-chip.is-accepted{background:var(--success-bg);border-color:var(--success-border);color:var(--success-text)}
 .status-chip.is-rejected{background:var(--danger-bg);border-color:var(--danger-border);color:var(--danger)}
 .status-chip.is-review{background:var(--info-bg);border-color:var(--info-border);color:var(--info-text)}
-.payment-panel{margin-top:var(--s-6);border-top:1px solid var(--border);padding-top:var(--s-6)}
-.payment-panel>h4{font-size:1rem;text-transform:uppercase;letter-spacing:1px;margin:0 0 var(--s-5)}
-.payment-panel .card h3{margin-bottom:var(--s-2)}
-.payment-panel .bank-details{line-height:1.7}
 .payment-disclaimer{margin-top:var(--s-5);font-size:.85rem;color:var(--ink-500)}
-.payment-panel .pay-online{margin-top:var(--s-5)}
 
 /* ---------- PDPIAS (organizer) logo ---------- */
 .logo{display:inline-flex;align-items:center;gap:var(--s-3)}
@@ -503,3 +488,13 @@ label{line-height:1.4}
 nav a{white-space:nowrap}
 @media(min-width:1081px){nav a[href="#registration"]{display:none}}
 @media(min-width:1081px) and (max-width:1279px){nav{gap:var(--s-5)}}
+
+/* ---------- Payment options (Registration section) ---------- */
+.payment-options{margin-top:var(--s-6)}
+.payment-heading{font-size:1rem;text-transform:uppercase;letter-spacing:1px;margin:0 0 var(--s-5)}
+.payment-options .bank-details{line-height:1.7}
+.payment-options .pay-online{margin-top:var(--s-5)}
+
+/* ---------- "Coming Soon" card (abstract submission via EasyChair) ---------- */
+.card .coming-soon-title{margin:var(--s-4) 0 var(--s-3)}
+.coming-soon-dates{margin-top:var(--s-4);color:var(--ink-700)}
