@@ -255,22 +255,23 @@ Section order in `index.html` and the background each uses (`alt` = off-white pa
 | # | Section | `id` | Background | Purpose |
 |---|---|---|---|---|
 | 1 | Header | `siteHeader` | Transparent → black on scroll | Wordmark, nav, Register button, theme toggle |
-| 2 | Hero | — | Photo + overlay | Logo, date/venue, title, countdown, Register + Submit Abstract |
+| 2 | Hero | — | Photo + overlay | Logo, date/venue, title, countdown, Register button + Submission Guidelines |
 | 3 | About | `about` | White | Vision, mission, objectives, theme-switching logo |
 | 4 | Scientific Themes | `themes` | Alt | Five numbered tracks |
 | 5 | Distinguished Speakers | `speakers` | White | Filterable photo cards |
 | 6 | Conference Programme | `schedule` | Alt | "Coming Soon" card |
-| 7 | Registration | `registration` | Alt | Fee table, "How to pay" options, registration form — **stands alone**, no link to submissions |
+| 7 | Registration | `registration` | Alt | Fee table + "Coming Soon" card; the "How to pay" options and registration form are held in an inert `<template>` while registration is on hold — **stands alone**, no link to submissions |
 | 8 | Call for Papers banner | — | Photo | Submission invitation |
 | 9 | Call for Papers — Author & Submission Guidelines | `papers` (heading `submission-guidelines`, card `how-to-submit`) | White | Themes, what to submit, key dates, Microsoft CMT steps + link placeholder, and the verbatim CMT acknowledgment paragraph (submission is separate from registration) |
 | 10 | Important Dates | `dates` | White | Early bird, deadline, notification, conference |
 | 11 | Steering Committee | `committee` | Alt | Role cards |
-| 12 | Venue | `venue` | White | Building photo, address |
-| 13 | Partners & Collaborators | `partners` | Alt | Organizer card + "Coming Soon" |
-| 14 | FAQ | `faq` | White | Accordion |
-| 15 | Contact | `contact` | Alt | Secretariat details, contact form |
-| 16 | Join Us banner | `joinUs` | Photo | Final Register CTA |
-| 17 | Footer | — | Black | Brand, links, contact, organizer |
+| 12 | Venue | `venue` | White | Building photo, address, Contact Details / Places to Visit links, Google Maps embed + Get Directions / Open in Google Maps |
+| 13 | Places to Visit | `places` | Alt | Near-campus + day-trip cards with directions (footer link only — no header link, the header has no room) |
+| 14 | Partners & Collaborators | `partners` | White | Organizer card + "Coming Soon" |
+| 15 | FAQ | `faq` | Alt | Accordion |
+| 16 | Contact | `contact` | White | Secretariat details, contact form |
+| 17 | Join Us banner | `joinUs` | Photo | Final Register CTA |
+| 18 | Footer | — | Black | Brand, links, contact, organizer |
 
 ---
 
@@ -323,10 +324,10 @@ offset 3px. Add new instances with the markup above — never copy the CSS.
 ### Other buttons
 | Class | Look | Use |
 |---|---|---|
-| `.btn-outline` | White outline, fills white on hover | Secondary CTA **on dark/photo backgrounds only** (hero "Submit Abstract") |
+| `.btn-outline` | White outline, fills white on hover | Secondary CTA **on dark/photo backgrounds only** (hero "Submission Guidelines") |
 | `.btn-primary` | White fill, inverts on hover | Primary CTA on dark backgrounds (Call for Papers banner) |
-| `.btn-solid` | Black fill, teal on hover | Primary action on light backgrounds (Register, Send Message, Pay Online) |
-| `.btn-outline-dark` | Ink outline, compact | Secondary action on light backgrounds (currently unused) |
+| `.btn-solid` | Black fill, teal on hover | Primary action on light backgrounds (Send Message, Get Directions; Register and Pay Online while registration is open) |
+| `.btn-outline-dark` | Ink outline, compact (`10px 20px`) | Secondary action on light backgrounds (Venue "Open in Google Maps"; padded to `.btn`'s `15px 30px` there so it lines up with "Get Directions") |
 | `.btn-link` | Uppercase text, underline | Low-emphasis navigation ("Contact Details →") |
 | `.link-btn` | Small teal underlined text | Inline text actions (currently unused) |
 | `.copy-btn` | Tiny outlined "COPY" | Copy an email, account number or code |
@@ -388,6 +389,59 @@ conference itself is the black `.is-active` cell.
 `.hero` and `.photo-banner` set white text over full-bleed photography with a dark overlay
 (gradient on the hero, flat 55% black on banners); labels are gold.
 
+### Map embed (Venue)
+A Google Maps `<iframe>` (`loading="lazy"`, a descriptive `title`, `referrerpolicy="no-referrer-when-downgrade"`)
+in `.venue-map-wrap > .venue-map`, directly after `.venue-split` inside `#venue`:
+
+```html
+<div class="container venue-map-wrap reveal">
+  <div class="venue-map"><iframe src="https://maps.google.com/maps?q=…&amp;z=15&amp;output=embed" title="Map: …" width="1200" height="450" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe></div>
+  <div class="venue-map-actions">
+    <a class="btn btn-solid" href="https://www.google.com/maps/dir/?api=1&amp;destination=…" target="_blank" rel="noopener">Get Directions<span class="visually-hidden"> (opens in a new tab)</span></a>
+    <a class="btn btn-outline-dark" href="https://www.google.com/maps/search/?api=1&amp;query=…" target="_blank" rel="noopener">Open in Google Maps<span class="visually-hidden"> (opens in a new tab)</span></a>
+  </div>
+</div>
+```
+
+- Frame: 1px `--border`, `--panel` background, **16:9** (4:3 ≤600px); the iframe fills it, no border.
+- Buttons: flex row, `--s-4` gap, `--s-5` above; **full width and centred ≤600px**.
+- Use the place name in the query (it resolves to "PDPIAS, Charusat"), never guessed coordinates.
+  Escape every `&` in a URL as `&amp;`. A CSP needs `frame-src https://www.google.com https://maps.google.com`.
+
+### Places cards (`#places`)
+Groups of `.card.place-card`s, each group headed by an `h3.place-group-title` (serif uppercase,
+1.35rem, 1px bottom rule) with a small grey uppercase subtitle `<span>`:
+
+```html
+<div class="place-group">
+  <h3 class="place-group-title reveal">Near Campus <span>Under an hour away</span></h3>
+  <div class="cards place-grid">
+    <article class="card place-card reveal">
+      <figure class="place-photo">
+        <img src="assets/images/places/slug-480.jpg" srcset="assets/images/places/slug-480.jpg 480w, assets/images/places/slug-960.jpg 960w" sizes="(max-width: 640px) 92vw, (max-width: 980px) 46vw, 380px" alt="What the photo shows" width="480" height="320" loading="lazy" decoding="async">
+        <figcaption>Photo: <a href="(Commons file page)">Author</a>, <a href="(licence URL)">CC BY-SA 4.0</a>, cropped</figcaption>
+      </figure>
+      <div class="place-meta"><span class="status-chip">Heritage</span><span class="place-distance">≈ 18 km</span></div>
+      <h4>Place Name</h4>
+      <p class="place-town">Town</p>
+      <p>One factual sentence.</p>
+      <a class="btn-link" href="https://www.google.com/maps/dir/?api=1&amp;origin=P+D+Patel+Institute+of+Applied+Sciences%2C+CHARUSAT%2C+Changa&amp;destination=…" target="_blank" rel="noopener">Directions<span class="visually-hidden"> to Place Name (opens in a new tab)</span> →</a>
+    </article>
+  </div>
+</div>
+```
+
+- Grid is the standard `.cards` (3-up → 1-up). Card = flex column; the Directions link sits at the
+  bottom (`margin-top:auto`), `--s-5` below the description.
+- Meta row: neutral `.status-chip` category left, distance right (12px uppercase `--ink-500`, `nowrap`).
+- `h4` matches `.card h3` (serif, `--fs-h3`, 600, uppercase); town in muted `.9rem`.
+- Photo: `.place-photo` bleeds to the card edges at the top (3:2, 1px rule beneath, `--panel` while
+  loading); the credit caption (11px `--ink-500`) sits under it — author linked to the Commons file
+  page, licence linked to its deed, "cropped" when the file was cropped. See §7 for sourcing.
+- Content rules: no ratings, opening hours, prices or "best time" claims; distances are
+  approximate road distances from PDPIAS (`≈`) and must be checked in Google Maps before publishing.
+- No hover lift or shadow — the base `.card:hover` border change only.
+
 ### Footer
 Black; three columns (brand + conference logo + organizer, quick links, contact with the four
 organizer phone numbers); small muted text that goes white on hover; copyright under a faint rule.
@@ -401,6 +455,10 @@ organizer phone numbers); small muted text that goes white on hover; copyright u
   replacement photo away from the left third, where hero text sits.
 - **Venue:** `pdpias-building.jpg` in a 4:3 frame.
 - **Speakers:** `assets/images/conference-images/<firstname-lastname>.jpg`, verified photos only.
+- **Places to Visit:** `assets/images/places/<slug>-480.jpg` and `-960.jpg`, cropped to 3:2, metadata
+  stripped. Only real photos of the named place from Wikimedia Commons under a free licence (CC BY,
+  CC BY-SA or public domain with a credible source) — never stock, AI, logos or trademarked images.
+  Every photo carries a visible credit (author + licence); keep it when replacing a photo.
 - Every content image needs meaningful `alt` text (the person's or building's name). Decorative
   duplicates (header logo mark) use `alt=""` + `aria-hidden="true"`.
 - Give `<img>` explicit `width`/`height` (no layout shift) and `loading="lazy"` below the fold.
@@ -490,7 +548,9 @@ Found while writing this document; none are fixed by it. (The invisible "Continu
 | 1 | **Teal text in dark mode is 3.99:1 on `#0a0a0a`** (3.64:1 on `#161616`) — section labels (12px) and links fall under 4.5:1 | Hard to read for some users | Use a lighter teal such as `#13959C` for text in dark mode |
 | 2 | **Form placeholder text is 2.81:1** (`#9a9a9a` on white) | Fails contrast | Darken to ≈ `#767676` |
 | 3 | **Register button's gold → arrow is 1.76:1 on teal.** It is decorative (`aria-hidden`) beside the label, but faint | Low visibility of the arrow | Use a lighter gold or white arrow |
-| 4 | **`.reveal` content is invisible with JavaScript off** (`opacity:0` by default) | No-JS visitors see blank sections | Apply the hidden state only under an `html.js` class |
-| 5 | **Dead CSS:** `.callout`, `.theme-grid`, `.partners-grid`, `.speaker-topic`, `.schedule-*`, `.sep`, `.tabs` / `.tab-*`, `.btn-outline-dark` and `.link-btn` are unused; the programme-tab script has no tabs to drive | Extra weight, confusion | Delete — restore the schedule styles from Git history when the programme is published |
+| 4 | **Fixed:** `.reveal` content was invisible with JavaScript off (`opacity:0` by default). `@media (scripting: none)` now keeps it visible | Browsers without the `scripting` media feature (pre-2023) still hide it | If those matter, apply the hidden state only under an `html.js` class |
+| 5 | **Dead CSS:** `.callout`, `.theme-grid`, `.partners-grid`, `.speaker-topic`, `.schedule-*`, `.sep`, `.tabs` / `.tab-*` and `.link-btn` are unused; the programme-tab script has no tabs to drive | Extra weight, confusion | Delete — restore the schedule styles from Git history when the programme is published |
 | 6 | **Inline `style=""` attributes** remain in `index.html` (17) | Hard to restyle; blocks a strict `style-src` | Move into classes |
 | 7 | **Two near-duplicate palettes** (§2) and an unused `--blue` | Drift | Consolidate |
+| 8 | **Header overflows at 1081–1180px** since the nav button reads "Registration Coming Soon": the controls spill up to 94px past the container (the theme toggle is cut off at 1081–1120px). It fit with "Register Now" | Theme toggle partly off-screen on small laptops | Shorter nav label (e.g. "Coming Soon") or hide the nav button below 1181px while registration is on hold |
+| 9 | **`.btn-solid` is black in dark mode too**, so on `#0a0a0a`–`#111` its edges disappear (text stays 21:1) — Send Message, Get Directions | Button shape hard to see | Give `.btn-solid` a `--border` outline or a lighter fill in dark mode |

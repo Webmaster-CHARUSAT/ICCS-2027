@@ -53,6 +53,8 @@ Push to `main`; Vercel publishes the files as they are (no build step). After de
 refresh (Ctrl+F5). Static assets use `?v=N` query strings — bump `N` in `index.html` when you
 change a CSS/JS/image file so browsers fetch the new copy.
 
+Map uses a Google Maps iframe. If a CSP is added, allow `frame-src https://www.google.com https://maps.google.com`.
+
 ## 4. Submissions (Microsoft CMT)
 
 The Call for Papers section (`id="papers"`, card `id="how-to-submit"`) shows a
