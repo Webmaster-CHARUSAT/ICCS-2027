@@ -323,7 +323,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   /* ---------- Legacy cleanup ----------
      Earlier versions kept the visitor's Registration ID + email in the browser to unlock an
-     abstract form. Abstract submission now happens elsewhere (EasyChair), so remove that stored
+     abstract form. Submissions now go through Microsoft CMT, so remove that stored
      personal data from visitors who registered before. */
   ['localStorage', 'sessionStorage'].forEach(function (store) {
     try { window[store].removeItem('iccs_registration'); } catch (e) {}

@@ -260,9 +260,9 @@ Section order in `index.html` and the background each uses (`alt` = off-white pa
 | 4 | Scientific Themes | `themes` | Alt | Five numbered tracks |
 | 5 | Distinguished Speakers | `speakers` | White | Filterable photo cards |
 | 6 | Conference Programme | `schedule` | Alt | "Coming Soon" card |
-| 7 | Registration | `registration` | Alt | Fee table, "How to pay" options, registration form — **stands alone**, no link to abstracts |
+| 7 | Registration | `registration` | Alt | Fee table, "How to pay" options, registration form — **stands alone**, no link to submissions |
 | 8 | Call for Papers banner | — | Photo | Submission invitation |
-| 9 | Call for Abstracts | `abstracts` | White | "Coming Soon — submit via EasyChair" card with the deadlines (submission is separate from registration) |
+| 9 | Call for Papers — Author & Submission Guidelines | `papers` (heading `submission-guidelines`, card `how-to-submit`) | White | Themes, what to submit, key dates, Microsoft CMT steps + link placeholder, and the verbatim CMT acknowledgment paragraph (submission is separate from registration) |
 | 10 | Important Dates | `dates` | White | Early bird, deadline, notification, conference |
 | 11 | Steering Committee | `committee` | Alt | Role cards |
 | 12 | Venue | `venue` | White | Building photo, address |
@@ -374,7 +374,7 @@ India (bank details; `.copy-btn` on the account number, IFSC and SWIFT codes) �
 shows instructions and never tracks or confirms a payment.
 
 ### "Coming Soon" card
-For anything not yet available (abstract submission via EasyChair, programme, partners): a `.card`
+For anything not yet available (registration, the CMT submission link, programme, partners): a `.card`
 with a `.status-chip.is-review` reading "Coming Soon", a serif `h3` (`.coming-soon-title`), one
 sentence of explanation and any known dates. Never add a link until the real destination exists.
 - **Status chips** (`.status-chip`, 11px uppercase, bordered): `.is-review` (info) is in use;

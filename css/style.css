@@ -495,6 +495,15 @@ nav a{white-space:nowrap}
 .payment-options .bank-details{line-height:1.7}
 .payment-options .pay-online{margin-top:var(--s-5)}
 
-/* ---------- "Coming Soon" card (abstract submission via EasyChair) ---------- */
+/* ---------- "Coming Soon" card (registration on hold) ---------- */
 .card .coming-soon-title{margin:var(--s-4) 0 var(--s-3)}
 .coming-soon-dates{margin-top:var(--s-4);color:var(--ink-700)}
+
+/* ---------- Author & Submission Guidelines (Microsoft CMT) ---------- */
+.guideline-list{margin:var(--s-3) 0 0;padding-left:1.2em;line-height:1.7}
+.guideline-list li+li{margin-top:var(--s-2)}
+.guideline-note{margin-top:var(--s-4);color:var(--ink-500);font-size:.92rem}
+.cmt-link{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s-3);margin-top:var(--s-5);padding:var(--s-4);border:1px dashed var(--border);background:var(--panel)}
+.cmt-link p{margin:0;font-weight:600;color:var(--ink-900)}
+/* CMT acknowledgment: plain paragraph by CMT rule — spacing/colour only, no bold or italics. */
+.cmt-ack{margin:var(--s-6) 0 0;max-width:80ch;color:var(--ink-500);font-size:.92rem;line-height:1.7}

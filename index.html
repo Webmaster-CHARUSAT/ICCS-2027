@@ -43,7 +43,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=21">
+<link rel="stylesheet" href="css/style.css?v=22">
 </head>
 <body>
 
@@ -86,7 +86,7 @@
     <div id="countdown" class="countdown" role="status" aria-label="Countdown to the conference"></div>
     <div class="buttons">
       <a class="register-btn register-btn--primary" href="#registration"><span class="register-btn__ring" aria-hidden="true"></span><span class="register-btn__face">Registration Coming Soon <span class="register-btn__arrow" aria-hidden="true">→</span></span></a>
-      <a class="btn btn-outline" href="#papers">Submit Paper</a>
+      <a class="btn btn-outline" href="#submission-guidelines">Submission Guidelines</a>
     </div>
   </div>
   <div class="image-credit">Conference venue — auditorium</div>
@@ -234,7 +234,7 @@
   </div>
 </section>
 
-<!-- ============ REGISTRATION (on hold — Coming Soon; paper submission is separate, via EasyChair) ============ -->
+<!-- ============ REGISTRATION (on hold — Coming Soon; submission is separate, via Microsoft CMT) ============ -->
 <section id="registration" class="alt">
   <div class="container">
     <div class="section-title reveal">
@@ -334,25 +334,77 @@
   <div class="container photo-banner-inner reveal">
     <span class="section-label">Call for Papers</span>
     <h2>Submit Your Research Work</h2>
-    <p>Researchers, faculty, scientists, research scholars and students are invited to contribute original work across all five conference themes. Selected papers will be published as a Book Chapter / Proceedings / Full Paper in SCOPUS-indexed journals, subject to peer review.</p>
-    <a class="btn btn-primary" href="#papers">Submit Paper</a>
+    <p>Researchers, faculty, scientists, research scholars and students are invited to contribute original work across all five conference themes. Submissions are managed through Microsoft CMT. Selected submissions will be published as a Book Chapter / Proceedings / Full Paper in SCOPUS-indexed journals, subject to peer review.</p>
+    <a class="btn btn-primary" href="#submission-guidelines">Submission Guidelines</a>
   </div>
 </section>
 
+<!-- ORGANIZER CONFIRMATION NEEDED — submission type.
+     The brochure describes an ABSTRACT submission; earlier versions of this site said "paper".
+     Until the organizers confirm which one authors upload (abstract only, or full paper), the
+     wording below says "submission" and ties the 250–300 word recommendation to the abstract.
+     Once confirmed, use that one term in: hero button, banner, this section, Important Dates and FAQ. -->
 <section id="papers">
   <div class="container">
     <div class="section-title reveal">
-      <span class="section-label">Paper Submission</span>
-      <h2>Call for Papers</h2>
-      <p>Presentation categories: Oral, Poster and Invited. Recommended length 250–300 words. Paper submission is separate from conference registration.</p>
+      <span class="section-label">Call for Papers</span>
+      <h2 id="submission-guidelines">Author &amp; Submission Guidelines</h2>
+      <p>All submissions for ICCS-CIRCLE 2027 are handled through Microsoft CMT. Submission is separate from conference registration and payment, which are not handled through CMT.</p>
     </div>
 
-    <div class="card reveal">
-      <span class="status-chip is-review">Coming Soon</span>
-      <h3 class="coming-soon-title">Submit via EasyChair</h3>
-      <p>Papers will be submitted through EasyChair. The submission link will be published on this page as soon as it opens.</p>
-      <p class="coming-soon-dates"><b>Paper submission deadline:</b> 5 December 2026<br><b>Notification of acceptance:</b> 20 December 2026</p>
+    <div class="cards">
+      <div class="card reveal">
+        <h3>Who Can Submit</h3>
+        <p>Researchers, faculty, scientists, research scholars and students are invited to submit original work in any of the five <a href="#themes">scientific themes</a>:</p>
+        <ul class="guideline-list">
+          <li>Functional Materials, Nanoscience &amp; Fundamental Physics</li>
+          <li>Sustainable Chemistry &amp; Molecular Design</li>
+          <li>Biological Interfaces, Biotechnology &amp; Bioeconomy</li>
+          <li>Mathematical Sciences &amp; Intelligent Modeling</li>
+          <li>Convergence Science &amp; Emerging Computational Frontiers</li>
+        </ul>
+      </div>
+      <div class="card reveal">
+        <h3>What to Submit</h3>
+        <ul class="guideline-list">
+          <li><b>Abstract length:</b> 250–300 words (recommended).</li>
+          <li><b>Presentation formats:</b> Oral and Poster; Invited presentations where applicable.</li>
+          <li><b>Publication:</b> Selected submissions will be published as a Book Chapter / Proceedings / Full Paper in SCOPUS-indexed journals, subject to peer review.</li>
+        </ul>
+        <!-- ORGANIZER CONFIRMATION NEEDED: file format, template, blind-review/anonymity rules,
+             co-author limit and whether multiple submissions per author are allowed. Add each
+             here as a <li> once confirmed, then remove the sentence below. -->
+        <p class="guideline-note">Details on file format, templates and review policy will be published here once confirmed.</p>
+      </div>
+      <div class="card reveal">
+        <h3>Key Dates</h3>
+        <ul class="guideline-list">
+          <li><b>Submission deadline:</b> 5 December 2026</li>
+          <li><b>Notification of acceptance:</b> 20 December 2026</li>
+          <li><b>Conference:</b> 21–22 January 2027, PDPIAS, CHARUSAT, Changa, Gujarat, India</li>
+        </ul>
+      </div>
     </div>
+
+    <div class="card reveal" style="margin-top:var(--s-6)" id="how-to-submit">
+      <h3>Where &amp; How to Submit</h3>
+      <ol class="guideline-list">
+        <li>Open the ICCS-CIRCLE 2027 submission site on Microsoft CMT using the link below.</li>
+        <li>Sign in with your Microsoft CMT account, or create one if you do not have one.</li>
+        <li>Select <b>Create new submission</b> and complete the submission form.</li>
+        <li>Submit before 5 December 2026. Decisions will be sent by 20 December 2026.</li>
+      </ol>
+      <!-- CMT SUBMISSION LINK — when the CMT site is created, replace the whole <div class="cmt-link">
+           block below with:
+           <div class="cmt-link"><a class="btn btn-solid" href="https://cmt3.research.microsoft.com/YOUR-CONFERENCE-ID" target="_blank" rel="noopener noreferrer">Submit on Microsoft CMT</a></div> -->
+      <div class="cmt-link">
+        <span class="status-chip is-review">Coming Soon</span>
+        <p>Submission link will be published here when available.</p>
+      </div>
+      <p class="guideline-note">At least one author must <a href="#registration">register</a> for an accepted contribution to be included in the conference programme. Registration and fee payment are handled on this website, not through Microsoft CMT.</p>
+    </div>
+
+    <p class="cmt-ack">The Microsoft CMT service was used for managing the peer-reviewing process for this conference. This service was provided for free by Microsoft and they bore all expenses, including costs for Azure cloud services as well as for software development and support.</p>
   </div>
 </section>
 
@@ -366,7 +418,7 @@
     </div>
     <div class="timeline">
       <div class="datebox reveal"><strong>Early Bird Registration Closes</strong><span>25 November 2026</span></div>
-      <div class="datebox reveal"><strong>Paper Submission Deadline</strong><span>5 December 2026</span></div>
+      <div class="datebox reveal"><strong>Submission Deadline</strong><span>5 December 2026</span></div>
       <div class="datebox reveal"><strong>Acceptance Notification</strong><span>20 December 2026</span></div>
       <div class="datebox reveal is-active"><strong>Conference</strong><span>21–22 January 2027</span></div>
     </div>
@@ -440,16 +492,20 @@
       <p>Quick answers to common queries. Select a question to expand it.</p>
     </div>
     <div class="faq-item">
-      <h3><button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-a-1">Who can submit a paper?</button></h3>
+      <h3><button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-a-1">Who can submit?</button></h3>
       <div class="faq-a" id="faq-a-1"><div><p>Researchers, faculty, scientists, research scholars and students working in any of the five scientific themes are welcome to submit original work.</p></div></div>
     </div>
     <div class="faq-item">
-      <h3><button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-a-2">What is the recommended abstract length for a paper submission?</button></h3>
-      <div class="faq-a" id="faq-a-2"><div><p>250–300 words is recommended.</p></div></div>
+      <h3><button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-a-2">What is the recommended abstract length?</button></h3>
+      <div class="faq-a" id="faq-a-2"><div><p>An abstract of 250–300 words is recommended. See the <a href="#submission-guidelines">Author &amp; Submission Guidelines</a>.</p></div></div>
     </div>
     <div class="faq-item">
-      <h3><button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-a-3">Do I need to register to present my accepted paper?</button></h3>
+      <h3><button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-a-3">Do I need to register to present my accepted submission?</button></h3>
       <div class="faq-a" id="faq-a-3"><div><p>Yes. At least one author must register for an accepted contribution to be included in the conference programme.</p></div></div>
+    </div>
+    <div class="faq-item">
+      <h3><button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-a-6">Where do I submit?</button></h3>
+      <div class="faq-a" id="faq-a-6"><div><p>All submissions are handled through Microsoft CMT. The submission link will be published in the <a href="#how-to-submit">Where &amp; How to Submit</a> section when available. Registration and payment are handled separately on this website, not through CMT.</p></div></div>
     </div>
     <div class="faq-item">
       <h3><button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-a-4">What are the registration fees?</button></h3>
@@ -540,6 +596,8 @@
           <li><a href="#about">About</a></li>
           <li><a href="#speakers">Speakers</a></li>
           <li><a href="#schedule">Schedule</a></li>
+          <li><a href="#papers">Call for Papers</a></li>
+          <li><a href="#submission-guidelines">Submission Guidelines</a></li>
           <li><a href="#venue">Venue</a></li>
           <li><a href="#faq">FAQ</a></li>
           <li><a href="#contact">Contact</a></li>

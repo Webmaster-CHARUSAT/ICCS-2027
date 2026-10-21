@@ -11,8 +11,8 @@
  *   register            new conference registration          -> { registration_id, ... }
  *   contact             contact-form message
  *
- * DORMANT (kept, but the website no longer calls them — abstract submission now goes through
- * EasyChair): verifyRegistration, submitAbstract, abstractStatus, and the acceptance-email
+ * DORMANT (kept, but the website no longer calls them — submissions now go through
+ * Microsoft CMT): verifyRegistration, submitAbstract, abstractStatus, and the acceptance-email
  * trigger below. They still answer if called directly; delete them if the in-page abstract
  * flow is not coming back.
  * Every response is { success: true, data } or { success: false, error: { code, message, status } }.

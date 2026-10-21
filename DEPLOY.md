@@ -11,9 +11,10 @@ The browser sends the two forms (registration, contact) straight to the Apps Scr
 URL, set in `js/config.js`. The script validates the input, writes the spreadsheet, enforces
 "one registration per email/phone", and sends the emails.
 
-**Abstract submission is not handled by this site.** It is separate from registration and will
-run through EasyChair; the abstract section of the page shows a "Coming Soon" card until the
-EasyChair link is available (see §4).
+**Submissions are not handled by this site.** They are separate from registration and run
+through Microsoft CMT; the Author & Submission Guidelines section shows "Submission link will be
+published here when available" until the CMT link exists (see §4). CMT does not handle
+registration or payments.
 
 ---
 
@@ -36,7 +37,7 @@ The old `Users` tab is no longer used and can be deleted.
 2. Replace the contents of `Code.gs` with `google-apps-script/Code.gs` from this repo. Save.
 3. **Once:** choose `installTriggers` in the function dropdown → **Run** → authorize. This
    installs the trigger that emails authors when their abstract is accepted. *(Only needed if the
-   in-page abstract flow returns; it can be skipped while abstracts go through EasyChair.)*
+   in-page abstract flow returns; it can be skipped while submissions go through Microsoft CMT.)*
 4. **Deploy → Manage deployments →** select the existing Web app → ✏️ **Edit** → Version:
    **New version** → **Deploy**. Keep *Execute as: Me* and *Who has access: Anyone*.
    - Editing the existing deployment keeps the same `/exec` URL, so `js/config.js` doesn't change.
@@ -52,12 +53,18 @@ Push to `main`; Vercel publishes the files as they are (no build step). After de
 refresh (Ctrl+F5). Static assets use `?v=N` query strings — bump `N` in `index.html` when you
 change a CSS/JS/image file so browsers fetch the new copy.
 
-## 4. Abstract submission (EasyChair)
+## 4. Submissions (Microsoft CMT)
 
-The "Call for Abstracts" section currently shows a **Coming Soon — Submit via EasyChair** card.
-When the EasyChair submission page is ready, replace that card in `index.html` (section
-`id="abstracts"`) with a button linking to it, e.g. `<a class="btn btn-solid" href="…">Submit on
-EasyChair</a>`, bump `?v=N` on the CSS/JS links if you touch them, and push.
+The Call for Papers section (`id="papers"`, card `id="how-to-submit"`) shows a
+`<div class="cmt-link">` placeholder: "Submission link will be published here when available."
+When the CMT conference site is created, replace that `div` with the snippet given in the HTML
+comment directly above it (a "Submit on Microsoft CMT" button), filling in the real CMT URL, and push.
+
+**CMT acknowledgment — do not remove or change.** The paragraph `<p class="cmt-ack">` in that
+section is the exact text CMT requires ("The Microsoft CMT service was used for managing the
+peer-reviewing process for this conference. …"). It must stay as static, visible, plain text in
+`index.html`: no bold/italics, not added by JavaScript, not commented out. CMT checks the page
+automatically.
 
 The in-page abstract code in `Code.gs` (`submitAbstract`, `abstractStatus`, `verifyRegistration`
 and the acceptance-email trigger) is **dormant**: nothing on the site calls it, but it still answers
