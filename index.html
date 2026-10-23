@@ -51,7 +51,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=23">
+<link rel="stylesheet" href="css/style.css?v=24">
 </head>
 <body>
 
@@ -73,7 +73,7 @@
       <a href="#venue">Venue</a>
     </nav>
     <div class="nav-controls">
-      <a class="register-btn register-btn--nav" href="#registration"><span class="register-btn__ring" aria-hidden="true"></span><span class="register-btn__face">Registration Coming Soon <span class="register-btn__arrow" aria-hidden="true">→</span></span></a>
+      <a class="register-btn register-btn--nav" href="#registration"><span class="register-btn__ring" aria-hidden="true"></span><span class="register-btn__face">Register Now <span class="register-btn__arrow" aria-hidden="true">→</span></span></a>
       <button class="theme-toggle" id="themeToggle" type="button">Dark</button>
       <button class="menu" id="menuToggle" aria-label="Open menu" aria-expanded="false" aria-controls="primaryNav" type="button">☰</button>
     </div>
@@ -93,7 +93,7 @@
     <h2>Integrating Functional Materials, Biological Interfaces, and Intelligent Modeling for Circular and Sustainable Development.</h2>
     <div id="countdown" class="countdown" role="status" aria-label="Countdown to the conference"></div>
     <div class="buttons">
-      <a class="register-btn register-btn--primary" href="#registration"><span class="register-btn__ring" aria-hidden="true"></span><span class="register-btn__face">Registration Coming Soon <span class="register-btn__arrow" aria-hidden="true">→</span></span></a>
+      <a class="register-btn register-btn--primary" href="#registration"><span class="register-btn__ring" aria-hidden="true"></span><span class="register-btn__face">Register Now <span class="register-btn__arrow" aria-hidden="true">→</span></span></a>
       <a class="btn btn-outline" href="#submission-guidelines">Submission Guidelines</a>
     </div>
   </div>
@@ -242,13 +242,13 @@
   </div>
 </section>
 
-<!-- ============ REGISTRATION (on hold — Coming Soon; submission is separate, via Microsoft CMT) ============ -->
+<!-- ============ REGISTRATION (open — after registering, js/script.js takes the visitor to Microsoft CMT to submit their abstract) ============ -->
 <section id="registration" class="alt">
   <div class="container">
     <div class="section-title reveal">
       <span class="section-label">Registration</span>
       <h2>Conference Registration</h2>
-      <p>Registration is not open yet. Fees for each category are listed below for reference.</p>
+      <p>Fees for each category are listed below; payment options follow the table. Once you have registered, you will be taken to Microsoft CMT to submit your abstract.</p>
     </div>
     <div class="table-wrap"><table>
       <caption class="visually-hidden">Registration fee categories</caption>
@@ -265,16 +265,6 @@
     <p style="margin-top:var(--s-3);color:var(--ink-500);font-size:.9rem">Fees are inclusive of conference kit, working lunches and refreshments.</p>
     <p style="margin:var(--s-5) 0"><b>Note:</b> At least one author must register for an accepted contribution to be included in the conference programme.</p>
 
-    <div class="card reveal" style="margin-top:var(--s-6)">
-      <span class="status-chip is-review">Coming Soon</span>
-      <h3 class="coming-soon-title">Registration Opens Soon</h3>
-      <p>Online registration and fee payment are on hold for now. The registration form and payment details will be published on this page as soon as registration opens.</p>
-    </div>
-
-    <!-- Registration on hold: payment options and the form are kept inert inside this <template>
-         (not rendered, not submittable). To reopen registration, delete the <template> wrapper,
-         remove the Coming Soon card above and change the CTA labels back to "Register Now". -->
-    <template id="registrationOnHold">
     <div class="payment-options">
       <h3 class="payment-heading">How to pay</h3>
       <div class="cards">
@@ -286,7 +276,7 @@
 
     <div class="card reveal" style="margin-top:var(--s-6)" id="registrationForm-wrap">
       <h3>Register for the Conference</h3>
-      <p style="color:var(--ink-500);margin-top:-6px;margin-bottom:var(--s-5)">No payment is collected through this form — please use the payment options above. You'll receive a Registration ID and a confirmation email.</p>
+      <p style="color:var(--ink-500);margin-top:-6px;margin-bottom:var(--s-5)">No payment is collected through this form — please use the payment options above. You'll receive a Registration ID and a confirmation email, and you'll then be taken to Microsoft CMT to submit your abstract.</p>
       <form id="registrationForm" novalidate>
         <!-- Anti-spam: hidden from people and screen readers; bots that fill it are rejected. -->
         <div class="hp-field" aria-hidden="true"><label for="regWebsite">Website</label><input type="text" id="regWebsite" name="website" tabindex="-1" autocomplete="off"></div>
@@ -332,7 +322,6 @@
         <div class="info-box" id="regInfo" role="status"></div>
       </form>
     </div>
-    </template>
   </div>
 </section>
 
@@ -347,11 +336,9 @@
   </div>
 </section>
 
-<!-- ORGANIZER CONFIRMATION NEEDED — submission type.
-     The brochure describes an ABSTRACT submission; earlier versions of this site said "paper".
-     Until the organizers confirm which one authors upload (abstract only, or full paper), the
-     wording below says "submission" and ties the 250–300 word recommendation to the abstract.
-     Once confirmed, use that one term in: hero button, banner, this section, Important Dates and FAQ. -->
+<!-- Submission type: the organizers describe the CMT step as ABSTRACT submission (23 Oct 2026),
+     matching the brochure, so the CMT buttons say "Submit Abstract". Elsewhere the wording stays
+     "submission", which is still accurate; the 250–300 word recommendation is for the abstract. -->
 <section id="papers">
   <div class="container">
     <div class="section-title reveal">
@@ -397,17 +384,16 @@
     <div class="card reveal" style="margin-top:var(--s-6)" id="how-to-submit">
       <h3>Where &amp; How to Submit</h3>
       <ol class="guideline-list">
-        <li>Open the ICCS-CIRCLE 2027 submission site on Microsoft CMT using the link below.</li>
+        <li><a href="#registration">Register for the conference</a> on this website. Once you have registered, you are taken to the ICCS-CIRCLE 2027 submission site on Microsoft CMT.</li>
         <li>Sign in with your Microsoft CMT account, or create one if you do not have one.</li>
         <li>Select <b>Create new submission</b> and complete the submission form.</li>
         <li>Submit before 5 December 2026. Decisions will be sent by 20 December 2026.</li>
       </ol>
-      <!-- CMT SUBMISSION LINK — when the CMT site is created, replace the whole <div class="cmt-link">
-           block below with:
-           <div class="cmt-link"><a class="btn btn-solid" href="https://cmt3.research.microsoft.com/YOUR-CONFERENCE-ID" target="_blank" rel="noopener noreferrer">Submit on Microsoft CMT</a></div> -->
+      <!-- CMT submission site. The same URL is in js/config.js (cmtUrl), which the registration form
+           uses to send newly registered authors here. Change both together. -->
       <div class="cmt-link">
-        <span class="status-chip is-review">Coming Soon</span>
-        <p>Submission link will be published here when available.</p>
+        <a class="btn btn-solid" href="https://cmt3.research.microsoft.com/ICCS2027">Submit Abstract on Microsoft CMT</a>
+        <p>Already registered? Go straight to the submission site.</p>
       </div>
       <p class="guideline-note">At least one author must <a href="#registration">register</a> for an accepted contribution to be included in the conference programme. Registration and fee payment are handled on this website, not through Microsoft CMT.</p>
     </div>
@@ -461,7 +447,7 @@
       <img src="assets/images/pdpias-logo-160.png" srcset="assets/images/pdpias-logo-160.png 1x, assets/images/pdpias-logo-320.png 2x" alt="P D Patel Institute of Applied Sciences logo" width="64" height="64" loading="lazy" decoding="async" class="venue-logo">
       <h2 style="margin-bottom:var(--s-5)">P D Patel Institute of Applied Sciences</h2>
       <p>Charotar University of Science and Technology (CHARUSAT)<br>Changa – 388 421, Gujarat, India</p>
-      <p>Information on airport, railway station, accommodation and local transportation will be provided before registration opens.</p>
+      <p>Information on airport, railway station, accommodation and local transportation will be provided here soon.</p>
       <div class="venue-links">
         <a class="btn-link" href="#contact">Contact Details →</a>
         <a class="btn-link" href="#places">Places to Visit →</a>
@@ -664,7 +650,7 @@
     </div>
     <div class="faq-item">
       <h3><button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-a-6">Where do I submit?</button></h3>
-      <div class="faq-a" id="faq-a-6"><div><p>All submissions are handled through Microsoft CMT. The submission link will be published in the <a href="#how-to-submit">Where &amp; How to Submit</a> section when available. Registration and payment are handled separately on this website, not through CMT.</p></div></div>
+      <div class="faq-a" id="faq-a-6"><div><p>All submissions are handled through Microsoft CMT at <a href="https://cmt3.research.microsoft.com/ICCS2027">cmt3.research.microsoft.com/ICCS2027</a>. Register on this website first — once you have registered, you are taken to CMT to submit your abstract. If you have already registered, use the link in the <a href="#how-to-submit">Where &amp; How to Submit</a> section. Registration and payment are handled on this website, not through CMT.</p></div></div>
     </div>
     <div class="faq-item">
       <h3><button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-a-4">What are the registration fees?</button></h3>
@@ -732,7 +718,7 @@
     <span class="section-label">Join Us</span>
     <h2>Join Us at ICCS-CIRCLE 2027</h2>
     <p>21–22 January 2027 · India — Be part of a convergent platform connecting fundamental science, emerging computation and sustainability.</p>
-    <a class="register-btn register-btn--primary" href="#registration"><span class="register-btn__ring" aria-hidden="true"></span><span class="register-btn__face">Registration Coming Soon <span class="register-btn__arrow" aria-hidden="true">→</span></span></a>
+    <a class="register-btn register-btn--primary" href="#registration"><span class="register-btn__ring" aria-hidden="true"></span><span class="register-btn__face">Register Now <span class="register-btn__arrow" aria-hidden="true">→</span></span></a>
   </div>
 </section>
 
@@ -781,14 +767,14 @@
   </div>
 </footer>
 
-<!-- Mobile-only sticky Registration (Coming Soon) bar: slides up after the hero, hides over the registration
+<!-- Mobile-only sticky Register bar: slides up after the hero, hides over the registration
      form and the Join Us banner (js/script.js). -->
-<div class="register-sticky" id="registerSticky"><a class="register-btn register-btn--sticky" href="#registration"><span class="register-btn__ring" aria-hidden="true"></span><span class="register-btn__face">Registration Coming Soon <span class="register-btn__arrow" aria-hidden="true">→</span></span></a></div>
+<div class="register-sticky" id="registerSticky"><a class="register-btn register-btn--sticky" href="#registration"><span class="register-btn__ring" aria-hidden="true"></span><span class="register-btn__face">Register Now <span class="register-btn__arrow" aria-hidden="true">→</span></span></a></div>
 
 <button class="back-to-top" id="backToTop" aria-label="Back to top" type="button">↑</button>
 
-<script src="js/config.js?v=2"></script>
+<script src="js/config.js?v=3"></script>
 <script src="js/api.js?v=6"></script>
-<script src="js/script.js?v=12"></script>
+<script src="js/script.js?v=13"></script>
 </body>
 </html>

@@ -329,6 +329,49 @@ document.addEventListener('DOMContentLoaded', function () {
     try { window[store].removeItem('iccs_registration'); } catch (e) {}
   });
 
+  /* ---------- Next step after registering: abstract submission on Microsoft CMT ----------
+     A new registration is sent to ICCS_CONFIG.cmtUrl after a short pause, so the Registration ID
+     can be noted (it is also emailed); "Stay on this page" cancels the redirect. An author who is
+     already registered gets the link without the automatic redirect. */
+  var CMT_REDIRECT_SECONDS = 10;
+  var cmtRedirectTimer = null;
+
+  function offerSubmission(box, autoRedirect) {
+    var url = window.ICCS_CONFIG && window.ICCS_CONFIG.cmtUrl;
+    if (!url || !box) return;
+    var next = document.createElement('div');
+    next.className = 'next-step';
+    var note = document.createElement('p');
+    note.textContent = autoRedirect
+      ? 'Next: submit your abstract on Microsoft CMT. Taking you there in ' + CMT_REDIRECT_SECONDS + ' seconds…'
+      : 'Submit your abstract on Microsoft CMT.';
+    var actions = document.createElement('p');
+    actions.className = 'next-step-actions';
+    var go = document.createElement('a');
+    go.className = 'btn btn-solid';
+    go.href = url;
+    go.textContent = 'Go to Microsoft CMT';
+    actions.appendChild(go);
+    if (autoRedirect) {
+      var stay = document.createElement('button');
+      stay.type = 'button';
+      stay.className = 'btn btn-outline-dark';
+      stay.textContent = 'Stay on this page';
+      stay.addEventListener('click', function () {
+        clearTimeout(cmtRedirectTimer);
+        note.textContent = 'Redirect cancelled. Submit your abstract on Microsoft CMT whenever you are ready.';
+        stay.remove();
+        go.focus();
+      });
+      actions.appendChild(stay);
+      clearTimeout(cmtRedirectTimer);
+      cmtRedirectTimer = setTimeout(function () { window.location.assign(url); }, CMT_REDIRECT_SECONDS * 1000);
+    }
+    next.appendChild(note);
+    next.appendChild(actions);
+    box.appendChild(next);
+  }
+
   /* ---------- Registration form ---------- */
   var regForm = document.getElementById('registrationForm');
   if (regForm) {
@@ -339,6 +382,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     regForm.addEventListener('submit', function (e) {
       e.preventDefault();
+      clearTimeout(cmtRedirectTimer);
       hideBoxes(regSuccessBox, regErrorBox, regInfoBox);
 
       var name = document.getElementById('regName');
@@ -375,10 +419,13 @@ document.addEventListener('DOMContentLoaded', function () {
           '. ' + emailNote);
         regForm.reset();
         clearFieldStates(regForm);
+        // Redirect automatically only when the ID was also emailed; otherwise it exists only on screen.
+        offerSubmission(regSuccessBox, Boolean(res.data.email_queued));
       }).catch(function (err) {
         if (err.code === 'ALREADY_REGISTERED') {
           showBox(regInfoBox, 'Already Registered — this email address or phone number is already registered. ' +
             'Please check your inbox for the confirmation email, or contact the organizers if you need help.');
+          offerSubmission(regInfoBox, false);
         } else {
           showBox(regErrorBox, 'Registration failed: ' + err.message);
         }

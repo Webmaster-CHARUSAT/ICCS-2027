@@ -260,7 +260,7 @@ Section order in `index.html` and the background each uses (`alt` = off-white pa
 | 4 | Scientific Themes | `themes` | Alt | Five numbered tracks |
 | 5 | Distinguished Speakers | `speakers` | White | Filterable photo cards |
 | 6 | Conference Programme | `schedule` | Alt | "Coming Soon" card |
-| 7 | Registration | `registration` | Alt | Fee table + "Coming Soon" card; the "How to pay" options and registration form are held in an inert `<template>` while registration is on hold — **stands alone**, no link to submissions |
+| 7 | Registration | `registration` | Alt | Fee table, "How to pay" options, registration form. After a successful registration the visitor is sent on to Microsoft CMT to submit their abstract (see Forms) |
 | 8 | Call for Papers banner | — | Photo | Submission invitation |
 | 9 | Call for Papers — Author & Submission Guidelines | `papers` (heading `submission-guidelines`, card `how-to-submit`) | White | Themes, what to submit, key dates, Microsoft CMT steps + link placeholder, and the verbatim CMT acknowledgment paragraph (submission is separate from registration) |
 | 10 | Important Dates | `dates` | White | Early bird, deadline, notification, conference |
@@ -363,6 +363,11 @@ card with separate `<p>`s (add `margin-top:var(--s-3)`), as in the committee car
   `.error-msg` beneath) and focus the first invalid field.
 - Result boxes: `.success-box`, `.error-box`, `.info-box` (hidden until shown by script). Add
   `.is-visible` to an `.info-box` for a permanent notice.
+- **Registration → CMT:** on success the `.success-box` shows the Registration ID, then a `.next-step`
+  block (added by `js/script.js`): "Go to Microsoft CMT" (`.btn-solid`) and "Stay on this page"
+  (`.btn-outline-dark`). The page redirects to `ICCS_CONFIG.cmtUrl` after 10 seconds **only if the
+  confirmation email was sent**; otherwise, and for "Already Registered", it shows the link without a
+  timer. "Stay on this page" cancels the redirect and moves focus to the CMT link.
 - **Anti-spam:** registration and contact forms include a hidden `.hp-field` honeypot
   (`name="website"`, off-screen, `aria-hidden`, `tabindex="-1"`). Never style it visible or label
   it meaningfully.
@@ -375,7 +380,7 @@ India (bank details; `.copy-btn` on the account number, IFSC and SWIFT codes) �
 shows instructions and never tracks or confirms a payment.
 
 ### "Coming Soon" card
-For anything not yet available (registration, the CMT submission link, programme, partners): a `.card`
+For anything not yet available (programme, partners): a `.card`
 with a `.status-chip.is-review` reading "Coming Soon", a serif `h3` (`.coming-soon-title`), one
 sentence of explanation and any known dates. Never add a link until the real destination exists.
 - **Status chips** (`.status-chip`, 11px uppercase, bordered): `.is-review` (info) is in use;
@@ -552,5 +557,5 @@ Found while writing this document; none are fixed by it. (The invisible "Continu
 | 5 | **Dead CSS:** `.callout`, `.theme-grid`, `.partners-grid`, `.speaker-topic`, `.schedule-*`, `.sep`, `.tabs` / `.tab-*` and `.link-btn` are unused; the programme-tab script has no tabs to drive | Extra weight, confusion | Delete — restore the schedule styles from Git history when the programme is published |
 | 6 | **Inline `style=""` attributes** remain in `index.html` (17) | Hard to restyle; blocks a strict `style-src` | Move into classes |
 | 7 | **Two near-duplicate palettes** (§2) and an unused `--blue` | Drift | Consolidate |
-| 8 | **Header overflows at 1081–1180px** since the nav button reads "Registration Coming Soon": the controls spill up to 94px past the container (the theme toggle is cut off at 1081–1120px). It fit with "Register Now" | Theme toggle partly off-screen on small laptops | Shorter nav label (e.g. "Coming Soon") or hide the nav button below 1181px while registration is on hold |
+| 8 | **Header has no room for another nav link** at 1081–1440px with the "Register Now" button — an extra link (e.g. "Explore") pushes the controls past the container | New destinations can't be added to the header | Footer links only, or shorten existing labels first |
 | 9 | **`.btn-solid` is black in dark mode too**, so on `#0a0a0a`–`#111` its edges disappear (text stays 21:1) — Send Message, Get Directions | Button shape hard to see | Give `.btn-solid` a `--border` outline or a lighter fill in dark mode |

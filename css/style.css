@@ -534,7 +534,13 @@ nav a{white-space:nowrap}
 .guideline-list{margin:var(--s-3) 0 0;padding-left:1.2em;line-height:1.7}
 .guideline-list li+li{margin-top:var(--s-2)}
 .guideline-note{margin-top:var(--s-4);color:var(--ink-500);font-size:.92rem}
-.cmt-link{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s-3);margin-top:var(--s-5);padding:var(--s-4);border:1px dashed var(--border);background:var(--panel)}
-.cmt-link p{margin:0;font-weight:600;color:var(--ink-900)}
+.cmt-link{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s-3) var(--s-5);margin-top:var(--s-5);padding:var(--s-4);border:1px solid var(--border);background:var(--panel)}
+.cmt-link p{margin:0;color:var(--ink-500);font-size:.92rem}
+
+/* ---------- After registering: next step (Microsoft CMT), added by js/script.js ---------- */
+.next-step{margin-top:var(--s-4);padding-top:var(--s-4);border-top:1px solid currentColor}
+.next-step p{margin:0}
+.next-step .next-step-actions{display:flex;flex-wrap:wrap;gap:var(--s-3);margin-top:var(--s-3)}
+.next-step .btn{padding:12px 20px}
 /* CMT acknowledgment: plain paragraph by CMT rule — spacing/colour only, no bold or italics. */
 .cmt-ack{margin:var(--s-6) 0 0;max-width:80ch;color:var(--ink-500);font-size:.92rem;line-height:1.7}

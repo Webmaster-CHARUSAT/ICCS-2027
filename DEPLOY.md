@@ -11,10 +11,9 @@ The browser sends the two forms (registration, contact) straight to the Apps Scr
 URL, set in `js/config.js`. The script validates the input, writes the spreadsheet, enforces
 "one registration per email/phone", and sends the emails.
 
-**Submissions are not handled by this site.** They are separate from registration and run
-through Microsoft CMT; the Author & Submission Guidelines section shows "Submission link will be
-published here when available" until the CMT link exists (see §4). CMT does not handle
-registration or payments.
+**Submissions are not handled by this site.** Authors register here first; after a successful
+registration the site takes them to Microsoft CMT (https://cmt3.research.microsoft.com/ICCS2027)
+to submit their abstract (see §4). CMT does not handle registration or payments.
 
 ---
 
@@ -57,10 +56,14 @@ Map uses a Google Maps iframe. If a CSP is added, allow `frame-src https://www.g
 
 ## 4. Submissions (Microsoft CMT)
 
-The Call for Papers section (`id="papers"`, card `id="how-to-submit"`) shows a
-`<div class="cmt-link">` placeholder: "Submission link will be published here when available."
-When the CMT conference site is created, replace that `div` with the snippet given in the HTML
-comment directly above it (a "Submit on Microsoft CMT" button), filling in the real CMT URL, and push.
+The CMT site is https://cmt3.research.microsoft.com/ICCS2027. It appears in three places — change
+all of them together if it ever moves:
+- `js/config.js` → `cmtUrl`: where the registration form sends authors after they register
+  (automatically after 10 seconds when the confirmation email was sent, otherwise as a button).
+- `index.html` → the "Submit Abstract on Microsoft CMT" button in Where & How to Submit
+  (`id="how-to-submit"`) and the "Where do I submit?" FAQ answer.
+
+Bump `?v=N` on `js/config.js` in `index.html` when you change it.
 
 **CMT acknowledgment — do not remove or change.** The paragraph `<p class="cmt-ack">` in that
 section is the exact text CMT requires ("The Microsoft CMT service was used for managing the
@@ -76,10 +79,11 @@ coming back.
 ## 5. Smoke test after a deploy
 
 On the live site:
-1. Register with a test email → you see a Registration ID and receive the confirmation email.
-2. Register again with the same email → "Already Registered".
+1. Register with a test email → you see a Registration ID, receive the confirmation email, and
+   are taken to Microsoft CMT after 10 seconds ("Stay on this page" cancels it).
+2. Register again with the same email → "Already Registered", with a "Go to Microsoft CMT" button.
 3. Check the *Registration* section shows the fee table and the *How to pay* options.
-4. Check the *Call for Abstracts* section shows the **Coming Soon** card.
+4. Check the *Submit Abstract on Microsoft CMT* button in Where & How to Submit opens CMT.
 5. Send a contact message → it appears in `ContactMessages` and iccscircle@gmail.com is emailed.
 
 Then delete the test rows from the `Registrations` and `ContactMessages` tabs.
