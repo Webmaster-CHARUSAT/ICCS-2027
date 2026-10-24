@@ -56,12 +56,16 @@ Map uses a Google Maps iframe. If a CSP is added, allow `frame-src https://www.g
 
 ## 4. Submissions (Microsoft CMT)
 
-The CMT site is https://cmt3.research.microsoft.com/ICCS2027. It appears in three places — change
-all of them together if it ever moves:
-- `js/config.js` → `cmtUrl`: where the registration form sends authors after they register
-  (automatically after 10 seconds when the confirmation email was sent, otherwise as a button).
-- `index.html` → the "Submit Abstract on Microsoft CMT" button in Where & How to Submit
-  (`id="how-to-submit"`) and the "Where do I submit?" FAQ answer.
+The CMT site is https://cmt3.research.microsoft.com/ICCS2027, set **only** in `js/config.js`
+(`cmtUrl`) — it is deliberately not linked on the page. Authors reach it through the
+**abstract submission gate** in Where & How to Submit (`id="abstractGateForm"`): they enter their
+Registration ID + registered email, the Apps Script action `verifyRegistration` checks them against
+the `Registrations` tab, and only a match redirects to CMT. After registering, the success message
+offers "Continue to Abstract Submission", which fills the gate in for them.
+
+The gate is a website check, not a lock on CMT: anyone who already knows the CMT URL can open it.
+To enforce it, add a required "Registration ID" question to the CMT submission form and cross-check
+submissions against the `Registrations` tab.
 
 Bump `?v=N` on `js/config.js` in `index.html` when you change it.
 
@@ -79,11 +83,16 @@ coming back.
 ## 5. Smoke test after a deploy
 
 On the live site:
-1. Register with a test email → you see a Registration ID, receive the confirmation email, and
-   are taken to Microsoft CMT after 10 seconds ("Stay on this page" cancels it).
-2. Register again with the same email → "Already Registered", with a "Go to Microsoft CMT" button.
-3. Check the *Registration* section shows the fee table and the *How to pay* options.
-4. Check the *Submit Abstract on Microsoft CMT* button in Where & How to Submit opens CMT.
+1. Register with a test email (not the account that deployed the script — Gmail files mail you send
+   to yourself under Sent, not Inbox) → you see a Registration ID and receive the confirmation email,
+   whose "Next steps" link to Microsoft CMT, Pay Online, the bank details and the receipt-upload form.
+   No email? Apps Script → Executions → the `doPost` run logs "Email sent to …" or "Email to … failed".
+   "Continue to Abstract Submission" fills the gate; "Verify & Continue to CMT" opens CMT.
+2. Register again with the same email → "Already Registered".
+   In the gate, a wrong Registration ID or a different email is refused (no redirect).
+3. Check *How to pay* shows only the Registration ID form; your test Registration ID + email reveal the
+   payment options and the compulsory "Upload Payment Receipt" form link, and a made-up ID does not.
+4. Check the abstract submission gate in Where & How to Submit appears and refuses a made-up ID.
 5. Send a contact message → it appears in `ContactMessages` and iccscircle@gmail.com is emailed.
 
 Then delete the test rows from the `Registrations` and `ContactMessages` tabs.

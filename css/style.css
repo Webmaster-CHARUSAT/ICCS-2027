@@ -232,6 +232,16 @@ td:first-child,th:first-child{font-weight:600;white-space:nowrap;color:var(--ink
 .partner-tile{border:1px solid var(--border);padding:var(--s-6);display:grid;place-items:center;color:var(--ink-500);font-size:12px;text-transform:uppercase;letter-spacing:1px;min-height:96px;transition:border-color var(--t-fast),color var(--t-fast)}
 .partner-tile:hover{border-color:var(--ink-900);color:var(--ink-900)}
 
+/* ---------- Accommodation (hotel cards) ---------- */
+.hotel-card h3{margin-bottom:var(--s-1)}
+.hotel-town{color:var(--ink-500);font-size:.9rem;margin:0 0 var(--s-4)}
+.hotel-details{margin:0;font-size:.95rem;line-height:1.6}
+.hotel-details dt{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--ink-500)}
+.hotel-details dd{margin:0 0 var(--s-3);color:var(--ink-700);overflow-wrap:break-word}
+.hotel-details dd:last-child{margin-bottom:0}
+.hotel-details a{text-decoration:underline;text-underline-offset:2px}
+.hotel-details a:hover{color:var(--accent)}
+
 /* ---------- Venue map + Places to Visit ---------- */
 .venue-map-wrap{margin-top:var(--s-7)}
 .venue-map{border:1px solid var(--border);background:var(--panel);aspect-ratio:16/9}
@@ -519,12 +529,25 @@ label{line-height:1.4}
 nav a{white-space:nowrap}
 @media(min-width:1081px){nav a[href="#registration"]{display:none}}
 @media(min-width:1081px) and (max-width:1279px){nav{gap:var(--s-5)}}
+/* With the Accommodation tab the full nav needs ≥1366px beside the Register button; below that it
+   collapses to ☰ (same open-menu look as ≤1080px). */
+@media(min-width:1081px) and (max-width:1365px){
+  nav{display:none}
+  .menu{display:block}
+  nav.open{display:flex;position:absolute;left:0;right:0;top:100%;background:var(--nav-bg);padding:var(--s-5) 4%;flex-direction:column;align-items:flex-start;gap:var(--s-4);backdrop-filter:blur(6px)}
+}
 
 /* ---------- Payment options (Registration section) ---------- */
 .payment-options{margin-top:var(--s-6)}
 .payment-heading{font-size:1rem;text-transform:uppercase;letter-spacing:1px;margin:0 0 var(--s-5)}
 .payment-options .bank-details{line-height:1.7}
 .payment-options .pay-online{margin-top:var(--s-5)}
+/* Shown by js/script.js once the Registration ID is verified; focused for screen readers, no ring. */
+.payment-details{margin-top:var(--s-6)}
+.payment-details:focus{outline:none}
+/* Compulsory after paying: receipt upload (Google Form). */
+.receipt-step{display:grid;gap:var(--s-3);justify-items:start;margin-top:var(--s-6);padding:var(--s-5);background:var(--surface);border:1px solid var(--ink-900)}
+.receipt-step p{margin:0;color:var(--ink-700)}
 
 /* ---------- "Coming Soon" card (registration on hold) ---------- */
 .card .coming-soon-title{margin:var(--s-4) 0 var(--s-3)}
@@ -534,8 +557,13 @@ nav a{white-space:nowrap}
 .guideline-list{margin:var(--s-3) 0 0;padding-left:1.2em;line-height:1.7}
 .guideline-list li+li{margin-top:var(--s-2)}
 .guideline-note{margin-top:var(--s-4);color:var(--ink-500);font-size:.92rem}
-.cmt-link{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s-3) var(--s-5);margin-top:var(--s-5);padding:var(--s-4);border:1px solid var(--border);background:var(--panel)}
-.cmt-link p{margin:0;color:var(--ink-500);font-size:.92rem}
+/* Abstract submission gate (Registration ID + email → verified → Microsoft CMT) */
+.gate-form{margin-top:var(--s-5);padding:var(--s-5);border:1px solid var(--border);background:var(--panel);gap:var(--s-4)}
+.gate-title{font-family:var(--font-heading);font-size:var(--fs-h3);font-weight:600;text-transform:uppercase;letter-spacing:.3px;color:var(--ink-900);margin:0;line-height:1.3}
+.gate-note{margin:0;color:var(--ink-500);font-size:.92rem}
+.gate-note a{text-decoration:underline;text-underline-offset:2px}
+.gate-form .btn{justify-self:start}
+.gate-form .success-box,.gate-form .error-box{margin-top:0}
 
 /* ---------- After registering: next step (Microsoft CMT), added by js/script.js ---------- */
 .next-step{margin-top:var(--s-4);padding-top:var(--s-4);border-top:1px solid currentColor}

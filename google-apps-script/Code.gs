@@ -9,11 +9,12 @@
  *
  * PUBLIC ACTIONS (POST, JSON body with an "action" field — see js/api.js):
  *   register            new conference registration          -> { registration_id, ... }
+ *   verifyRegistration  Registration ID + email check; the website sends the author on to
+ *                       Microsoft CMT for abstract submission only when this succeeds
  *   contact             contact-form message
  *
- * DORMANT (kept, but the website no longer calls them — submissions now go through
- * Microsoft CMT): verifyRegistration, submitAbstract, abstractStatus, and the acceptance-email
- * trigger below. They still answer if called directly; delete them if the in-page abstract
+ * DORMANT (kept, but the website no longer calls them — abstracts are submitted on
+ * Microsoft CMT): submitAbstract, abstractStatus, and the acceptance-email trigger below. They still answer if called directly; delete them if the in-page abstract
  * flow is not coming back.
  * Every response is { success: true, data } or { success: false, error: { code, message, status } }.
  *
@@ -56,6 +57,15 @@ var DECIDED_STATUSES = ['Accepted', 'Rejected', 'Revision Required']; // reviewe
 var ORGANIZER_EMAIL = 'iccscircle@gmail.com';
 var SITE_URL = 'https://iccs-circle2027.charusat.ac.in/#abstracts';
 var MAIL_SENDER_NAME = 'ICCS-CIRCLE 2027';
+
+// Links in the registration confirmation email's "next steps". Keep in step with index.html and
+// js/config.js (cmtUrl) — change them together.
+var NEXT_STEP_LINKS = {
+  cmt: 'https://cmt3.research.microsoft.com/ICCS2027',
+  payOnline: 'https://rzp.io/rzp/GT56wXc',
+  howToPay: 'https://iccs-circle2027.charusat.ac.in/#how-to-pay',
+  receiptForm: 'https://forms.gle/63zxH7gfd6zvusk76'
+};
 
 // Shown to an author ONLY once their abstract is Accepted (abstractStatus). Payment itself is
 // handled entirely by CHARUSAT — this script never tracks or verifies payments.
@@ -174,15 +184,27 @@ function register_(b) {
   });
 
   var emailSent = sendMail_(record.email, 'ICCS-CIRCLE 2027 — Registration Confirmed (' + record.registration_id + ')',
-    'Registration Confirmed', 'Thank you for registering for ICCS-CIRCLE 2027. Here is a copy of your registration.',
+    'Registration Confirmed', 'Thank you for registering for ICCS-CIRCLE 2027. Your conference registration is complete. ' +
+      'To finish taking part, please complete the steps below.',
     [['Registration ID', record.registration_id], ['Name', record.name], ['Email', record.email],
       ['Institution', record.institution], ['Category', record.category], ['Registration Status', record.registration_status]],
-    'Please keep this Registration ID for your records. Payment options are listed in the Registration section of the conference website.');
+    'Please keep this Registration ID for your records — quote it in all correspondence with the organizers.',
+    '', '',
+    [{ title: 'Submit your abstract on Microsoft CMT (by 5 December 2026)',
+        text: 'Sign in to Microsoft CMT, or create a free CMT account if you do not have one, then select "Create new submission" and complete the form.',
+        url: NEXT_STEP_LINKS.cmt, label: 'Go to Microsoft CMT' },
+      { title: 'Pay the registration fee (Early Bird till 25 November 2026)',
+        text: 'Indian participants: pay online through the conference payment link. Participants from outside India: the bank transfer details are under "How to pay" on the conference website — enter your Registration ID and registered email to see them.',
+        url: NEXT_STEP_LINKS.payOnline, label: 'Pay Online', url2: NEXT_STEP_LINKS.howToPay, label2: 'Bank transfer details' },
+      { title: 'Upload your payment receipt (compulsory)',
+        text: 'After paying, upload the payment receipt or a screenshot of the payment through this form. You will need to sign in with a Google account to upload the file.',
+        url: NEXT_STEP_LINKS.receiptForm, label: 'Upload Payment Receipt' }]);
 
   return { registration_id: record.registration_id, registration_status: record.registration_status, email_queued: emailSent };
 }
 
 function verifyRegistration_(b) {
+  rateLimit_('verify', email_(b.email));
   var reg = findRegistration_(b.registrationId, b.email);
   if (ABSTRACT_ELIGIBLE_STATUSES.indexOf(String(reg.registration_status || 'Submitted')) === -1) {
     throw fail_(403, 'REGISTRATION_INVALID', 'This registration is not currently valid for abstract submission. Please contact the organizers.');
@@ -525,10 +547,27 @@ function escapeHtml_(s) {
 
 // Sends a simple branded email (plain text + HTML). Returns true if sent. A mail failure (quota,
 // bad address) is logged, never thrown — the submission is already saved by the time this runs.
-function sendMail_(to, subject, heading, intro, rows, closing, longText, replyTo) {
+// steps (optional): numbered "next steps", each { title, text, url, label, url2?, label2? }.
+function sendMail_(to, subject, heading, intro, rows, closing, longText, replyTo, steps) {
+  steps = steps || [];
   try {
+    var stepsText = steps.length ? ['', 'NEXT STEPS'].concat(steps.map(function (s, i) {
+      return '\n' + (i + 1) + '. ' + s.title + '\n' + s.text + '\n' + s.label + ': ' + s.url +
+        (s.url2 ? '\n' + s.label2 + ': ' + s.url2 : '');
+    })) : [];
     var text = [intro, ''].concat(rows.map(function (r) { return r[0] + ': ' + (r[1] || '—'); }))
-      .concat(longText ? ['', longText] : []).concat(['', closing, '', '— ICCS-CIRCLE 2027 Organizing Committee']).join('\n');
+      .concat(longText ? ['', longText] : []).concat(stepsText)
+      .concat(['', closing, '', '— ICCS-CIRCLE 2027 Organizing Committee']).join('\n');
+    var button = function (url, label) {
+      return '<a href="' + escapeHtml_(url) + '" style="display:inline-block;margin:8px 8px 0 0;padding:9px 16px;background:#10243e;' +
+        'color:#ffffff;text-decoration:none;border-radius:6px;font-size:14px">' + escapeHtml_(label) + '</a>';
+    };
+    var stepsHtml = steps.length ? '<h3 style="color:#10243e;margin:24px 0 8px">Next steps</h3>' +
+      '<ol style="padding-left:20px;margin:0">' + steps.map(function (s) {
+        return '<li style="margin-bottom:16px"><b>' + escapeHtml_(s.title) + '</b><br>' +
+          '<span style="font-size:14px;line-height:1.5">' + escapeHtml_(s.text) + '</span><br>' +
+          button(s.url, s.label) + (s.url2 ? button(s.url2, s.label2) : '') + '</li>';
+      }).join('') + '</ol>' : '';
     var html = '<div style="font-family:Arial,Helvetica,sans-serif;color:#243447;max-width:600px;margin:0 auto">' +
       '<h2 style="color:#10243e;margin-bottom:4px">' + escapeHtml_(heading) + '</h2>' +
       '<p style="color:#607080;margin-top:0">' + escapeHtml_(intro) + '</p>' +
@@ -538,14 +577,16 @@ function sendMail_(to, subject, heading, intro, rows, closing, longText, replyTo
           '</td><td style="padding:6px 0">' + escapeHtml_(r[1] || '—') + '</td></tr>';
       }).join('') + '</table>' +
       (longText ? '<p style="white-space:pre-wrap;background:#f4f7fa;padding:14px;border-radius:8px;font-size:14px;line-height:1.5">' + escapeHtml_(longText) + '</p>' : '') +
+      stepsHtml +
       '<p style="margin-top:20px">' + escapeHtml_(closing) + '</p>' +
       '<p style="color:#607080;font-size:13px">— ICCS-CIRCLE 2027 Organizing Committee</p></div>';
     var options = { to: to, subject: subject, body: text, htmlBody: html, name: MAIL_SENDER_NAME };
     if (replyTo) options.replyTo = replyTo;
     MailApp.sendEmail(options);
+    console.log('Email sent to ' + to + ': ' + subject);
     return true;
   } catch (err) {
-    console.error('Email to ' + to + ' failed: ' + err);
+    console.error('Email to ' + to + ' failed: ' + err + ' (remaining daily quota: ' + MailApp.getRemainingDailyQuota() + ')');
     return false;
   }
 }

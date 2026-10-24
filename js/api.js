@@ -10,6 +10,7 @@
 (function (global) {
   var ACTIONS = {
     '/registrations': 'register',
+    '/registrations/verify': 'verifyRegistration',
     '/contact': 'contact'
   };
 

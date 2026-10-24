@@ -237,7 +237,8 @@ Prefer `auto-fit` + `minmax` over fixed column counts so layouts reflow without 
 
 | Width | Changes |
 |---|---|
-| ≥1081px | Full nav shown; the "Registration" text link is hidden (the Register button replaces it) |
+| ≥1366px | Full nav shown (incl. Accommodation); the "Registration" text link is hidden (the Register button replaces it) |
+| 1081–1365px | Nav collapses to ☰ (the full nav with the Register button no longer fits); other layouts stay desktop |
 | ≤1080px | Nav collapses to ☰; split layouts and two-column forms stack; footer 2 columns |
 | ≤768px | Header Register button hides; mobile sticky Register bar activates |
 | ≤700px | Table first column sticky; partners and organizer card stack |
@@ -260,18 +261,19 @@ Section order in `index.html` and the background each uses (`alt` = off-white pa
 | 4 | Scientific Themes | `themes` | Alt | Five numbered tracks |
 | 5 | Distinguished Speakers | `speakers` | White | Filterable photo cards |
 | 6 | Conference Programme | `schedule` | Alt | "Coming Soon" card |
-| 7 | Registration | `registration` | Alt | Fee table, "How to pay" options, registration form. After a successful registration the visitor is sent on to Microsoft CMT to submit their abstract (see Forms) |
+| 7 | Registration | `registration` | Alt | Fee table, registration form, then "How to pay" (`how-to-pay`): a Registration ID gate that reveals the payment options. After registering, the visitor is offered both gates (see Forms) |
 | 8 | Call for Papers banner | — | Photo | Submission invitation |
 | 9 | Call for Papers — Author & Submission Guidelines | `papers` (heading `submission-guidelines`, card `how-to-submit`) | White | Themes, what to submit, key dates, Microsoft CMT steps + link placeholder, and the verbatim CMT acknowledgment paragraph (submission is separate from registration) |
 | 10 | Important Dates | `dates` | White | Early bird, deadline, notification, conference |
 | 11 | Steering Committee | `committee` | Alt | Role cards |
-| 12 | Venue | `venue` | White | Building photo, address, Contact Details / Places to Visit links, Google Maps embed + Get Directions / Open in Google Maps |
-| 13 | Places to Visit | `places` | Alt | Near-campus + day-trip cards with directions (footer link only — no header link, the header has no room) |
-| 14 | Partners & Collaborators | `partners` | White | Organizer card + "Coming Soon" |
-| 15 | FAQ | `faq` | Alt | Accordion |
-| 16 | Contact | `contact` | White | Secretariat details, contact form |
-| 17 | Join Us banner | `joinUs` | Photo | Final Register CTA |
-| 18 | Footer | — | Black | Brand, links, contact, organizer |
+| 12 | Venue | `venue` | White | Building photo, address, Accommodation / Contact Details / Places to Visit links, Google Maps embed + Get Directions / Open in Google Maps |
+| 13 | Accommodation | `accommodation` | Alt | Hotel cards (`.hotel-card`: name, town, `<dl class="hotel-details">` of address / phone / WhatsApp / email links) — header nav tab + footer link |
+| 14 | Places to Visit | `places` | White | Near-campus + day-trip photo cards with directions (footer link only) |
+| 15 | Partners & Collaborators | `partners` | Alt | Organizer card + "Coming Soon" |
+| 16 | FAQ | `faq` | White | Accordion |
+| 17 | Contact | `contact` | Alt | Secretariat details, contact form |
+| 18 | Join Us banner | `joinUs` | Photo | Final Register CTA |
+| 19 | Footer | — | Black | Brand, links, contact, organizer |
 
 ---
 
@@ -363,21 +365,25 @@ card with separate `<p>`s (add `margin-top:var(--s-3)`), as in the committee car
   `.error-msg` beneath) and focus the first invalid field.
 - Result boxes: `.success-box`, `.error-box`, `.info-box` (hidden until shown by script). Add
   `.is-visible` to an `.info-box` for a permanent notice.
-- **Registration → CMT:** on success the `.success-box` shows the Registration ID, then a `.next-step`
-  block (added by `js/script.js`): "Go to Microsoft CMT" (`.btn-solid`) and "Stay on this page"
-  (`.btn-outline-dark`). The page redirects to `ICCS_CONFIG.cmtUrl` after 10 seconds **only if the
-  confirmation email was sent**; otherwise, and for "Already Registered", it shows the link without a
-  timer. "Stay on this page" cancels the redirect and moves focus to the CMT link.
+- **Registration ID gates:** two `.gate-form`s share one handler (`setupGate` in `js/script.js`):
+  Registration ID + registered email → Apps Script `verifyRegistration` → on success either reveal
+  `#paymentDetails` (How to pay) or redirect to `ICCS_CONFIG.cmtUrl` after a 1.5s "verified" message
+  (abstract submission). After registering, the success box adds "View Payment Details" and "Continue
+  to Abstract Submission", each filling its gate in. The CMT URL is never linked in the page.
 - **Anti-spam:** registration and contact forms include a hidden `.hp-field` honeypot
   (`name="website"`, off-screen, `aria-hidden`, `tabindex="-1"`). Never style it visible or label
   it meaningfully.
 
 ### Payment options (Registration section)
-`.payment-options` follows the fee table: a small uppercase "How to pay" heading, two `.card`s —
-Indian participants ("Pay Online" → the university's Razorpay link) and participants from outside
-India (bank details; `.copy-btn` on the account number, IFSC and SWIFT codes) — then the line
-"This portal cannot confirm payment status". Payment is processed by the university; the site only
-shows instructions and never tracks or confirms a payment.
+`#how-to-pay` sits **below** the registration form: a `.gate-form` ("View Payment Details",
+Registration ID + registered email) and the hidden `#paymentDetails` — two `.card`s (Indian
+participants: "Pay Online" → the university's Razorpay link; participants from outside India: bank
+details with `.copy-btn` on the account number, IFSC and SWIFT codes) a `.receipt-step` box ("Compulsory" chip + "Upload Payment Receipt" → the Google Form
+https://forms.gle/63zxH7gfd6zvusk76) and the line "This portal cannot
+confirm payment status". `js/script.js` reveals `#paymentDetails` only after the Apps Script
+`verifyRegistration` action accepts the pair. This is a page-flow gate, not a secret: the details are
+still in the page source. Payment is processed by the university; the site never tracks or confirms a
+payment.
 
 ### "Coming Soon" card
 For anything not yet available (programme, partners): a `.card`
@@ -557,5 +563,5 @@ Found while writing this document; none are fixed by it. (The invisible "Continu
 | 5 | **Dead CSS:** `.callout`, `.theme-grid`, `.partners-grid`, `.speaker-topic`, `.schedule-*`, `.sep`, `.tabs` / `.tab-*` and `.link-btn` are unused; the programme-tab script has no tabs to drive | Extra weight, confusion | Delete — restore the schedule styles from Git history when the programme is published |
 | 6 | **Inline `style=""` attributes** remain in `index.html` (17) | Hard to restyle; blocks a strict `style-src` | Move into classes |
 | 7 | **Two near-duplicate palettes** (§2) and an unused `--blue` | Drift | Consolidate |
-| 8 | **Header has no room for another nav link** at 1081–1440px with the "Register Now" button — an extra link (e.g. "Explore") pushes the controls past the container | New destinations can't be added to the header | Footer links only, or shorten existing labels first |
+| 8 | **Header is full:** the full nav (with Accommodation) needs ≥1366px, so 1081–1365px uses the ☰ menu | Small-laptop visitors see the menu button instead of links | Any further header link pushes the breakpoint higher — use footer links, or shorten labels |
 | 9 | **`.btn-solid` is black in dark mode too**, so on `#0a0a0a`–`#111` its edges disappear (text stays 21:1) — Send Message, Get Directions | Button shape hard to see | Give `.btn-solid` a `--border` outline or a lighter fill in dark mode |

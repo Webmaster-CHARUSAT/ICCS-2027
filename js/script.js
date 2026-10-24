@@ -329,44 +329,107 @@ document.addEventListener('DOMContentLoaded', function () {
     try { window[store].removeItem('iccs_registration'); } catch (e) {}
   });
 
-  /* ---------- Next step after registering: abstract submission on Microsoft CMT ----------
-     A new registration is sent to ICCS_CONFIG.cmtUrl after a short pause, so the Registration ID
-     can be noted (it is also emailed); "Stay on this page" cancels the redirect. An author who is
-     already registered gets the link without the automatic redirect. */
-  var CMT_REDIRECT_SECONDS = 10;
-  var cmtRedirectTimer = null;
+  /* ---------- Registration ID gates ----------
+     Two forms ask for the Registration ID + the email it was registered with and check them
+     against the Registrations sheet (Apps Script action verifyRegistration):
+       "View Payment Details" (#paymentGateForm)            -> reveals #paymentDetails
+       "Continue to Abstract Submission" (#abstractGateForm) -> redirects to ICCS_CONFIG.cmtUrl
+     Element ids follow <prefix>RegId / Email / SubmitBtn / Success / Error. */
+  function setupGate(prefix, formId, label, onVerified) {
+    var form = document.getElementById(formId);
+    if (!form) return null;
+    var regIdInput = document.getElementById(prefix + 'RegId');
+    var emailInput = document.getElementById(prefix + 'Email');
+    var submitBtn = document.getElementById(prefix + 'SubmitBtn');
+    var successBox = document.getElementById(prefix + 'Success');
+    var errorBox = document.getElementById(prefix + 'Error');
 
-  function offerSubmission(box, autoRedirect) {
-    var url = window.ICCS_CONFIG && window.ICCS_CONFIG.cmtUrl;
-    if (!url || !box) return;
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      hideBoxes(successBox, errorBox);
+      var regId = regIdInput.value.trim().toUpperCase();
+      var email = emailInput.value.trim();
+      var ok = true;
+      ok = validateField(regIdInput.closest('.field'), /^REG-[A-Z0-9]{6,}$/.test(regId), 'Please enter your Registration ID (it starts with REG-).') && ok;
+      ok = validateField(emailInput.closest('.field'), isValidEmail(email), 'Please enter the email address you registered with.') && ok;
+      if (!ok) { focusFirstInvalid(form); return; }
+
+      setSubmitting(submitBtn, true, label);
+      ICCS_API.request('/registrations/verify', {
+        method: 'POST',
+        body: { registrationId: regId, email: email }
+      }).then(function (res) {
+        // onVerified returns true when the page is about to navigate away (keep the button disabled).
+        if (!onVerified(res.data, successBox)) setSubmitting(submitBtn, false, label);
+      }).catch(function (err) {
+        var msg;
+        if (err.code === 'REGISTRATION_NOT_FOUND') {
+          msg = 'We could not find this Registration ID. Check it against your confirmation email, or register first.';
+        } else if (err.code === 'REGISTRATION_INVALID' || err.code === 'RATE_LIMITED') {
+          msg = err.message;
+        } else if (err.code === 'VALIDATION_ERROR') {
+          msg = String(err.message).replace(/^\w+:\s*/, '');
+        } else {
+          msg = 'Could not verify your registration: ' + err.message;
+        }
+        showBox(errorBox, msg);
+        setSubmitting(submitBtn, false, label);
+      });
+    });
+
+    return {
+      // Fill the gate (e.g. right after registering) and bring it into view.
+      open: function (regId, email) {
+        if (regId) regIdInput.value = regId;
+        if (email) emailInput.value = email;
+        form.scrollIntoView({ block: 'center' });
+        (regId && email ? submitBtn : (regId ? emailInput : regIdInput)).focus({ preventScroll: true });
+      }
+    };
+  }
+
+  var paymentGate = setupGate('pay', 'paymentGateForm', 'View Payment Details', function (data, box) {
+    showBox(box, 'Registration ' + data.registration_id + ' verified. The payment options are shown below — after paying, upload your receipt (compulsory).');
+    var details = document.getElementById('paymentDetails');
+    if (details) {
+      details.hidden = false;
+      details.querySelectorAll('.reveal').forEach(function (el) { el.classList.add('visible'); });
+      details.focus({ preventScroll: true });
+      details.scrollIntoView({ block: 'start' });
+    }
+    return false;
+  });
+
+  var abstractGate = setupGate('gate', 'abstractGateForm', 'Verify & Continue to CMT', function (data, box) {
+    var cmtUrl = window.ICCS_CONFIG && window.ICCS_CONFIG.cmtUrl;
+    showBox(box, 'Registration ' + data.registration_id + ' verified. Taking you to Microsoft CMT to submit your abstract…');
+    if (!cmtUrl) return false;
+    setTimeout(function () { window.location.assign(cmtUrl); }, 1500);
+    return true;
+  });
+
+  // Next steps appended under a registration result: pay, then submit the abstract.
+  function offerNextSteps(box, regId, email) {
+    if (!box) return;
     var next = document.createElement('div');
     next.className = 'next-step';
     var note = document.createElement('p');
-    note.textContent = autoRedirect
-      ? 'Next: submit your abstract on Microsoft CMT. Taking you there in ' + CMT_REDIRECT_SECONDS + ' seconds…'
-      : 'Submit your abstract on Microsoft CMT.';
+    note.textContent = 'Next: view the payment details, then submit your abstract on Microsoft CMT. Both use your Registration ID.';
     var actions = document.createElement('p');
     actions.className = 'next-step-actions';
-    var go = document.createElement('a');
-    go.className = 'btn btn-solid';
-    go.href = url;
-    go.textContent = 'Go to Microsoft CMT';
-    actions.appendChild(go);
-    if (autoRedirect) {
-      var stay = document.createElement('button');
-      stay.type = 'button';
-      stay.className = 'btn btn-outline-dark';
-      stay.textContent = 'Stay on this page';
-      stay.addEventListener('click', function () {
-        clearTimeout(cmtRedirectTimer);
-        note.textContent = 'Redirect cancelled. Submit your abstract on Microsoft CMT whenever you are ready.';
-        stay.remove();
-        go.focus();
+    [['View Payment Details', '#how-to-pay', paymentGate, 'btn btn-solid'],
+     ['Continue to Abstract Submission', '#how-to-submit', abstractGate, 'btn btn-outline-dark']].forEach(function (step) {
+      if (!step[2]) return;
+      var a = document.createElement('a');
+      a.className = step[3];
+      a.href = step[1];
+      a.textContent = step[0];
+      a.addEventListener('click', function (e) {
+        e.preventDefault();
+        step[2].open(regId, email);
       });
-      actions.appendChild(stay);
-      clearTimeout(cmtRedirectTimer);
-      cmtRedirectTimer = setTimeout(function () { window.location.assign(url); }, CMT_REDIRECT_SECONDS * 1000);
-    }
+      actions.appendChild(a);
+    });
     next.appendChild(note);
     next.appendChild(actions);
     box.appendChild(next);
@@ -382,7 +445,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     regForm.addEventListener('submit', function (e) {
       e.preventDefault();
-      clearTimeout(cmtRedirectTimer);
       hideBoxes(regSuccessBox, regErrorBox, regInfoBox);
 
       var name = document.getElementById('regName');
@@ -400,6 +462,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (!ok) { focusFirstInvalid(regForm); return; }
 
+      var registeredEmail = email.value.trim();
       setSubmitting(regSubmitBtn, true, 'Register');
       ICCS_API.request('/registrations', {
         method: 'POST',
@@ -413,19 +476,18 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       }).then(function (res) {
         var emailNote = res.data.email_queued
-          ? 'A confirmation email has been sent to your address.'
-          : 'Please save your Registration ID.';
+          ? 'A confirmation email with your next steps (abstract submission on Microsoft CMT, fee payment and receipt upload) has been sent to your address — please also check your Spam folder.'
+          : 'We could not send the confirmation email, so please save your Registration ID now and contact the organizers.';
         showBox(regSuccessBox, 'Registration successful! Your Registration ID is ' + res.data.registration_id +
           '. ' + emailNote);
         regForm.reset();
         clearFieldStates(regForm);
-        // Redirect automatically only when the ID was also emailed; otherwise it exists only on screen.
-        offerSubmission(regSuccessBox, Boolean(res.data.email_queued));
+        offerNextSteps(regSuccessBox, res.data.registration_id, registeredEmail);
       }).catch(function (err) {
         if (err.code === 'ALREADY_REGISTERED') {
           showBox(regInfoBox, 'Already Registered — this email address or phone number is already registered. ' +
             'Please check your inbox for the confirmation email, or contact the organizers if you need help.');
-          offerSubmission(regInfoBox, false);
+          offerNextSteps(regInfoBox, '', registeredEmail);
         } else {
           showBox(regErrorBox, 'Registration failed: ' + err.message);
         }
