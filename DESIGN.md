@@ -261,7 +261,7 @@ Section order in `index.html` and the background each uses (`alt` = off-white pa
 | 4 | Scientific Themes | `themes` | Alt | Five numbered tracks |
 | 5 | Distinguished Speakers | `speakers` | White | Filterable photo cards |
 | 6 | Conference Programme | `schedule` | Alt | "Coming Soon" card |
-| 7 | Registration | `registration` | Alt | Fee table, registration form, then "How to pay" (`how-to-pay`): a Registration ID gate that reveals the payment options. After registering, the visitor is offered both gates (see Forms) |
+| 7 | Registration | `registration` | Alt | Fee table, registration form, then "How to pay" (`how-to-pay`): a registered-email gate that reveals the payment options. After registering, the visitor is offered both gates (see Forms) |
 | 8 | Call for Papers banner | — | Photo | Submission invitation |
 | 9 | Call for Papers — Author & Submission Guidelines | `papers` (heading `submission-guidelines`, card `how-to-submit`) | White | Themes, what to submit, key dates, Microsoft CMT steps + link placeholder, and the verbatim CMT acknowledgment paragraph (submission is separate from registration) |
 | 10 | Important Dates | `dates` | White | Early bird, deadline, notification, conference |
@@ -365,8 +365,8 @@ card with separate `<p>`s (add `margin-top:var(--s-3)`), as in the committee car
   `.error-msg` beneath) and focus the first invalid field.
 - Result boxes: `.success-box`, `.error-box`, `.info-box` (hidden until shown by script). Add
   `.is-visible` to an `.info-box` for a permanent notice.
-- **Registration ID gates:** two `.gate-form`s share one handler (`setupGate` in `js/script.js`):
-  Registration ID + registered email → Apps Script `verifyRegistration` → on success either reveal
+- **Registered-email gates:** two `.gate-form`s share one handler (`setupGate` in `js/script.js`):
+  registered email (one field, max 420px wide) → Apps Script `verifyRegistration` → on success either reveal
   `#paymentDetails` (How to pay) or redirect to `ICCS_CONFIG.cmtUrl` after a 1.5s "verified" message
   (abstract submission). After registering, the success box adds "View Payment Details" and "Continue
   to Abstract Submission", each filling its gate in. The CMT URL is never linked in the page.
@@ -376,7 +376,7 @@ card with separate `<p>`s (add `margin-top:var(--s-3)`), as in the committee car
 
 ### Payment options (Registration section)
 `#how-to-pay` sits **below** the registration form: a `.gate-form` ("View Payment Details",
-Registration ID + registered email) and the hidden `#paymentDetails` — two `.card`s (Indian
+registered email) and the hidden `#paymentDetails` — two `.card`s (Indian
 participants: "Pay Online" → the university's Razorpay link; participants from outside India: bank
 details with `.copy-btn` on the account number, IFSC and SWIFT codes) a `.receipt-step` box ("Compulsory" chip + "Upload Payment Receipt" → the Google Form
 https://forms.gle/63zxH7gfd6zvusk76) and the line "This portal cannot

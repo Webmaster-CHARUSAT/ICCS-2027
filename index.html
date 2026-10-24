@@ -51,7 +51,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=28">
+<link rel="stylesheet" href="css/style.css?v=29">
 </head>
 <body>
 
@@ -225,7 +225,7 @@
       </div>
       <div class="speaker-card reveal" data-track="distinguished">
         <div class="speaker-photo"><div class="avatar" aria-hidden="true">SP</div><img src="assets/images/conference-images/sujay-patil.jpg" alt="Mr. Sujay Patil" width="525" height="592" loading="lazy" decoding="async"></div>
-        <div class="speaker-meta"><h3>Mr. Sujay Patil</h3><p class="speaker-role">Asst. Product Manager – Electrochemistry</p><p>Metrohm India Pvt. Ltd.</p></div>
+        <div class="speaker-meta"><h3>Mr. Sujay Patil</h3><p class="speaker-role">Product Manager – Electrochemistry</p><p>Metrohm India Private Limited</p></div>
       </div>
     </div>
     <p class="empty-state-inline" id="speakerEmptyState" hidden>No speakers in this category yet.</p>
@@ -253,7 +253,7 @@
     <div class="section-title reveal">
       <span class="section-label">Registration</span>
       <h2>Conference Registration</h2>
-      <p>Fees for each category are listed below. Register using the form, then use your Registration ID to view the payment options and to continue to abstract submission on Microsoft CMT. After paying, uploading your payment receipt or screenshot is compulsory.</p>
+      <p>Fees for each category are listed below. Register using the form, then use your registered email to view the payment options and to continue to abstract submission on Microsoft CMT. After paying, uploading your payment receipt or screenshot is compulsory.</p>
     </div>
     <div class="table-wrap"><table>
       <caption class="visually-hidden">Registration fee categories</caption>
@@ -272,7 +272,7 @@
 
     <div class="card reveal" style="margin-top:var(--s-6)" id="registrationForm-wrap">
       <h3>Register for the Conference</h3>
-      <p style="color:var(--ink-500);margin-top:-6px;margin-bottom:var(--s-5)">No payment is collected through this form — the payment options are shown below once you have registered. You'll receive a Registration ID and a confirmation email. Abstracts are then submitted through Microsoft CMT — you'll need your Registration ID to continue to the submission.</p>
+      <p style="color:var(--ink-500);margin-top:-6px;margin-bottom:var(--s-5)">No payment is collected through this form — the payment options are shown below once you have registered. You'll receive a Registration ID and a confirmation email. Abstracts are then submitted through Microsoft CMT — you'll need your registered email to continue to the submission.</p>
       <form id="registrationForm" novalidate>
         <!-- Anti-spam: hidden from people and screen readers; bots that fill it are rejected. -->
         <div class="hp-field" aria-hidden="true"><label for="regWebsite">Website</label><input type="text" id="regWebsite" name="website" tabindex="-1" autocomplete="off"></div>
@@ -319,24 +319,17 @@
       </form>
     </div>
 
-    <!-- How to pay: shown only after the visitor's Registration ID + email are verified against the
+    <!-- How to pay: shown only after the visitor's registered email is verified against the
          Registrations sheet (js/script.js, Apps Script action verifyRegistration). -->
     <div class="payment-options" id="how-to-pay">
       <h3 class="payment-heading">How to pay</h3>
       <form id="paymentGateForm" class="gate-form" novalidate>
         <h4 class="gate-title">View Payment Details</h4>
-        <p class="gate-note">Register first using the form above, then enter your Registration ID and registered email to see the payment options.</p>
-        <div class="form-row">
-          <div class="field">
-            <label for="payRegId">Registration ID</label>
-            <input type="text" id="payRegId" name="payRegId" placeholder="REG-XXXXXXXXXXXX" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="payRegId-error">
-            <div class="error-msg" id="payRegId-error" role="alert"></div>
-          </div>
-          <div class="field">
-            <label for="payEmail">Registered Email</label>
-            <input type="email" id="payEmail" name="payEmail" placeholder="name@example.com" autocomplete="email" aria-describedby="payEmail-error">
-            <div class="error-msg" id="payEmail-error" role="alert"></div>
-          </div>
+        <p class="gate-note">Register first using the form above, then enter the email address you registered with to see the payment options.</p>
+        <div class="field">
+          <label for="payEmail">Registered Email</label>
+          <input type="email" id="payEmail" name="payEmail" placeholder="name@example.com" autocomplete="email" aria-describedby="payEmail-error">
+          <div class="error-msg" id="payEmail-error" role="alert"></div>
         </div>
         <button type="submit" class="btn btn-solid" id="paySubmitBtn">View Payment Details</button>
         <div class="success-box" id="paySuccess" role="status"></div>
@@ -350,7 +343,7 @@
         <div class="receipt-step">
           <span class="status-chip">Compulsory</span>
           <h4 class="gate-title">Upload Your Payment Receipt</h4>
-          <p>After paying, you must upload your payment receipt or a screenshot of the payment through this form. Keep your Registration ID handy; you will need to sign in with a Google account to upload the file.</p>
+          <p>After paying, you must upload your payment receipt or a screenshot of the payment through this form. Keep your Registration ID (from your confirmation email) handy; you will need to sign in with a Google account to upload the file.</p>
           <p><a class="btn btn-solid" href="https://forms.gle/63zxH7gfd6zvusk76" target="_blank" rel="noopener noreferrer">Upload Payment Receipt<span class="visually-hidden"> (opens in a new tab)</span></a></p>
         </div>
         <p class="payment-disclaimer">Payments are processed directly by Charotar University of Science and Technology. This portal cannot confirm payment status — for payment queries, contact the organizers. Please keep your payment receipt.</p>
@@ -419,33 +412,26 @@
       <h3>Where &amp; How to Submit</h3>
       <ol class="guideline-list">
         <li><a href="#registration">Register for the conference</a> on this website. Your Registration ID is shown on screen and emailed to you.</li>
-        <li>Enter your Registration ID and registered email below. Once they are verified, you are taken to the ICCS-CIRCLE 2027 submission site on Microsoft CMT.</li>
+        <li>Enter your registered email below. Once it is verified, you are taken to the ICCS-CIRCLE 2027 submission site on Microsoft CMT.</li>
         <li>Sign in with your Microsoft CMT account, or create one if you do not have one.</li>
         <li>Select <b>Create new submission</b> and complete the submission form.</li>
         <li>Submit before 5 December 2026. Decisions will be sent by 20 December 2026.</li>
       </ol>
-      <!-- Abstract submission gate: js/script.js checks the Registration ID + email against the
+      <!-- Abstract submission gate: js/script.js checks the registered email against the
            Registrations sheet (Apps Script action verifyRegistration) and only then redirects to
            the CMT site set in js/config.js (cmtUrl). The CMT URL is deliberately not linked on the page. -->
       <form id="abstractGateForm" class="gate-form" novalidate>
         <h4 class="gate-title">Continue to Abstract Submission</h4>
-        <p class="gate-note">Enter the Registration ID from your confirmation email and the email address you registered with.</p>
-        <div class="form-row">
-          <div class="field">
-            <label for="gateRegId">Registration ID</label>
-            <input type="text" id="gateRegId" name="gateRegId" placeholder="REG-XXXXXXXXXXXX" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="gateRegId-error">
-            <div class="error-msg" id="gateRegId-error" role="alert"></div>
-          </div>
-          <div class="field">
-            <label for="gateEmail">Registered Email</label>
-            <input type="email" id="gateEmail" name="gateEmail" placeholder="name@example.com" autocomplete="email" aria-describedby="gateEmail-error">
-            <div class="error-msg" id="gateEmail-error" role="alert"></div>
-          </div>
+        <p class="gate-note">Enter the email address you registered with.</p>
+        <div class="field">
+          <label for="gateEmail">Registered Email</label>
+          <input type="email" id="gateEmail" name="gateEmail" placeholder="name@example.com" autocomplete="email" aria-describedby="gateEmail-error">
+          <div class="error-msg" id="gateEmail-error" role="alert"></div>
         </div>
         <button type="submit" class="btn btn-solid" id="gateSubmitBtn">Verify &amp; Continue to CMT</button>
         <div class="success-box" id="gateSuccess" role="status"></div>
         <div class="error-box" id="gateError" role="alert"></div>
-        <p class="gate-note">Not registered yet? <a href="#registration">Register first</a> — abstract submission opens only with a valid Registration ID.</p>
+        <p class="gate-note">Not registered yet? <a href="#registration">Register first</a> — abstract submission opens only with a registered email.</p>
       </form>
       <p class="guideline-note">At least one author must <a href="#registration">register</a> for an accepted contribution to be included in the conference programme. Registration and fee payment are handled on this website, not through Microsoft CMT.</p>
     </div>
@@ -479,13 +465,13 @@
       <h2>Steering Committee</h2>
     </div>
     <div class="cards">
-      <div class="card reveal"><h3>Chief Patrons</h3><p>Shri Surendrabhai M. Patel<br>President, CHARUSAT</p><p style="margin-top:var(--s-3)">Shri Manubhai Patel<br>Patron, PDPIAS</p><p style="margin-top:var(--s-3)">Dr. M. C. Patel<br>Secretary, Kelavani Mandal,<br>Shri Charotar Moti Sattavis Patidar Kelavani Mandal</p></div>
+      <div class="card reveal"><h3>Chief Patrons</h3><p>Shri Surendrabhai M. Patel<br>President, CHARUSAT</p><p style="margin-top:var(--s-3)">Shri Manubhai Patel<br>Patron, PDPIAS</p><p style="margin-top:var(--s-3)">Dr. M. C. Patel<br>Secretary, Shri Charotar Moti Sattavis Patidar Kelavani Mandal</p></div>
       <div class="card reveal"><h3>Patrons</h3><p>Dr. Atul Patel<br>Provost, CHARUSAT</p><p style="margin-top:var(--s-3)">Dr. Binit Patel<br>Registrar, CHARUSAT</p></div>
-      <div class="card reveal"><h3>Conference Chairs</h3><p>Prof. Datta Madamwar<br>Prof. P. C. Vinodkumar</p></div>
+      <div class="card reveal"><h3>Conference Chairs</h3><p>Prof. Datta Madamwar<br>PDPIAS, CHARUSAT</p><p style="margin-top:var(--s-3)">Prof. P. C. Vinodkumar<br>PDPIAS, CHARUSAT</p></div>
       <div class="card reveal"><h3>Conveners</h3><p>Dr. Gayatri Dave<br>Dean, Faculty of Science</p><p style="margin-top:var(--s-3)">Dr. Abhishek Dadhania<br>Principal, PDPIAS</p></div>
-      <div class="card reveal"><h3>Secretary</h3><p>Dr. C K Sumesh</p></div>
-      <div class="card reveal"><h3>Treasurer</h3><p>Dr. Jimit Patel</p></div>
-      <div class="card reveal"><h3>Organizing Team</h3><p>Dr. Bragadish Iyer<br>Dr. Krunal Kachhia<br>Dr. Sanjay Panjabi<br>Dr. Palash Mandal<br>Dr. Manan Shah<br>Dr. Dijit Patel<br>Dr. Ketan Panchal</p></div>
+      <div class="card reveal"><h3>Secretary</h3><p>Dr. C K Sumesh<br>PDPIAS, CHARUSAT</p></div>
+      <div class="card reveal"><h3>Treasurer</h3><p>Dr. Jimit Patel<br>PDPIAS, CHARUSAT</p></div>
+      <div class="card reveal"><h3>Organizing Team</h3><p>Dr. Bragadish Iyer<br>PDPIAS, CHARUSAT</p><p style="margin-top:var(--s-3)">Dr. Krunal Kachhia<br>PDPIAS, CHARUSAT</p><p style="margin-top:var(--s-3)">Dr. Sanjay Panjabi<br>PDPIAS, CHARUSAT</p><p style="margin-top:var(--s-3)">Dr. Palash Mandal<br>PDPIAS, CHARUSAT</p><p style="margin-top:var(--s-3)">Dr. Manan Shah<br>PDPIAS, CHARUSAT</p><p style="margin-top:var(--s-3)">Dr. Dijit Patel<br>PDPIAS, CHARUSAT</p><p style="margin-top:var(--s-3)">Dr. Ketan Panchal<br>PDPIAS, CHARUSAT</p></div>
     </div>
   </div>
 </section>
@@ -549,6 +535,16 @@
           <dt>Restaurant</dt><dd><a href="tel:+917096020909">+91 70960 20909</a></dd>
           <dt>Alternate</dt><dd><a href="tel:+912692260123">+91 2692 260123</a> / <a href="tel:+912692260124">260124</a></dd>
           <dt>Email</dt><dd><a href="mailto:info@arizona-inn.com">info@arizona-inn.com</a></dd>
+        </dl>
+      </article>
+      <article class="card hotel-card reveal">
+        <h3>Hotel H</h3>
+        <p class="hotel-town">Anand</p>
+        <dl class="hotel-details">
+          <dt>Address</dt><dd>Anand–Vidyanagar Road, opp. Gold Cinema, Vivekanand Wadi, Anand, Gujarat 388120 / 388001, India</dd>
+          <dt>Phone</dt><dd><a href="tel:+917984015064">+91 79840 15064</a></dd>
+          <dt>Email</dt><dd><a href="mailto:info@hotelh.in">info@hotelh.in</a></dd>
+          <dt>Website</dt><dd><a href="https://www.hotelh.in/" target="_blank" rel="noopener noreferrer">hotelh.in<span class="visually-hidden"> (opens in a new tab)</span></a></dd>
         </dl>
       </article>
       <article class="card hotel-card reveal">
@@ -745,7 +741,7 @@
     </div>
     <div class="faq-item">
       <h3><button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-a-6">Where do I submit?</button></h3>
-      <div class="faq-a" id="faq-a-6"><div><p>All submissions are handled through Microsoft CMT. Register on this website first, then enter your Registration ID and registered email in the <a href="#how-to-submit">Where &amp; How to Submit</a> section — once they are verified, you are taken to CMT to submit your abstract. Registration and payment are handled on this website, not through CMT.</p></div></div>
+      <div class="faq-a" id="faq-a-6"><div><p>All submissions are handled through Microsoft CMT. Register on this website first, then enter your registered email in the <a href="#how-to-submit">Where &amp; How to Submit</a> section — once it is verified, you are taken to CMT to submit your abstract. Registration and payment are handled on this website, not through CMT.</p></div></div>
     </div>
     <div class="faq-item">
       <h3><button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-a-4">What are the registration fees?</button></h3>
@@ -767,7 +763,7 @@
       <p>Official conference information will be updated here.</p>
     </div>
     <div class="cards">
-      <div class="card reveal"><h3>Conference Secretariat</h3><p><b>ICCS-CIRCLE 2027</b><br>P D Patel Institute of Applied Sciences<br>Charotar University of Science and Technology (CHARUSAT)<br>Changa – 388 421, Gujarat, India</p><p><b>Email:</b> <a href="mailto:iccscircle@gmail.com">iccscircle@gmail.com</a> <button class="copy-btn" data-copy="iccscircle@gmail.com" type="button">Copy</button></p><p style="margin-top:var(--s-3)"><b>Phone:</b><br>Dr. C. K. Sumesh: <a class="nowrap" href="tel:+919824154581">+91-9824154581</a><br>Dr. Dijit Patel: <a class="nowrap" href="tel:+919998902743">+91-9998902743</a><br>Dr. Ketan Panchal: <a class="nowrap" href="tel:+919909914880">+91-9909914880</a><br>Dr. Krunal Kachhia: <a class="nowrap" href="tel:+919033974322">+91-9033974322</a></p></div>
+      <div class="card reveal"><h3>Conference Secretariat</h3><p><b>ICCS-CIRCLE 2027</b><br>P D Patel Institute of Applied Sciences<br>Charotar University of Science and Technology (CHARUSAT)<br>Changa – 388 421, Gujarat, India</p><p><b>Email:</b> <a href="mailto:iccscircle@gmail.com">iccscircle@gmail.com</a> <button class="copy-btn" data-copy="iccscircle@gmail.com" type="button">Copy</button></p><p style="margin-top:var(--s-3)"><b>Phone:</b><br>Dr. Dijit Patel: <a class="nowrap" href="tel:+919998902743">+91-9998902743</a> (Accommodation)<br>Dr. Ketan Panchal: <a class="nowrap" href="tel:+919909914880">+91-9909914880</a> (Registration)<br>Dr. Jimit Patel: <a class="nowrap" href="tel:+919909236460">+91-9909236460</a> (Registration)<br>Dr. Manan Shah: <a class="nowrap" href="tel:+919979974436">+91-9979974436</a> (Registration)</p></div>
       <div class="card reveal"><h3>General Enquiries</h3><p>Use the form below to send a message directly to the Organizing Committee.</p></div>
     </div>
 
@@ -849,10 +845,10 @@
         <h4>Contact</h4>
         <ul class="footer-links">
           <li><a href="mailto:iccscircle@gmail.com">iccscircle@gmail.com</a></li>
-          <li>Dr. C. K. Sumesh · <a class="nowrap" href="tel:+919824154581">+91-9824154581</a></li>
-          <li>Dr. Dijit Patel · <a class="nowrap" href="tel:+919998902743">+91-9998902743</a></li>
-          <li>Dr. Ketan Panchal · <a class="nowrap" href="tel:+919909914880">+91-9909914880</a></li>
-          <li>Dr. Krunal Kachhia · <a class="nowrap" href="tel:+919033974322">+91-9033974322</a></li>
+          <li>Dr. Dijit Patel (Accommodation) · <a class="nowrap" href="tel:+919998902743">+91-9998902743</a></li>
+          <li>Dr. Ketan Panchal (Registration) · <a class="nowrap" href="tel:+919909914880">+91-9909914880</a></li>
+          <li>Dr. Jimit Patel (Registration) · <a class="nowrap" href="tel:+919909236460">+91-9909236460</a></li>
+          <li>Dr. Manan Shah (Registration) · <a class="nowrap" href="tel:+919979974436">+91-9979974436</a></li>
           <li>PDPIAS, CHARUSAT, Changa – 388 421, Gujarat, India</li>
         </ul>
       </div>
@@ -871,6 +867,6 @@
 
 <script src="js/config.js?v=4"></script>
 <script src="js/api.js?v=7"></script>
-<script src="js/script.js?v=16"></script>
+<script src="js/script.js?v=17"></script>
 </body>
 </html>

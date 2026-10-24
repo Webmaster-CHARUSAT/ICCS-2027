@@ -563,6 +563,7 @@ nav a{white-space:nowrap}
 .gate-note{margin:0;color:var(--ink-500);font-size:.92rem}
 .gate-note a{text-decoration:underline;text-underline-offset:2px}
 .gate-form .btn{justify-self:start}
+.gate-form > .field{max-width:420px}
 .gate-form .success-box,.gate-form .error-box{margin-top:0}
 
 /* ---------- After registering: next step (Microsoft CMT), added by js/script.js ---------- */

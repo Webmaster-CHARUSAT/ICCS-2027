@@ -329,16 +329,15 @@ document.addEventListener('DOMContentLoaded', function () {
     try { window[store].removeItem('iccs_registration'); } catch (e) {}
   });
 
-  /* ---------- Registration ID gates ----------
-     Two forms ask for the Registration ID + the email it was registered with and check them
-     against the Registrations sheet (Apps Script action verifyRegistration):
+  /* ---------- Registered-email gates ----------
+     Two forms ask for the email the visitor registered with and check it against the
+     Registrations sheet (Apps Script action verifyRegistration):
        "View Payment Details" (#paymentGateForm)            -> reveals #paymentDetails
        "Continue to Abstract Submission" (#abstractGateForm) -> redirects to ICCS_CONFIG.cmtUrl
-     Element ids follow <prefix>RegId / Email / SubmitBtn / Success / Error. */
+     Element ids follow <prefix>Email / SubmitBtn / Success / Error. */
   function setupGate(prefix, formId, label, onVerified) {
     var form = document.getElementById(formId);
     if (!form) return null;
-    var regIdInput = document.getElementById(prefix + 'RegId');
     var emailInput = document.getElementById(prefix + 'Email');
     var submitBtn = document.getElementById(prefix + 'SubmitBtn');
     var successBox = document.getElementById(prefix + 'Success');
@@ -347,25 +346,22 @@ document.addEventListener('DOMContentLoaded', function () {
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       hideBoxes(successBox, errorBox);
-      var regId = regIdInput.value.trim().toUpperCase();
       var email = emailInput.value.trim();
-      var ok = true;
-      ok = validateField(regIdInput.closest('.field'), /^REG-[A-Z0-9]{6,}$/.test(regId), 'Please enter your Registration ID (it starts with REG-).') && ok;
-      ok = validateField(emailInput.closest('.field'), isValidEmail(email), 'Please enter the email address you registered with.') && ok;
-      if (!ok) { focusFirstInvalid(form); return; }
+      if (!validateField(emailInput.closest('.field'), isValidEmail(email), 'Please enter the email address you registered with.')) {
+        focusFirstInvalid(form);
+        return;
+      }
 
       setSubmitting(submitBtn, true, label);
       ICCS_API.request('/registrations/verify', {
         method: 'POST',
-        body: { registrationId: regId, email: email }
+        body: { email: email }
       }).then(function (res) {
         // onVerified returns true when the page is about to navigate away (keep the button disabled).
         if (!onVerified(res.data, successBox)) setSubmitting(submitBtn, false, label);
       }).catch(function (err) {
         var msg;
-        if (err.code === 'REGISTRATION_NOT_FOUND') {
-          msg = 'We could not find this Registration ID. Check it against your confirmation email, or register first.';
-        } else if (err.code === 'REGISTRATION_INVALID' || err.code === 'RATE_LIMITED') {
+        if (err.code === 'REGISTRATION_NOT_FOUND' || err.code === 'REGISTRATION_INVALID' || err.code === 'RATE_LIMITED') {
           msg = err.message;
         } else if (err.code === 'VALIDATION_ERROR') {
           msg = String(err.message).replace(/^\w+:\s*/, '');
@@ -379,17 +375,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
     return {
       // Fill the gate (e.g. right after registering) and bring it into view.
-      open: function (regId, email) {
-        if (regId) regIdInput.value = regId;
+      open: function (email) {
         if (email) emailInput.value = email;
         form.scrollIntoView({ block: 'center' });
-        (regId && email ? submitBtn : (regId ? emailInput : regIdInput)).focus({ preventScroll: true });
+        (email ? submitBtn : emailInput).focus({ preventScroll: true });
       }
     };
   }
 
   var paymentGate = setupGate('pay', 'paymentGateForm', 'View Payment Details', function (data, box) {
-    showBox(box, 'Registration ' + data.registration_id + ' verified. The payment options are shown below — after paying, upload your receipt (compulsory).');
+    showBox(box, 'Registration verified (' + data.registration_id + '). The payment options are shown below — after paying, upload your receipt (compulsory).');
     var details = document.getElementById('paymentDetails');
     if (details) {
       details.hidden = false;
@@ -402,19 +397,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
   var abstractGate = setupGate('gate', 'abstractGateForm', 'Verify & Continue to CMT', function (data, box) {
     var cmtUrl = window.ICCS_CONFIG && window.ICCS_CONFIG.cmtUrl;
-    showBox(box, 'Registration ' + data.registration_id + ' verified. Taking you to Microsoft CMT to submit your abstract…');
+    showBox(box, 'Registration verified (' + data.registration_id + '). Taking you to Microsoft CMT to submit your abstract…');
     if (!cmtUrl) return false;
     setTimeout(function () { window.location.assign(cmtUrl); }, 1500);
     return true;
   });
 
   // Next steps appended under a registration result: pay, then submit the abstract.
-  function offerNextSteps(box, regId, email) {
+  function offerNextSteps(box, email) {
     if (!box) return;
     var next = document.createElement('div');
     next.className = 'next-step';
     var note = document.createElement('p');
-    note.textContent = 'Next: view the payment details, then submit your abstract on Microsoft CMT. Both use your Registration ID.';
+    note.textContent = 'Next: view the payment details, then submit your abstract on Microsoft CMT. Both only need your registered email.';
     var actions = document.createElement('p');
     actions.className = 'next-step-actions';
     [['View Payment Details', '#how-to-pay', paymentGate, 'btn btn-solid'],
@@ -426,7 +421,7 @@ document.addEventListener('DOMContentLoaded', function () {
       a.textContent = step[0];
       a.addEventListener('click', function (e) {
         e.preventDefault();
-        step[2].open(regId, email);
+        step[2].open(email);
       });
       actions.appendChild(a);
     });
@@ -482,12 +477,12 @@ document.addEventListener('DOMContentLoaded', function () {
           '. ' + emailNote);
         regForm.reset();
         clearFieldStates(regForm);
-        offerNextSteps(regSuccessBox, res.data.registration_id, registeredEmail);
+        offerNextSteps(regSuccessBox, registeredEmail);
       }).catch(function (err) {
         if (err.code === 'ALREADY_REGISTERED') {
           showBox(regInfoBox, 'Already Registered — this email address or phone number is already registered. ' +
             'Please check your inbox for the confirmation email, or contact the organizers if you need help.');
-          offerNextSteps(regInfoBox, '', registeredEmail);
+          offerNextSteps(regInfoBox, registeredEmail);
         } else {
           showBox(regErrorBox, 'Registration failed: ' + err.message);
         }

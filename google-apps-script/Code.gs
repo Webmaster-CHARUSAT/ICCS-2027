@@ -9,7 +9,7 @@
  *
  * PUBLIC ACTIONS (POST, JSON body with an "action" field — see js/api.js):
  *   register            new conference registration          -> { registration_id, ... }
- *   verifyRegistration  Registration ID + email check; the website sends the author on to
+ *   verifyRegistration  registered-email check; the website shows the payment details or sends the author on to
  *                       Microsoft CMT for abstract submission only when this succeeds
  *   contact             contact-form message
  *
@@ -25,6 +25,7 @@
  * SETUP / UPDATING
  * 1. Spreadsheet -> Extensions -> Apps Script. Replace Code.gs with this whole file. Save.
  * 2. Run installTriggers once (pick it in the toolbar's function list, click Run, authorize).
+ *    Then run testEmail once: it grants the "send email" permission and sends a test email.
  * 3. Deploy -> Manage deployments -> (your existing Web app) -> Edit (pencil) ->
  *    Version: "New version" -> Deploy. Editing the EXISTING deployment keeps the same /exec URL
  *    that js/config.js uses. Execute as: Me. Who has access: Anyone.
@@ -194,7 +195,7 @@ function register_(b) {
         text: 'Sign in to Microsoft CMT, or create a free CMT account if you do not have one, then select "Create new submission" and complete the form.',
         url: NEXT_STEP_LINKS.cmt, label: 'Go to Microsoft CMT' },
       { title: 'Pay the registration fee (Early Bird till 25 November 2026)',
-        text: 'Indian participants: pay online through the conference payment link. Participants from outside India: the bank transfer details are under "How to pay" on the conference website — enter your Registration ID and registered email to see them.',
+        text: 'Indian participants: pay online through the conference payment link. Participants from outside India: the bank transfer details are under "How to pay" on the conference website — enter your registered email to see them.',
         url: NEXT_STEP_LINKS.payOnline, label: 'Pay Online', url2: NEXT_STEP_LINKS.howToPay, label2: 'Bank transfer details' },
       { title: 'Upload your payment receipt (compulsory)',
         text: 'After paying, upload the payment receipt or a screenshot of the payment through this form. You will need to sign in with a Google account to upload the file.',
@@ -204,8 +205,9 @@ function register_(b) {
 }
 
 function verifyRegistration_(b) {
-  rateLimit_('verify', email_(b.email));
-  var reg = findRegistration_(b.registrationId, b.email);
+  var email = email_(b.email);
+  rateLimit_('verify', email);
+  var reg = findRegistrationByEmail_(email);
   if (ABSTRACT_ELIGIBLE_STATUSES.indexOf(String(reg.registration_status || 'Submitted')) === -1) {
     throw fail_(403, 'REGISTRATION_INVALID', 'This registration is not currently valid for abstract submission. Please contact the organizers.');
   }
@@ -383,6 +385,16 @@ function installTriggers() {
   return 'Acceptance-email trigger installed.';
 }
 
+// Run from the Apps Script editor when confirmation emails are not arriving: it asks for the
+// "send email" permission if it is missing, logs the remaining daily quota, and sends a test
+// email to ORGANIZER_EMAIL. An error here is the same error registrations hit.
+function testEmail() {
+  console.log('Remaining daily email quota: ' + MailApp.getRemainingDailyQuota());
+  MailApp.sendEmail({ to: ORGANIZER_EMAIL, subject: 'ICCS-CIRCLE 2027 — test email', name: MAIL_SENDER_NAME,
+    body: 'If you can read this, the website script can send confirmation emails.' });
+  console.log('Test email sent to ' + ORGANIZER_EMAIL);
+}
+
 /* ============================== Helpers ============================== */
 
 function fail_(status, code, message) {
@@ -441,7 +453,7 @@ function rateLimit_(action, email) {
   var key = 'rl:' + action + ':' + email;
   var count = Number(cache.get(key) || 0) + 1;
   if (count > RATE_LIMIT.max) {
-    throw fail_(429, 'RATE_LIMITED', 'Too many requests. Please try again in a few minutes.');
+    throw fail_(429, 'RATE_LIMITED', 'Too many attempts with this email address. Please wait 10 minutes and try again.');
   }
   cache.put(key, String(count), RATE_LIMIT.windowSeconds);
 }
@@ -514,7 +526,17 @@ function uniqueId_(prefix, rows, field) {
   throw fail_(500, 'INTERNAL_ERROR', 'Could not generate a unique ID. Please try again.');
 }
 
-// Registration ID + the email it was registered under — both must match.
+// The registration made with this email (one per email — register_ refuses duplicates). Used by
+// the website's "View Payment Details" and "Continue to Abstract Submission" checks.
+function findRegistrationByEmail_(email) {
+  var rows = readAll_(sheet_(SHEET.REG)).rows;
+  for (var i = 0; i < rows.length; i++) {
+    if (String(rows[i].email).trim().toLowerCase() === email) return rows[i];
+  }
+  throw fail_(404, 'REGISTRATION_NOT_FOUND', 'No registration was found for this email address. Please register first, or use the email address you registered with.');
+}
+
+// Registration ID + the email it was registered under — both must match. (Dormant actions only.)
 function findRegistration_(registrationId, email) {
   var id = String(registrationId || '').trim().toUpperCase();
   if (!id) throw fail_(400, 'VALIDATION_ERROR', 'registrationId: Please enter your Registration ID.');
@@ -586,7 +608,11 @@ function sendMail_(to, subject, heading, intro, rows, closing, longText, replyTo
     console.log('Email sent to ' + to + ': ' + subject);
     return true;
   } catch (err) {
-    console.error('Email to ' + to + ' failed: ' + err + ' (remaining daily quota: ' + MailApp.getRemainingDailyQuota() + ')');
+    // The quota lookup fails for the same reasons sending does (e.g. missing permission), and must
+    // never turn a saved registration into an error response.
+    var quota = '?';
+    try { quota = MailApp.getRemainingDailyQuota(); } catch (ignored) {}
+    console.error('Email to ' + to + ' failed: ' + err + ' (remaining daily quota: ' + quota + ')');
     return false;
   }
 }
