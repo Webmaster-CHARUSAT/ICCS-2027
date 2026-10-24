@@ -6,6 +6,6 @@
 // cmtUrl: the Microsoft CMT submission site. After registering, authors are sent there to submit
 // their abstract. The same URL is linked in index.html (Where & How to Submit, FAQ) — change both.
 window.ICCS_CONFIG = {
-  appsScriptUrl: 'https://script.google.com/macros/s/AKfycbxvfeA5DHyOei9o-J8oCtbnIUOjB_ThV2FiQOPA9vUUFD6NRrQYIAgmBL4z8-52v7oPAQ/exec',
+  appsScriptUrl: 'https://script.google.com/macros/s/AKfycbz9LtHbwLHbcBTjyzun_gIWbWZXA4DzDyHeaOtpjKG7HsOyNuD9sRi3BMPY1HwaS9ptdg/exec',
   cmtUrl: 'https://cmt3.research.microsoft.com/ICCS2027'
 };
